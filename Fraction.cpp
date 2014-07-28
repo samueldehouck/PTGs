@@ -103,6 +103,7 @@ bool Fraction::operator!=(Fraction i){
   
 }
 
+
 void Fraction::show(){
   if(den == 1)
    cout << num;
@@ -134,4 +135,14 @@ unsigned int Fraction::gcd(int i, int j){
                 j = tmp;
         }
         return i;
+}
+
+ostream& operator<<(ostream& out, const Fraction& f){
+    if(f.den == 1)
+   out << f.num;
+  else if(f.den == 0)
+    out << "DIVBYZERO ";
+  else
+    out << f.num << "/" << f.den;
+  return out;
 }

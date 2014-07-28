@@ -13,8 +13,8 @@ void SPTGSolver::show(){
    cout << "Lambdas:" << endl;
   for (unsigned int i = 0; i < lambdas.size(); ++i){
     for (unsigned int j = 0; j < lambdas[i].size(); ++j){
-      lambdas[i][j].show();
-      cout << "	";
+     ;
+      cout <<  lambdas[i][j] << "	";
     }
     cout << endl;
   }
@@ -32,8 +32,7 @@ void SPTGSolver::show(){
   cout << "Vals:" << endl;
   for (unsigned int i = 0; i < vals.size(); ++i){
     for (unsigned int j = 0; j < vals[i].size(); ++j){
-      vals[i][j].show();
-      cout << "	";
+      cout << vals[i][j] << "	";
     }
     cout << endl;
   } 
@@ -42,11 +41,7 @@ void SPTGSolver::show(){
   for (unsigned int i = 1; i < valueFcts.size(); ++i){
     cout << " State " << i <<": ";
     for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
-      cout << "(";
-      it->getX().show();
-      cout << ",";
-      it->getY().show();
-      cout << ")" << "	";
+      cout << "(" << it->getX() << "," << it->getY() << ")	";
     }
     cout << endl;
   }

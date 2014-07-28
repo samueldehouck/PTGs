@@ -1,6 +1,10 @@
 #ifndef FRACTION_HPP
 #define FRACTION_HPP
 
+#include <iostream>
+
+using namespace std;
+  
 class Fraction{
 public:
   int num, den;
@@ -24,5 +28,7 @@ public:
   unsigned int gcd(int, int);
   void show();
 };
+
+ostream& operator<<(ostream&, const Fraction&);
 
 #endif
