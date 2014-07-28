@@ -72,7 +72,7 @@ void SPTGSolver::init(){
     strats.push_back(0);
     pathsLengths.push_back(0);
     
-    ensStates.push_back(true);
+    ensStates.push_back(false);
     ensTransitions.push_back(vector<bool>());
     for (unsigned int j = 0; j < size; ++j){
       if(sptg->getTransition(0,j) != -1)
@@ -152,34 +152,33 @@ bool SPTGSolver::extendedDijkstra(){
      unsigned int finalState = 0;
      unsigned int finalTrans = 0;
      //Look for the minimum
-     for (unsigned int state = 1; state < size; ++state){
+     for (unsigned int state = 1; state < size; ++state){   
 	if (ensStates[state]){
 	  //If the state is still in the ensemble
 	  for (unsigned int nextState = 0; nextState < size; ++nextState){
 	      if(ensTransitions[state][nextState]){
-// 		Fraction truc = vals[nextState][0] + sptg->getTransition(state, nextState);
-// 		min.show(); cout << ">? "; truc.show(); cout << endl;
-// 		cout << (min > (vals[nextState][0] + sptg->getTransition(state, nextState))) << endl;
 		if( min > (vals[nextState][0] + sptg->getTransition(state, nextState))){
 		  finalState = state;
 		  finalTrans = nextState;
 		  min = vals[nextState][0] + sptg->getTransition(state, nextState);
 		}
-// 		cout << "New min: "; min.show(); cout << endl;
 	      }
 	  }
 	}
      }
      //Change the values
      if(sptg->getOwner(finalState) || isLastTransition(finalState, finalTrans)){
-//         cout << "Change: " << finalState << " to: " << finalTrans << endl;
 	vals[finalState][0] = vals[finalTrans][0] + sptg->getTransition(finalState, finalTrans);
 	pathsLengths[finalState] = pathsLengths[finalTrans] + 1;
+	strats[finalState] = finalTrans;
+
 	ensStates[finalState] = false;
     }
-    else
+    else{
        ensTransitions[finalState][finalTrans] = false;
+    }
     --cnt;
+    show();
    }
    if(cnt == 0 && remainsStates())
      return false;
