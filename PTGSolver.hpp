@@ -5,7 +5,8 @@ class PTGSolver{
 private:
   PTG* ptg;
 public:
-  PTGSolver(PTG*);
+  PTGSolver();
+  solvePTG(PTG*);
 };
 
 #endif

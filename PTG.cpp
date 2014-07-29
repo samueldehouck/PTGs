@@ -38,7 +38,7 @@ PTG::PTG(){
     resets[i].push_back(false);
  }
 
-   resets[1][4] = true;
+//    resets[1][4] = true;
   
   for (unsigned int i = 0; i < transitions.size(); ++i){
    startsCstraints.push_back(vector<int>());

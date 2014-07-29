@@ -3,6 +3,9 @@
 
 using namespace std;
 
-PTGSolver::PTGSolver(PTG* p){
- ptg = p; 
+PTGSolver::PTGSolver(){
+}
+
+PTGSolver::SolvePTG(PTG* p){
+  ptg = p;
 }
