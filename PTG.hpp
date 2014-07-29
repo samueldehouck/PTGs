@@ -13,6 +13,7 @@ private:
   vector<vector<int> > endsCstraints;
 public:
   PTG();
+  void show();
 };
 
 #endif

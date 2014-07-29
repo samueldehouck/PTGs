@@ -1,6 +1,7 @@
 #include <iostream>
 #include "SPTG.hpp"
 #include "SPTGSolver.hpp"
+#include "PTG.hpp"
 #include "Fraction.hpp"
 #include <sys/time.h>
 #include <fstream>
@@ -17,10 +18,14 @@ int main(){
 //    double nbr = 1000;
 //    for (int i = 0; i < nbr; ++i){
    gettimeofday(&start, NULL);
-   SPTG sptg;
-   sptg.show();
-   SPTGSolver solver;
-   solver.solveSPTG(&sptg);
+//    SPTG sptg;
+// //    sptg.show();
+//    SPTGSolver solver;
+//    solver.solveSPTG(&sptg);
+   PTG ptg;
+   ptg.show();
+   PTGSolver solver;
+   
     gettimeofday(&end, NULL);
 
     seconds  = end.tv_sec  - start.tv_sec;

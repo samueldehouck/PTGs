@@ -4,6 +4,7 @@
 using namespace std;
 
 PTG::PTG(){
+  //TODO put everything together to go faster
   states.push_back(0);
   states.push_back(6);
   states.push_back(2);
@@ -15,7 +16,6 @@ PTG::PTG(){
     for (unsigned int j = 0; j < states.size(); ++j)
       transitions[i].push_back(-1);
   }
-  
   transitions[1][3] = 1;
   transitions[1][4] = 5;
   transitions[2][1] = 1;
@@ -30,21 +30,22 @@ PTG::PTG(){
    owners.push_back(0);
    owners.push_back(0);
    owners.push_back(1);
-   
+  
+
   for (unsigned int i = 0; i < transitions.size(); ++i){
    resets.push_back(vector<bool>());
    for (unsigned int j = 0; j < transitions[i].size(); ++j)
     resets[i].push_back(false);
  }
-   
+
    resets[1][4] = true;
   
   for (unsigned int i = 0; i < transitions.size(); ++i){
    startsCstraints.push_back(vector<int>());
    endsCstraints.push_back(vector<int>());
    for (unsigned int j = 0; j < transitions[i].size(); ++j){
-      startsCstraints[i][j] = -1;
-      endsCstraints[i][j] = -1;
+      startsCstraints[i].push_back(-1);
+      endsCstraints[i].push_back(-1);
    }
     
  }  
@@ -63,7 +64,17 @@ PTG::PTG(){
   startsCstraints[4][0] = 1;
   endsCstraints[4][0] = 3;
   
+   cout << "PTG initalized" << endl;
 
-  
 }
 
+void PTG::show(){
+  SPTG::show();
+  
+  for (unsigned int i = 0; i < startsCstraints.size(); ++i){
+   for (unsigned int j = 0; j < startsCstraints[i].size(); ++j){
+      cout << "[" << startsCstraints[i][j] << "," << endsCstraints[i][j] << "]	";
+   }
+   cout << endl;
+  }
+}
