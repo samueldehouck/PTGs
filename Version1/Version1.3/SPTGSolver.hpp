@@ -3,8 +3,6 @@
 
 #include "SPTG.hpp"
 #include "Point.hpp"
-#include "Fraction.hpp"
-#include "Strategy.hpp"
 #include <stddef.h>
 #include <list>
 
@@ -12,28 +10,29 @@ class SPTGSolver{
 private:
   SPTG* sptg;
   unsigned int size;
-  vector<vector<Fraction> > vals;
+  vector<unsigned int> strats;
+  vector<vector<double> > vals;
   vector<unsigned int> pathsLengths;
-  vector<vector<Fraction> > lambdas;
-  vector<bool> ensStates;
+  vector<vector<double> > lambdas;
+  vector<unsigned int> ensStates;
   vector<vector<bool> > ensTransitions;
   vector<list<Point> > valueFcts;
-  list<Strategy> strategies;
-  Fraction time;
+  double time;
   
   void init();
-  bool extendedDijkstra();
-  bool remainsStates();
-  bool isLastTransition(unsigned int, unsigned int);
+  void extendedDijkstra();
   void strategyIteration();
   void actualizeLambdas();
-  void actualizeVals(Fraction);
+  void actualizeVals(double);
   bool makeImpSwitchesP1();
   bool makeImpSwitchesP2();
   void propagate(unsigned int);
-  void addPoint(unsigned int, Fraction, Fraction);
-  void buildValueFcts(Fraction);
-  Fraction nextEventPoint();
+  void addPoint(unsigned int, double, double);
+  void buildValueFcts(double);
+  double nextEventPoint();
+  bool isEpsClose(double, double);
+  bool greater(double, double);
+  bool lesser(double, double);
   
 public:
   SPTGSolver();

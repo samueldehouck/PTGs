@@ -1,15 +1,18 @@
 #ifndef SPTG_HPP
 #define SPTG_HPP
 
+#include "Point.hpp"
+#include <list>
 #include <vector>
 
 using namespace std;
 
 class SPTG{
-protected:
+private:
   vector<int> states;
   vector<vector<int> > transitions;
   vector<bool> owners;
+  list<Point> valueFunction;
 public:
   SPTG();
   void show();

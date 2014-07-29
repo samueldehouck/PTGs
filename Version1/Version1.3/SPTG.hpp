@@ -6,7 +6,7 @@
 using namespace std;
 
 class SPTG{
-protected:
+private:
   vector<int> states;
   vector<vector<int> > transitions;
   vector<bool> owners;

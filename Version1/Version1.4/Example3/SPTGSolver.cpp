@@ -13,17 +13,16 @@ void SPTGSolver::show(){
    cout << "Lambdas:" << endl;
   for (unsigned int i = 0; i < lambdas.size(); ++i){
     for (unsigned int j = 0; j < lambdas[i].size(); ++j){
-     ;
-      cout <<  lambdas[i][j] << "	";
+      lambdas[i][j].show();
+      cout << "	";
     }
     cout << endl;
   }
 
   cout << "Strategies: " << endl;
-  for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end(); ++it){
-    it->show();
-  }
-  cout << endl;
+   for (unsigned int i = 0; i < strats.size(); ++i)
+    cout << strats[i] << "	";
+  cout << endl; 
   
   cout << "Lengths: " << endl;
    for (unsigned int i = 0; i < pathsLengths.size(); ++i)
@@ -33,7 +32,8 @@ void SPTGSolver::show(){
   cout << "Vals:" << endl;
   for (unsigned int i = 0; i < vals.size(); ++i){
     for (unsigned int j = 0; j < vals[i].size(); ++j){
-      cout << vals[i][j] << "	";
+      vals[i][j].show();
+      cout << "	";
     }
     cout << endl;
   } 
@@ -42,7 +42,11 @@ void SPTGSolver::show(){
   for (unsigned int i = 1; i < valueFcts.size(); ++i){
     cout << " State " << i <<": ";
     for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
-      cout << "(" << it->getX() << "," << it->getY() << ")	";
+      cout << "(";
+      it->getX().show();
+      cout << ",";
+      it->getY().show();
+      cout << ")" << "	";
     }
     cout << endl;
   }
@@ -56,6 +60,7 @@ void SPTGSolver::show(){
       cout << ensTransitions[i][j] << "	";
     cout << endl;
   }*/
+ 
 }
 
 void SPTGSolver::init(){
@@ -64,13 +69,10 @@ void SPTGSolver::init(){
     vals.push_back(vector<Fraction>());
     vals[0].push_back(Fraction(0));
     vals[0].push_back(Fraction(0));
-    
-    strategies.push_front(Strategy(size, time));
-    strategies.front().insert(0,0,false);
-    
+    strats.push_back(0);
     pathsLengths.push_back(0);
     
-    ensStates.push_back(false);
+    ensStates.push_back(true);
     ensTransitions.push_back(vector<bool>());
     for (unsigned int j = 0; j < size; ++j){
       if(sptg->getTransition(0,j) != -1)
@@ -91,7 +93,8 @@ void SPTGSolver::init(){
     vals[i].push_back(Fraction(ifnty));
     vals[i].push_back(Fraction(0));
     
-    strategies.front().insert(i, -1, false);
+    strats.push_back(-1);
+    
     pathsLengths.push_back(0);
     
     ensStates.push_back(true);
@@ -115,10 +118,9 @@ void SPTGSolver::init(){
 void SPTGSolver::solveSPTG(SPTG* s){
   sptg = s;
   init();
-  show();
   bool notCycling = extendedDijkstra();
+  show();
   while (notCycling && time > 0){
-   strategies.push_front(Strategy(size));
    actualizeLambdas();
    if(time.num == 1 && time.den == 1)
         buildValueFcts(0);
@@ -129,7 +131,6 @@ void SPTGSolver::solveSPTG(SPTG* s){
      epsilon = time;
    buildValueFcts(epsilon);
    actualizeVals(epsilon);
-   strategies.front().setTime(time);
    show();
   }
   if(notCycling){
@@ -137,30 +138,26 @@ void SPTGSolver::solveSPTG(SPTG* s){
     show();
   }
   else
-    cout << "There is a cycle!" << endl;
+    cout << "There is a cycle of P2's states!" << endl;
   sptg = NULL;
 }
 
 bool SPTGSolver::extendedDijkstra(){
    cout << endl << "====Extended Dijkstra====" << endl;
    unsigned int cnt = size * size;
-     
- 
    while (remainsStates() && cnt > 0){
      Fraction min = ifnty;
      unsigned int finalState = 0;
      unsigned int finalTrans = 0;
      //Look for the minimum
-     for (unsigned int state = 1; state < size; ++state){   
+     for (unsigned int state = 0; state < size; ++state){
 	if (ensStates[state]){
 	  //If the state is still in the ensemble
 	  for (unsigned int nextState = 0; nextState < size; ++nextState){
 	      if(ensTransitions[state][nextState]){
-		if( min > (vals[nextState][0] + sptg->getTransition(state, nextState))){
+		if(min > (vals[nextState][0] + sptg->getTransition(state, nextState)))
 		  finalState = state;
 		  finalTrans = nextState;
-		  min = vals[nextState][0] + sptg->getTransition(state, nextState);
-		}
 	      }
 	  }
 	}
@@ -169,17 +166,13 @@ bool SPTGSolver::extendedDijkstra(){
      if(sptg->getOwner(finalState) || isLastTransition(finalState, finalTrans)){
 	vals[finalState][0] = vals[finalTrans][0] + sptg->getTransition(finalState, finalTrans);
 	pathsLengths[finalState] = pathsLengths[finalTrans] + 1;
-	strategies.front().insert(finalState, finalTrans, false);
-
 	ensStates[finalState] = false;
     }
-    else{
+    else
        ensTransitions[finalState][finalTrans] = false;
-    }
     --cnt;
-    show();
    }
-   if(cnt == 0 && remainsStates())
+   if(cnt == 0)
      return false;
    return true;
 }
@@ -214,7 +207,7 @@ void SPTGSolver::strategyIteration(){
 }
 
 void SPTGSolver::actualizeLambdas(){
-  for (unsigned int i = 1; i < lambdas.size(); ++i){ 
+  for (unsigned int i = 0; i < lambdas.size(); ++i){ 
    lambdas[i][0] = vals[i][0];
    lambdas[i][1] = vals[i][1] + sptg->getState(i);
    
@@ -223,14 +216,14 @@ void SPTGSolver::actualizeLambdas(){
    if(sptg->getOwner(i)){
    	  vals[i][0] = lambdas[i][0];
 	  vals[i][1] = lambdas[i][1];
-	  strategies.front().insert(i,0,true);
+	  strats[i] = 0;
 	  pathsLengths[i] = 1;   
       }
    }
 }
 
 void SPTGSolver::actualizeVals(Fraction epsilon){
-  for (unsigned int i = 1; i < vals.size(); ++i){
+  for (unsigned int i = 0; i < vals.size(); ++i){
     vals[i][0] = vals[i][0] + vals[i][1]*epsilon;
     vals[i][1] = Fraction(0);  
   }
@@ -254,6 +247,11 @@ bool SPTGSolver::makeImpSwitchesP1(){
 	  if(sptg->getTransition(state, nextState) != -1){
 	    Fraction tempVal = vals[nextState][0] + sptg->getTransition(state, nextState);
 	    unsigned int tempLength = pathsLengths[nextState] + 1;
+	    /*cout << vals[state][0] << " " << vals[state][1] << " ?= " << tempVal << " "  << vals[nextState][1] << endl;
+	    cout << "a " << lesser(tempVal,vals[state][0]) << endl;
+	    cout << "b " << (isEpsClose(tempVal , vals[state][0]) && lesser(vals[nextState][1], vals[state][1])) << endl;
+	    cout << "c " << (isEpsClose(tempVal,vals[state][0]) && isEpsClose(vals[nextState][1],vals[state][1]) && lesser(tempLength,pathsLengths[state])) << endl;
+	    */
 	    if((tempVal < vals[state][0])
 	      || ((tempVal == vals[state][0]) && (vals[nextState][1] < vals[state][1]))
 	      ||((tempVal == vals[state][0]) && (vals[nextState][1] == vals[state][1]) && (tempLength < pathsLengths[state]))){
@@ -261,7 +259,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 	      vals[state][0] = tempVal;
 	      vals[state][1] = vals[nextState][1];
 	      pathsLengths[state] = tempLength;
-	      strategies.front().insert(state, nextState, false);
+	      strats[state] = nextState;
 	      allDone = false;
 	      changed = true;
 	    }
@@ -296,7 +294,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 //  	  cout << "Changed state: " << state << " to lambda: " << lambdas[state][0] << " " << lambdas[state][1] << endl;
 	  vals[state][0] = lambdas[state][0];
 	  vals[state][1] = lambdas[state][1];
-	  strategies.front().insert(state, 0, true);
+	  strats[state] = 0;
 	  pathsLengths[state] = 1;
 	  allDone = false;
 	  changed = true;
@@ -306,13 +304,18 @@ bool SPTGSolver::makeImpSwitchesP2(){
 	  if(sptg->getTransition(state, nextState) != -1){
 	    Fraction tempVal = vals[nextState][0] + sptg->getTransition(state, nextState);
 	    unsigned int tempLength = pathsLengths[nextState] + 1;
+	   /* cout << vals[state][0] << " " << vals[state][1] << " ?= " << tempVal << " "  << vals[nextState][1] << endl;
+	    cout << "a " << greater(tempVal,vals[state][0]) << endl;
+	    cout << "b " << (isEpsClose(tempVal , vals[state][0]) && greater(vals[nextState][1], vals[state][1])) << endl;
+	    cout << "c " << (isEpsClose(tempVal,vals[state][0]) && isEpsClose(vals[nextState][1],vals[state][1]) && greater(tempLength,pathsLengths[state])) << endl;
+	   */
 	    if((tempVal > vals[state][0]) || ((tempVal == vals[state][0]) && (vals[nextState][1] > vals[state][1]))
 	      ||((tempVal == vals[state][0]) && (vals[nextState][1] == vals[state][1]) && (tempLength > pathsLengths[state]))){
 //  	      cout << "Changed state: " << state << " to: " << nextState << ": " << tempVal << " " << vals[nextState][1]<< endl;
 	      vals[state][0] = tempVal;
 	      vals[state][1] = vals[nextState][1];
 	      pathsLengths[state] = tempLength;
-	      strategies.front().insert(state, nextState, false);
+	      strats[state] = nextState;
 	      allDone = false;
 	      changed = true;
 	    }
@@ -337,7 +340,7 @@ void SPTGSolver::propagate(unsigned int state){
   while (!q.empty() ){
       unsigned int tmpState = q.front();
       for(unsigned int i = 1; i < size; ++i){
-	if(strategies.front().getDest(i) == tmpState){
+	if(strats[i] == tmpState){
 	  vals[i][0] = vals[tmpState][0] + sptg->getTransition(i,tmpState);
 	  vals[i][1] = vals[tmpState][1];
 	  pathsLengths[i] = pathsLengths[tmpState] + 1;

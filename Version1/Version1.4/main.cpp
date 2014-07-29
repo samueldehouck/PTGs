@@ -14,20 +14,21 @@ int main(){
      ofstream file;
      file.open ("results.txt");
     
-//    double nbr = 1000;
+   double nbr = 1000;
 //    for (int i = 0; i < nbr; ++i){
    gettimeofday(&start, NULL);
    SPTG sptg;
    sptg.show();
    SPTGSolver solver;
    solver.solveSPTG(&sptg);
+    
     gettimeofday(&end, NULL);
 
     seconds  = end.tv_sec  - start.tv_sec;
     milliseconds = (end.tv_usec - start.tv_usec)/1000;
     allsecs += seconds;
     allmillisecs += milliseconds;
-    cout << seconds <<"s" << milliseconds << "ms" << endl;
+    file << seconds <<"s" << milliseconds << "ms" << endl;
 //    }
 //    file << "Average: " << allsecs/nbr <<"s" << allmillisecs/nbr << "ms" << endl;
   return 1;

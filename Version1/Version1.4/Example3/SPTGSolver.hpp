@@ -4,7 +4,6 @@
 #include "SPTG.hpp"
 #include "Point.hpp"
 #include "Fraction.hpp"
-#include "Strategy.hpp"
 #include <stddef.h>
 #include <list>
 
@@ -12,13 +11,13 @@ class SPTGSolver{
 private:
   SPTG* sptg;
   unsigned int size;
+  vector<unsigned int> strats;
   vector<vector<Fraction> > vals;
   vector<unsigned int> pathsLengths;
   vector<vector<Fraction> > lambdas;
   vector<bool> ensStates;
   vector<vector<bool> > ensTransitions;
   vector<list<Point> > valueFcts;
-  list<Strategy> strategies;
   Fraction time;
   
   void init();
