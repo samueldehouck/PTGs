@@ -5,6 +5,12 @@ using namespace std;
 
 PTG::PTG(){
   //TODO put everything together to go faster
+  
+  resets = new vector<vector<bool> >();
+  startsCstraints = new vector<vector<unsigned int> >();
+  endsCstraints = new vector<vector<unsigned int> >();
+
+  
   states->push_back(0);
   states->push_back(6);
   states->push_back(2);

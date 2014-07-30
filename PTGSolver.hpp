@@ -7,8 +7,11 @@
 class PTGSolver{
 private:
   PTG* ptg;
-  list<unsigned int> intervals;
+  unsigned int size;
   vector<Fraction> vals;
+  list<unsigned int> endPoints;
+  
+  void createEndPoints();
 public:
   PTGSolver();
   void solvePTG(PTG*);

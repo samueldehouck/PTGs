@@ -4,9 +4,9 @@
 SPTG::SPTG(){
   
 //  Example of the paper of the three danish
-  
+
   states = new vector<unsigned int>;
-  
+/*  
  states->push_back(0);
  states->push_back(9);
  states->push_back(3);
@@ -37,7 +37,7 @@ SPTG::SPTG(){
   owners->push_back(1);
   owners->push_back(1);
   
- cout << "SPTG initalized" << endl;
+ cout << "SPTG initalized" << endl;*/
 }
 
 SPTG::~SPTG(){
