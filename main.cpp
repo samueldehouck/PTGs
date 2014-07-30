@@ -3,6 +3,7 @@
 #include "SPTGSolver.hpp"
 #include "PTG.hpp"
 #include "Fraction.hpp"
+#include "PG.hpp"
 #include <sys/time.h>
 #include <fstream>
 
@@ -18,13 +19,13 @@ int main(){
 //    double nbr = 1000;
 //    for (int i = 0; i < nbr; ++i){
    gettimeofday(&start, NULL);
-//    SPTG sptg;
-// //    sptg.show();
-//    SPTGSolver solver;
-//    solver.solveSPTG(&sptg);
-   PTG ptg;
-   ptg.show();
-   PTGSolver solver;
+    SPTG sptg;
+    sptg.show();
+    SPTGSolver solver;
+    solver.solveSPTG(&sptg);
+//    PTG ptg;
+//    ptg.show();
+//    PTGSolver solver;
    
     gettimeofday(&end, NULL);
 

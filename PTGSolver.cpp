@@ -1,4 +1,5 @@
-#include "PTG.hpp"
+#include "PTGSolver.hpp"
+
 #include <iostream>
 
 using namespace std;
@@ -6,6 +7,7 @@ using namespace std;
 PTGSolver::PTGSolver(){
 }
 
-PTGSolver::SolvePTG(PTG* p){
+void PTGSolver::solvePTG(PTG* p){
   ptg = p;
 }
+

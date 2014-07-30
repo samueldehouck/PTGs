@@ -9,10 +9,13 @@
 class PTG: public SPTG{
 private:
   vector<vector<bool> > resets;
-  vector<vector<int> > startsCstraints;
-  vector<vector<int> > endsCstraints;
+  vector<vector<unsigned int> > startsCstraints;
+  vector<vector<unsigned int> > endsCstraints;
 public:
   PTG();
+  unsigned int getStartCst(unsigned int, unsigned int) const;
+  unsigned int getEndCst(unsigned int, unsigned int) const;
+  unsigned int getReset(unsigned int, unsigned int) const;
   void show();
 };
 

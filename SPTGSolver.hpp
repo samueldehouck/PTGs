@@ -34,6 +34,7 @@ private:
   void addPoint(unsigned int, Fraction, Fraction);
   void buildValueFcts(Fraction);
   Fraction nextEventPoint();
+  list<Strategy> getStrategies();
   
 public:
   SPTGSolver();

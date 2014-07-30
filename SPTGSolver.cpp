@@ -399,3 +399,7 @@ Fraction SPTGSolver::nextEventPoint(){
   }
   return min;
 }
+
+list<Strategy> SPTGSolver::getStrategies(){
+  return strategies;
+}

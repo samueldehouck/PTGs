@@ -41,8 +41,8 @@ PTG::PTG(){
 //    resets[1][4] = true;
   
   for (unsigned int i = 0; i < transitions.size(); ++i){
-   startsCstraints.push_back(vector<int>());
-   endsCstraints.push_back(vector<int>());
+   startsCstraints.push_back(vector<unsigned int>());
+   endsCstraints.push_back(vector<unsigned int>());
    for (unsigned int j = 0; j < transitions[i].size(); ++j){
       startsCstraints[i].push_back(-1);
       endsCstraints[i].push_back(-1);
@@ -67,6 +67,19 @@ PTG::PTG(){
    cout << "PTG initalized" << endl;
 
 }
+
+unsigned int PTG::getStartCst(unsigned int origin, unsigned int dest) const{
+  return startsCstraints[origin][dest];
+}
+
+unsigned int PTG::getEndCst(unsigned int origin, unsigned int dest)const{
+  return endsCstraints[origin][dest];
+}
+
+unsigned int PTG::getReset(unsigned int origin, unsigned int dest) const{
+  return resets[origin][dest];
+}
+
 
 void PTG::show(){
   SPTG::show();
