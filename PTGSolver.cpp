@@ -10,16 +10,20 @@ PTGSolver::PTGSolver(){
 
 void PTGSolver::solvePTG(PTG* p){
   ptg = p;
-  init();
+  size = ptg->getSize();
+
+  
   createEndPoints();
   time = endPoints.back();
+  init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
+
+  keepTransAvailable(time, time);
   PGSolver pgSolver(ptg, &pathsLengths, &vals, &strategies);
   pgSolver.extendedDijkstra();
   show();
 }
 
 void PTGSolver::init(){
-    size = ptg->getSize();
     vals.push_back(vector<Fraction>());
     vals[0].push_back(Fraction(0));
     vals[0].push_back(Fraction(0));
@@ -63,10 +67,22 @@ void PTGSolver::createEndPoints(){
       }
     }
   }
+
   endPoints.sort();
   endPoints.unique();
+
 }
 
+void PTGSolver::keepTransAvailable(unsigned int start, unsigned int end){
+  for (unsigned int i = 0; i < size; ++i){
+   for (unsigned int j = 0; j < size; ++j){
+    if(ptg->getTransition(i,j) != -1 && (ptg->getStartCst(i,j) > start || ptg->getEndCst(i,j) < end)){
+      storage.push_back(Transition(i, j, ptg->getTransition(i,j)));
+      ptg->setTransition(i,j,-1);
+    }
+   }
+  }
+}
 
 void PTGSolver::show(){
   

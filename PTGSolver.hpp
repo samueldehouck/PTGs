@@ -7,22 +7,25 @@
 #include "Fraction.hpp"
 #include "Strategy.hpp"
 #include "Point.hpp"
+#include "Transition.hpp"
 
 class PTGSolver{
 private:
   PTG* ptg;
-  Fraction time;
+  unsigned int time;
   unsigned int size;
   list<unsigned int> endPoints;
   vector<unsigned int> pathsLengths;
   vector<vector<Fraction> > vals;
   list<Strategy> strategies;
   vector<list<Point> > valueFcts;
-  vector<vector<bool> > transAvailable;
+  list<Transition> storage;
   vector<vector<Fraction> > lambdas;
   
   void init();
   void createEndPoints();
+  void keepTransAvailable(unsigned int, unsigned int);
+
 public:
   PTGSolver();
   void solvePTG(PTG*);

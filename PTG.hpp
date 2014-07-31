@@ -11,6 +11,7 @@ private:
   vector<vector<bool> >* resets;
   vector<vector<unsigned int> >* startsCstraints;
   vector<vector<unsigned int> >* endsCstraints;
+  
 public:
   PTG();
   unsigned int getStartCst(unsigned int, unsigned int) const;

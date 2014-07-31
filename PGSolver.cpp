@@ -12,16 +12,14 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
  
  // We need to initialize all vectors
   ensStates.push_back(false);
+  
+  //The first row of the ensemble of transition needs to be initialized too (to false because we'll never leave the target)
   ensTransitions.push_back(vector<bool>());
   for (unsigned int j = 0; j < size; ++j){
-    if(pg->getTransition(0,j) != -1)
-      ensTransitions[0].push_back(true);
-    else
       ensTransitions[0].push_back(false);
     }
     
    for (unsigned int i = 1; i < size; ++i){
-   
     ensStates.push_back(true);  
     ensTransitions.push_back(vector<bool>());
     for (unsigned int j = 0; j < size; ++j){
@@ -31,6 +29,8 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	ensTransitions[i].push_back(false);
     }
   }
+  
+   cout << "val: " << (*vals)[0][0] << endl;
 }
 
 bool PGSolver::extendedDijkstra(){
@@ -41,7 +41,7 @@ bool PGSolver::extendedDijkstra(){
  
    while (remainsStates() && cnt > 0){
      Fraction min = ifnty;
-     unsigned int finalState = 0;
+     unsigned int finalState = 1;
      unsigned int finalTrans = 0;
      //Look for the minimum
      for (unsigned int state = 1; state < size; ++state){   
@@ -61,6 +61,7 @@ bool PGSolver::extendedDijkstra(){
      //Change the values
      if(pg->getOwner(finalState) || isLastTransition(finalState, finalTrans)){
 	(*vals)[finalState][0] = (*vals)[finalTrans][0] + pg->getTransition(finalState, finalTrans);
+	(*vals)[finalState][0].upperSign();
 	(*pathsLengths)[finalState] = (*pathsLengths)[finalTrans] + 1;
 	strategies->front().insert(finalState, finalTrans, false);
 	ensStates[finalState] = false;
@@ -70,8 +71,17 @@ bool PGSolver::extendedDijkstra(){
     }
     --cnt;
    }
-   if(cnt == 0 && remainsStates())
+   if(cnt == 0 && remainsStates()){
+     for (unsigned int i = 1; i < size; ++i){
+	if(ensStates[i]){
+	  (*vals)[i][0] = ifnty;
+	  (*pathsLengths)[i] = ifnty;
+	}
+       
+    }
+     
      return false;
+   }
    return true;
 }
 
