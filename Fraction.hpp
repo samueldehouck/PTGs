@@ -26,7 +26,7 @@ public:
   bool operator!=(Fraction);
   void reduce();
   unsigned int gcd(int, int);
-  void show();
+  void upperSign();
 };
 
 ostream& operator<<(ostream&, const Fraction&);

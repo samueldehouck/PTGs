@@ -18,23 +18,32 @@ Fraction::Fraction(int i, int j)
 Fraction::Fraction(int i){
   num = i;
   den = 1;
-  
 }
 
 Fraction::Fraction(const Fraction &i): num(i.num), den(i.den){
+  upperSign();
+  reduce();
 }
 
 Fraction& Fraction::operator=(const Fraction &i){
   num = i.num;
   den = i.den;
+  
+  upperSign();
+  reduce();
   return *this;
 }
 
 Fraction Fraction::operator+(Fraction i){
-    Fraction tmp;
-
+   Fraction tmp;
+ 
+   upperSign();
+   reduce();
+   
    tmp.num = i.num * den + i.den * num;
    tmp.den = i.den * den;
+   
+   tmp.upperSign();
    tmp.reduce();
 
    return tmp;
@@ -42,14 +51,22 @@ Fraction Fraction::operator+(Fraction i){
 }
 
 Fraction Fraction::operator+(int i){
-  return (*this + Fraction(i));
+  Fraction tmp;
+  upperSign();
+  reduce();
+  tmp = (*this + Fraction(i));
+  tmp.reduce();
+  return tmp;
   
 }
 Fraction Fraction::operator-(Fraction i){
-    Fraction tmp;
-
+   Fraction tmp;
+   upperSign();
+   reduce();
+ 
    tmp.num = num * i.den - den * i.num;
    tmp.den = i.den * den;
+   tmp.upperSign();
    tmp.reduce();
 
    return tmp;
@@ -57,13 +74,23 @@ Fraction Fraction::operator-(Fraction i){
 }
 
 Fraction Fraction::operator*(Fraction i){
+  
+  upperSign();
+  reduce();
+  
   Fraction tmp(num*i.num, den*i.den);
+ 
+  tmp.reduce();
+  tmp.upperSign();
   return tmp;
   
 }
 
 Fraction Fraction::operator/(Fraction i){
   Fraction tmp(num*i.den,den*i.num);
+  
+  tmp.reduce();
+  tmp.upperSign();
   return tmp;
 }
 
@@ -85,7 +112,8 @@ bool Fraction::operator>(Fraction i){
 
 bool Fraction::operator==(Fraction i){
   reduce();
-  i.reduce();
+  upperSign();
+  
   if((num == i.num) && (den == i.den))
     return true;
   else
@@ -95,22 +123,12 @@ bool Fraction::operator==(Fraction i){
 
 bool Fraction::operator!=(Fraction i){
   reduce();
-  i.reduce();
+  upperSign();
+
   if((num != i.num) || (den != i.den))
     return true;
   else
     return false;
-  
-}
-
-
-void Fraction::show(){
-  if(den == 1)
-   cout << num;
-  else if(den == 0)
-    cout << "DIVBYZERO ";
-  else
-    cout << num << "/" << den;
   
 }
 
@@ -135,6 +153,13 @@ unsigned int Fraction::gcd(int i, int j){
                 j = tmp;
         }
         return i;
+}
+
+void Fraction::upperSign(){
+ if(den < 0){
+  num = 0 - num; 
+  den = 0 - den;
+ }
 }
 
 ostream& operator<<(ostream& out, const Fraction& f){

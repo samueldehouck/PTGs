@@ -54,12 +54,12 @@ void SPTGSolver::show(){
 }
 
 void SPTGSolver::init(){
+//   Initialization of all vectors and variables used by the solver
     size = sptg->getSize();
-//   Initialization;
+  if(size != 0){
     vals.push_back(vector<Fraction>());
     vals[0].push_back(Fraction(0));
     vals[0].push_back(Fraction(0));
-    
     strategies.push_front(Strategy(size, time));
     strategies.front().insert(0,0,false);
     
@@ -70,7 +70,6 @@ void SPTGSolver::init(){
     lambdas[0].push_back(Fraction(0));  
     
     valueFcts.push_back(list<Point>());
-    
   // Fill the initial valors, strategies and the ensemble of states
   for (unsigned int i = 1; i < size; ++i){
     vals.push_back(vector<Fraction>());
@@ -86,23 +85,25 @@ void SPTGSolver::init(){
     
     valueFcts.push_back(list<Point>());
   } 
+  }
 }
 
 void SPTGSolver::solveSPTG(SPTG* s){
+// This function is the core of the solver, it computes the strategies and values for the SPTG passed
   sptg = s;
   init();
   show();
   PGSolver ps(sptg, &pathsLengths, &vals, &strategies);//PGSolver will consider sptg as a pg thanks to inheritance
-  bool notCycling = ps.extendedDijkstra();
+  bool notCycling = ps.extendedDijkstra(); //If extendedDijkstra returns false, some states can't be treated and there is a cycle
   show();
   while (notCycling && time > 0){
    strategies.push_front(Strategy(size));
    actualizeLambdas();
-   if(time.num == 1 && time.den == 1)
+   if(time.num == 1 && time.den == 1)//If it's the first turn, we have to "initialize" the value functions
         buildValueFcts(0);
    strategyIteration();
    Fraction epsilon = nextEventPoint();
-   cout << "NextEventPoint: "; epsilon.show(); cout << endl;
+   cout << "NextEventPoint: " << epsilon << endl;
    if((time - epsilon) < 0)
      epsilon = time;
    buildValueFcts(epsilon);
@@ -120,7 +121,7 @@ void SPTGSolver::solveSPTG(SPTG* s){
 }
 
 void SPTGSolver::strategyIteration(){
-  
+// Computes the strategies in a priced game representing the sptg during an interval to be determined  
    cout << "====StrategyIteration====" << endl;
   bool switched = true;  
   
@@ -155,7 +156,6 @@ void SPTGSolver::actualizeVals(Fraction epsilon){
 }
 
 bool SPTGSolver::makeImpSwitchesP1(){
-//   cout << "==== SwitchP1====" << endl;
   bool allDone = false;
   bool changed = false;
   
@@ -163,19 +163,16 @@ bool SPTGSolver::makeImpSwitchesP1(){
     //For all states
     allDone = true;
     for (unsigned int state = 1; state < size; ++state){
-      //Owned by P1
-      if(sptg->getOwner(state)){
-// 	cout << "State: " << state << endl;
-	
+      //Owned by P1 because we are checking the improving switches for the P1
+      if(sptg->getOwner(state)){	
 	for (unsigned int nextState = 0; nextState < size; ++nextState){
-//   	  cout << "NextState: " << nextState << endl;
-	  if(sptg->getTransition(state, nextState) != -1){
+	  //We need to check all transitions for every states except the lambda transition because it is taken by default
+	  if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 	    Fraction tempVal = vals[nextState][0] + sptg->getTransition(state, nextState);
 	    unsigned int tempLength = pathsLengths[nextState] + 1;
-	    if((tempVal < vals[state][0])
+	    if((tempVal < vals[state][0])//If we have an improvement, we update the values found
 	      || ((tempVal == vals[state][0]) && (vals[nextState][1] < vals[state][1]))
 	      ||((tempVal == vals[state][0]) && (vals[nextState][1] == vals[state][1]) && (tempLength < pathsLengths[state]))){
-//  	      cout << "Changed state: " << state << " to: " << nextState << ": " << tempVal << " " << vals[nextState][1]<< endl;
 	      vals[state][0] = tempVal;
 	      vals[state][1] = vals[nextState][1];
 	      pathsLengths[state] = tempLength;
@@ -186,7 +183,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 	  }
 	}
       } 
-      if(changed)
+      if(changed)//If a changed has been made, it can have an impact on the values of other states
 	propagate(state);
     }
     
@@ -196,7 +193,6 @@ bool SPTGSolver::makeImpSwitchesP1(){
 }
 
 bool SPTGSolver::makeImpSwitchesP2(){
-//     cout << "==== SwitchP2====" << endl;
 
   bool allDone = false;
   bool changed = false;
@@ -205,13 +201,13 @@ bool SPTGSolver::makeImpSwitchesP2(){
     //For all states
     allDone = true;
     for (unsigned int state = 1; state < size; ++state){
-      //Owned by P2
+      //Owned by P2 because we are checking the improving switches for the P2
       if(!sptg->getOwner(state)){
 	//Check the lambda transition
-// 	cout << "State: " << state << endl;
 	
- 	if((lambdas[state][0] > vals[state][0]) || ((lambdas[state][0] == vals[state][0]) && (lambdas[state][1] > vals[state][1])) ){
-//  	  cout << "Changed state: " << state << " to lambda: " << lambdas[state][0] << " " << lambdas[state][1] << endl;
+ 	if((lambdas[state][0] > vals[state][0]) ||
+	  ((lambdas[state][0] == vals[state][0]) && (lambdas[state][1] > vals[state][1]))){
+	  //If we have an improvement, we update the values found
 	  vals[state][0] = lambdas[state][0];
 	  vals[state][1] = lambdas[state][1];
 	  strategies.front().insert(state, 0, true);
@@ -220,13 +216,12 @@ bool SPTGSolver::makeImpSwitchesP2(){
 	  changed = true;
  	}
 	for (unsigned int nextState = 0; nextState < size; ++nextState){
-//  	  cout << "NextState: " << nextState << endl;
-	  if(sptg->getTransition(state, nextState) != -1){
+	  if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 	    Fraction tempVal = vals[nextState][0] + sptg->getTransition(state, nextState);
 	    unsigned int tempLength = pathsLengths[nextState] + 1;
 	    if((tempVal > vals[state][0]) || ((tempVal == vals[state][0]) && (vals[nextState][1] > vals[state][1]))
 	      ||((tempVal == vals[state][0]) && (vals[nextState][1] == vals[state][1]) && (tempLength > pathsLengths[state]))){
-//  	      cout << "Changed state: " << state << " to: " << nextState << ": " << tempVal << " " << vals[nextState][1]<< endl;
+	     //If we have an improvement, we update the values found
 	      vals[state][0] = tempVal;
 	      vals[state][1] = vals[nextState][1];
 	      pathsLengths[state] = tempLength;
@@ -237,7 +232,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 	  }
 	}
       }
-     if(changed)
+     if(changed)//If a changed has been made, it can have an impact on the values of other states
       propagate(state);
     }
   }
@@ -246,6 +241,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 }
 
 void SPTGSolver::propagate(unsigned int state){
+  //Use a queue to update the value of all state that can reach the one given
   queue<unsigned int> q;
   vector<bool> checked;
   for (unsigned int i = 0; i < size; ++i)
@@ -275,9 +271,19 @@ void SPTGSolver::addPoint(unsigned int index, Fraction x, Fraction y){
 
 void SPTGSolver::buildValueFcts(Fraction epsilon){
 //   Add a point for every state
-    time = time - epsilon;
+  time = time - epsilon;
   for (unsigned int i = 1; i < size; ++i){
-    addPoint(i, time , vals[i][0] + (vals[i][1]*epsilon));   
+    Fraction tmpVal = vals[i][0] + (vals[i][1]*epsilon);
+    list<Point>::iterator it = valueFcts[i].begin();
+    ++it;
+    if(it != valueFcts[i].end()){
+      Fraction coef = (it->getY() - tmpVal)/(it->getX() - time);
+    
+      if(tmpVal + (coef * (valueFcts[i].front().getX() - time)) == valueFcts[i].front().getY()){
+	valueFcts[i].pop_front();
+      }
+    }
+    addPoint(i, time , tmpVal);   
   }
 }
 

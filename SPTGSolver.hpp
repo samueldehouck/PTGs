@@ -17,7 +17,7 @@ private:
   vector<vector<Fraction> > vals;
   vector<unsigned int> pathsLengths;
   vector<vector<Fraction> > lambdas;
-  vector<list<Point> > valueFcts;
+  vector<list<Point> > valueFcts;//We need a list of points for every state
   list<Strategy> strategies;
   Fraction time;
   

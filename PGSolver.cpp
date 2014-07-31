@@ -10,6 +10,7 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
  strategies = s;
  size = vals->size();
  
+ // We need to initialize all vectors
   ensStates.push_back(false);
   ensTransitions.push_back(vector<bool>());
   for (unsigned int j = 0; j < size; ++j){
@@ -34,6 +35,7 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 
 bool PGSolver::extendedDijkstra(){
    cout << endl << "====Extended Dijkstra====" << endl;
+   //Compute the values in a Priced Game
    unsigned int cnt = size * size;
      
  
@@ -74,6 +76,7 @@ bool PGSolver::extendedDijkstra(){
 }
 
 bool PGSolver::remainsStates(){
+//   Check if some state hasn't been treated
   for (vector<bool>::iterator it = ensStates.begin(); it != ensStates.end(); ++it){
     if(*it)
       return true;

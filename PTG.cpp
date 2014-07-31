@@ -5,7 +5,7 @@ using namespace std;
 
 PTG::PTG(){
   //TODO put everything together to go faster
-  
+//   Init of a game
   resets = new vector<vector<bool> >();
   startsCstraints = new vector<vector<unsigned int> >();
   endsCstraints = new vector<vector<unsigned int> >();
@@ -88,12 +88,13 @@ unsigned int PTG::getReset(unsigned int origin, unsigned int dest) const{
 
 
 void PTG::show(){
+  cout << "====PTG===" << endl;
   SPTG::show();
-  
+/*  
   for (unsigned int i = 0; i < startsCstraints->size(); ++i){
    for (unsigned int j = 0; j < (*startsCstraints)[i].size(); ++j){
       cout << "[" << (*startsCstraints)[i][j] << "," << (*endsCstraints)[i][j] << "]	";
    }
    cout << endl;
-  }
+  }*/
 }

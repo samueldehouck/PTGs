@@ -19,15 +19,15 @@ int main(){
 //    double nbr = 1000;
 //    for (int i = 0; i < nbr; ++i){
    gettimeofday(&start, NULL);
-//      SPTG sptg;
-//      sptg.show();
+//       SPTG sptg;
+//       sptg.show();
 //       SPTGSolver solver;
 //       solver.solveSPTG(&sptg);
-    PTG ptg;
-    ptg.show();
-    PTGSolver solver;
-    solver.solvePTG(&ptg);
-    cout << "fin" << endl;
+       
+     PTG ptg;
+     ptg.show();
+     PTGSolver solver;
+     solver.solvePTG(&ptg);
    
     gettimeofday(&end, NULL);
 
@@ -38,5 +38,5 @@ int main(){
     cout << seconds <<"s" << milliseconds << "ms" << endl;
 //    }
 //    file << "Average: " << allsecs/nbr <<"s" << allmillisecs/nbr << "ms" << endl;
-  return 1;
+  
 }

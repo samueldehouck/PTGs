@@ -17,7 +17,7 @@ Strategy::Strategy(unsigned int s){
 Strategy::Strategy(unsigned int s, Fraction t){
    time = t;
    size = s;
-   for (unsigned int j = 0; j <= size; ++j){
+   for (unsigned int j = 0; j < size; ++j){
     dests.push_back(0);
     lambdas.push_back(false);
    }
@@ -35,8 +35,10 @@ Strategy::Strategy(const Strategy& s){
 }
 
 void Strategy::insert(unsigned int index, unsigned int dest, bool lambda){
-    dests[index] = dest;
-    lambdas[index] = lambda;
+ if(dests.size() > index){
+   dests[index] = dest;
+   lambdas[index] = lambda;
+ }
 }
 
 unsigned int Strategy::getDest(unsigned int index) const{
@@ -58,6 +60,7 @@ void Strategy::setTime(Fraction t){
 unsigned int Strategy::getSize() const{
   return size;
 }
+
 void Strategy::show(){
   cout << "Time: " << time << endl;
  for (unsigned int i = 0; i < size; ++i){

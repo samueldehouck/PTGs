@@ -1,5 +1,5 @@
-all: main.o Point.o PG.o SPTG.o SPTGSolver.o Fraction.o Strategy.o PTG.o PTGSolver.o PGSolver.o
-	g++ -o solver main.o Point.o PG.o SPTG.o SPTGSolver.o Fraction.o Strategy.o PTG.o PTGSolver.o PGSolver.o
+all: main.o Fraction.o Point.o Strategy.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o
+	g++ -o solver main.o Fraction.o Point.o Strategy.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o
 
 Point.o: Point.cpp Point.hpp
 	g++ -c -W -Wall -pedantic Point.cpp

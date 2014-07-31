@@ -6,7 +6,7 @@ SPTG::SPTG(){
 //  Example of the paper of the three danish
 
   states = new vector<unsigned int>;
-/*  
+/* 
  states->push_back(0);
  states->push_back(9);
  states->push_back(3);
@@ -47,9 +47,7 @@ SPTG::~SPTG(){
 }
 
 void SPTG::show(){
-  
-  cout << "====SPTG====" << endl;
-  cout << "Rates: " << endl;
+    cout << "Rates: " << endl;
   for (unsigned int i =0; i < states->size(); ++i)
     cout << (*states)[i] << " ";
   cout << endl;
