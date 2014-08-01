@@ -1,6 +1,8 @@
 #include "Strategy.hpp"
 #include "constants.hpp"
 
+using namespace std;
+
 Strategy::Strategy(){
 
 }

@@ -12,7 +12,7 @@
 class PGSolver{
 private:
 	PG* pg;
-	unsigned int size;
+	unsigned int size, nbTransitions;
 	vector<bool> ensStates;
 	vector<vector<bool> > ensTransitions;
 	vector<unsigned int>* pathsLengths;

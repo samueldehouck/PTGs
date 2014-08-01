@@ -18,6 +18,7 @@ void PTGSolver::solvePTG(PTG* p){
 	init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
 
 	keepTransAvailable(time, time);
+	ptg->show();
 	PGSolver pgSolver(ptg, &pathsLengths, &vals, &strategies);
 	pgSolver.extendedDijkstra();
 	show();

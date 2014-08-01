@@ -9,6 +9,7 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	vals = v;
 	strategies = s;
 	size = vals->size();
+	nbTransitions = 0;
 
 	// We need to initialize all vectors
 	ensStates.push_back(false);
@@ -23,26 +24,27 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 		ensStates.push_back(true);
 		ensTransitions.push_back(vector<bool>());
 		for (unsigned int j = 0; j < size; ++j){
-			if(pg->getTransition(i,j) != -1)
+			if(pg->getTransition(i,j) != -1){
 				ensTransitions[i].push_back(true);
+				++nbTransitions;
+			}
 			else
 				ensTransitions[i].push_back(false);
 		}
 	}
-
-	cout << "val: " << (*vals)[0][0] << endl;
 }
 
 bool PGSolver::extendedDijkstra(){
 	cout << endl << "====Extended Dijkstra====" << endl;
 	//Compute the values in a Priced Game
-	unsigned int cnt = size * size;
+	unsigned int cnt = nbTransitions;
 
 
 	while (remainsStates() && cnt > 0){
 		Fraction min = ifnty;
 		unsigned int finalState = 1;
 		unsigned int finalTrans = 0;
+
 		//Look for the minimum
 		for (unsigned int state = 1; state < size; ++state){
 			if (ensStates[state]){
@@ -59,7 +61,9 @@ bool PGSolver::extendedDijkstra(){
 			}
 		}
 		//Change the values
-		if(pg->getOwner(finalState) || isLastTransition(finalState, finalTrans)){
+
+		if((pg->getOwner(finalState) || isLastTransition(finalState, finalTrans))){
+			cout << "Change value of state " << finalState << " to " << (*vals)[finalTrans][0] + pg->getTransition(finalState, finalTrans) << endl;
 			(*vals)[finalState][0] = (*vals)[finalTrans][0] + pg->getTransition(finalState, finalTrans);
 			(*vals)[finalState][0].upperSign();
 			(*pathsLengths)[finalState] = (*pathsLengths)[finalTrans] + 1;
@@ -67,6 +71,7 @@ bool PGSolver::extendedDijkstra(){
 			ensStates[finalState] = false;
 		}
 		else{
+			cout << "Delete transition " << finalTrans << "from state " << finalState << endl;
 			ensTransitions[finalState][finalTrans] = false;
 		}
 		--cnt;
