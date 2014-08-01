@@ -5,14 +5,14 @@
 
 class Point{
 private:
-  Fraction x;
-  Fraction y;
+	Fraction x;
+	Fraction y;
 public:
- Point();
- Point(int, int, int, int);
- Point(Fraction, Fraction);
- Fraction getX() const;
- Fraction getY() const ;
+	Point();
+	Point(int, int, int, int);
+	Point(Fraction, Fraction);
+	Fraction getX() const;
+	Fraction getY() const ;
 };
 
 #endif

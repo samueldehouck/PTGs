@@ -10,9 +10,9 @@ Point::Point(Fraction i, Fraction j) : x(i), y(j)
 {}
 
 Fraction Point::getX() const{
-  return x;
-  
+	return x;
+
 }
 Fraction Point::getY() const {
-  return y;
+	return y;
 }

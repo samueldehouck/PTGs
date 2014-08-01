@@ -11,19 +11,19 @@
 
 class PGSolver{
 private:
-  PG* pg;
-  unsigned int size;
-  vector<bool> ensStates;
-  vector<vector<bool> > ensTransitions;
-  vector<unsigned int>* pathsLengths;
-  vector<vector<Fraction> >* vals;
-  list<Strategy>* strategies;
+	PG* pg;
+	unsigned int size;
+	vector<bool> ensStates;
+	vector<vector<bool> > ensTransitions;
+	vector<unsigned int>* pathsLengths;
+	vector<vector<Fraction> >* vals;
+	list<Strategy>* strategies;
 
-  bool remainsStates();
-  bool isLastTransition(unsigned int, unsigned int);
+	bool remainsStates();
+	bool isLastTransition(unsigned int, unsigned int);
 public:
-  PGSolver(PG* p, vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* );
-  bool extendedDijkstra();
+	PGSolver(PG* p, vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* );
+	bool extendedDijkstra();
 
 };
 

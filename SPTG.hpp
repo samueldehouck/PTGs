@@ -9,12 +9,12 @@ using namespace std;
 
 class SPTG: public PG{
 protected:
-  vector<unsigned int>* states;
+	vector<unsigned int>* states;
 public:
-  SPTG();
-  ~SPTG();
-  void show();
-  int getState(unsigned int) const;
+	SPTG();
+	~SPTG();
+	void show();
+	int getState(unsigned int) const;
 };
 
 #endif
