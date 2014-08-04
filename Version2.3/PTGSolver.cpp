@@ -30,8 +30,8 @@ void PTGSolver::solvePTG(PTG* p){
 	strategies.push_front(Strategy(size, x));
 	keepTransAvailable(endPoints.back(), lastM);
 	delete pgSolver;
-	initLambdas();
-	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &lambdas);
+	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies);
+	pgSolver->addLambdaTrans();
 	pgSolver->extendedDijkstra(true);
 
 	cout << "====Results===" << endl;
@@ -137,11 +137,4 @@ void PTGSolver::show(){
 		}
 		cout << endl;
 	}
-}
-
-void PTGSolver::initLambdas(){
-
-	for (unsigned int i = 0; i < vals.size(); ++i){
-			lambdas[i][0] = vals[i][0];
-		}
 }

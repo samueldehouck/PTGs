@@ -25,7 +25,6 @@ private:
 	void init();
 	void createEndPoints();
 	void keepTransAvailable(unsigned int, unsigned int);
-	void initLambdas();
 public:
 	PTGSolver();
 	void solvePTG(PTG*);

@@ -19,14 +19,12 @@ private:
 	vector<unsigned int>* pathsLengths;
 	vector<vector<Fraction> >* vals;
 	list<Strategy>* strategies;
-	vector<vector<Fraction> >* lambdas; //Equivalent of the "bottom" transition in the paper
+	vector<Fraction> lambdas; //Equivalent of the "bottom" transition in the paper
 
 	bool remainsStates();
 	bool isLastTransition(unsigned int, unsigned int, bool);
 public:
 	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* );
-	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* , vector<vector<Fraction> >*);
-
 	bool extendedDijkstra(bool);
 	void addLambdaTrans();
 };

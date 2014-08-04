@@ -18,38 +18,7 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	ensTransitions.push_back(vector<bool>());
 	for (unsigned int j = 0; j < size; ++j){
 		ensTransitions[0].push_back(false);
-	}
-
-	for (unsigned int i = 1; i < size; ++i){
-		ensStates.push_back(true);
-		ensTransitions.push_back(vector<bool>());
-		for (unsigned int j = 0; j < size; ++j){
-			if(pg->getTransition(i,j) != -1){
-				ensTransitions[i].push_back(true);
-				++nbTransitions;
-			}
-			else
-				ensTransitions[i].push_back(false);
-		}
-	}
-}
-
-PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v, list<Strategy>* s, vector<vector<Fraction> >* l){
-	pg = p;
-	pathsLengths = pl;
-	vals = v;
-	strategies = s;
-	size = vals->size();
-	nbTransitions = 0;
-	lambdas = l;
-
-	// We need to initialize all vectors
-	ensStates.push_back(false);
-
-	//The first row of the ensemble of transition needs to be initialized too (to false because we'll never leave the target)
-	ensTransitions.push_back(vector<bool>());
-	for (unsigned int j = 0; j < size; ++j){
-		ensTransitions[0].push_back(false);
+		lambdas.push_back(0);
 		ensLambdas.push_back(true);
 	}
 
@@ -90,11 +59,11 @@ bool PGSolver::extendedDijkstra(bool withLambdas){
 				//Check the lambda transition if needed due to "withLambas"
 				//cout << min << " " << lambdas[state] << endl;
 				if(withLambdas && ensLambdas[state]){
-					if( min >  (*lambdas)[state][0]){
+					if( min >  lambdas[state]){
 						//cout << "minIsLambda: " << lambdas[state] << endl;
 						finalState = state;
 						finalTrans = 0;
-						min = (*lambdas)[state][0];
+						min = lambdas[state];
 						minIsLambda = true;
 					}
 				}
@@ -119,7 +88,7 @@ bool PGSolver::extendedDijkstra(bool withLambdas){
 				//cout << "Change value of state " << finalState << " to ";
 			if(minIsLambda){
 				//cout << lambdas[finalState] << endl;
-				(*vals)[finalState][0] = (*lambdas)[finalState][0];
+				(*vals)[finalState][0] = lambdas[finalState];
 				(*pathsLengths)[finalState] = 1;
 				strategies->front().insert(finalState, finalTrans, true);
 
@@ -186,3 +155,9 @@ bool PGSolver::isLastTransition(unsigned int state, unsigned int nextState, bool
 	return isLast;
 }
 
+
+void PGSolver::addLambdaTrans(){
+	for (unsigned int i = 0; i < vals->size(); ++i){
+		lambdas[i] = (*vals)[i][0];
+	}
+}
