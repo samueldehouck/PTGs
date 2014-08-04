@@ -94,7 +94,7 @@ void SPTGSolver::solveSPTG(SPTG* s){
 	init();
 	show();
 	PGSolver ps(sptg, &pathsLengths, &vals, &strategies);//PGSolver will consider sptg as a pg thanks to inheritance
-	bool notCycling = ps.extendedDijkstra(); //If extendedDijkstra returns false, some states can't be treated and there is a cycle
+	bool notCycling = ps.extendedDijkstra(false); //If extendedDijkstra returns false, some states can't be treated and there is a cycle
 	show();
 	while (notCycling && time > 0){
 		strategies.push_front(Strategy(size));

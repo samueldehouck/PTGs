@@ -4,6 +4,8 @@
 #include <vector>
 #include "Fraction.hpp"
 
+using namespace std;
+
 class Strategy{
 private:
 	Fraction time;

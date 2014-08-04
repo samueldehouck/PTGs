@@ -28,6 +28,7 @@ int main(){
 	ptg.show();
 	PTGSolver solver;
 	solver.solvePTG(&ptg);
+	cout << "END" << endl;
 
 	//     gettimeofday(&end, NULL);
 	//
@@ -39,4 +40,5 @@ int main(){
 	//    }
 	//    file << "Average: " << allsecs/nbr <<"s" << allmillisecs/nbr << "ms" << endl;
 
+	return 1;
 }

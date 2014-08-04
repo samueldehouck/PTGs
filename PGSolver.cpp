@@ -18,6 +18,8 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	ensTransitions.push_back(vector<bool>());
 	for (unsigned int j = 0; j < size; ++j){
 		ensTransitions[0].push_back(false);
+		lambdas.push_back(0);
+		ensLambdas.push_back(true);
 	}
 
 	for (unsigned int i = 1; i < size; ++i){
@@ -34,7 +36,11 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	}
 }
 
-bool PGSolver::extendedDijkstra(){
+bool PGSolver::extendedDijkstra(bool withLambdas){
+//the parameter "withLambdas" is true when we have created a PG in solvePTG
+
+	//TODO: maybe refactor it to improve the gestion of lambdas
+
 	cout << endl << "====Extended Dijkstra====" << endl;
 	//Compute the values in a Priced Game
 	unsigned int cnt = nbTransitions;
@@ -44,17 +50,32 @@ bool PGSolver::extendedDijkstra(){
 		Fraction min = ifnty;
 		unsigned int finalState = 1;
 		unsigned int finalTrans = 0;
-
+		bool minIsLambda = false;
 		//Look for the minimum
 		for (unsigned int state = 1; state < size; ++state){
 			if (ensStates[state]){
 				//If the state is still in the ensemble
+				cout << "State " << state << endl;
+				//Check the lambda transition if needed (ue to "withLambas"
+				cout << min << " " << lambdas[state] << endl;
+				if(withLambdas && ensLambdas[state]){
+					if( min >  lambdas[state]){
+						cout << "minIsLambda" << endl;
+						finalState = state;
+						finalTrans = 0;
+						min = lambdas[state];
+						minIsLambda = true;
+					}
+				}
+
+
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					if(ensTransitions[state][nextState]){
 						if( min > ((*vals)[nextState][0] + pg->getTransition(state, nextState))){
 							finalState = state;
 							finalTrans = nextState;
 							min = (*vals)[nextState][0] + pg->getTransition(state, nextState);
+							minIsLambda = false;
 						}
 					}
 				}
@@ -62,23 +83,35 @@ bool PGSolver::extendedDijkstra(){
 		}
 		//Change the values
 
-		if((pg->getOwner(finalState) || isLastTransition(finalState, finalTrans))){
-			cout << "Change value of state " << finalState << " to " << (*vals)[finalTrans][0] + pg->getTransition(finalState, finalTrans) << endl;
-			(*vals)[finalState][0] = (*vals)[finalTrans][0] + pg->getTransition(finalState, finalTrans);
-			(*vals)[finalState][0].upperSign();
-			(*pathsLengths)[finalState] = (*pathsLengths)[finalTrans] + 1;
-			strategies->front().insert(finalState, finalTrans, false);
+		if((pg->getOwner(finalState) || isLastTransition(finalState, finalTrans, minIsLambda))){
+				cout << "Change value of state " << finalState << " to " << (*vals)[finalTrans][0] + pg->getTransition(finalState, finalTrans) << endl;
+			if(minIsLambda){
+				(*vals)[finalState][0] = lambdas[finalState];
+				(*pathsLengths)[finalState] = 1;
+				strategies->front().insert(finalState, finalTrans, true);
+
+			}
+			else{
+				(*vals)[finalState][0] = (*vals)[finalTrans][0] + pg->getTransition(finalState, finalTrans);
+				(*vals)[finalState][0].upperSign();
+				(*pathsLengths)[finalState] = (*pathsLengths)[finalTrans] + 1;
+				strategies->front().insert(finalState, finalTrans, false);
+			}
 			ensStates[finalState] = false;
 		}
 		else{
-			cout << "Delete transition " << finalTrans << "from state " << finalState << endl;
-			ensTransitions[finalState][finalTrans] = false;
+			//cout << "Delete transition " << finalTrans << "from state " << finalState << endl;
+			if(minIsLambda)
+				ensLambdas[finalState] = false;
+			else
+				ensTransitions[finalState][finalTrans] = false;
 		}
 		--cnt;
 	}
 	if(cnt == 0 && remainsStates()){
 		for (unsigned int i = 1; i < size; ++i){
 			if(ensStates[i]){
+				strategies->front().insert(i, i, false);
 				(*vals)[i][0] = ifnty;
 				(*pathsLengths)[i] = ifnty;
 			}
@@ -99,11 +132,22 @@ bool PGSolver::remainsStates(){
 	return false;
 }
 
-bool PGSolver::isLastTransition(unsigned int state, unsigned int transition){
+bool PGSolver::isLastTransition(unsigned int state, unsigned int transition, bool isLambda){
 	bool isLast = true;
 	for (unsigned int i;isLast && i < ensTransitions[state].size(); ++i){
-		if(i != transition && ensTransitions[state][i])
+		if((isLambda || i != transition) && ensTransitions[state][i])
 			isLast = false;
 	}
 	return isLast;
+}
+
+
+void PGSolver::addLambdaTrans(){
+	for (unsigned int i = 0; i < lambdas.size(); ++i){
+		lambdas[i] = (*vals)[i][0];
+	}
+
+	for (unsigned int i = 0; i < lambdas.size(); ++i)
+		cout << lambdas[i] << " ";
+	cout << endl;
 }

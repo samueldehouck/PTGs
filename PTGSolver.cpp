@@ -14,13 +14,27 @@ void PTGSolver::solvePTG(PTG* p){
 
 
 	createEndPoints();
-	time = endPoints.back();
+	unsigned int lastM = endPoints.back();
+	endPoints.pop_back();
+	time = lastM;
+
 	init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
 
 	keepTransAvailable(time, time);
 	ptg->show();
-	PGSolver pgSolver(ptg, &pathsLengths, &vals, &strategies);
-	pgSolver.extendedDijkstra();
+
+	//First extendedDijkstra on the biggest "M"
+	PGSolver* pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies);
+	pgSolver->extendedDijkstra(false);
+	Fraction x = (Fraction(endPoints.back() + lastM))/(Fraction(2));
+	strategies.push_front(Strategy(size, x));
+	keepTransAvailable(endPoints.back(), lastM);
+	delete pgSolver;
+	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies);
+	pgSolver->addLambdaTrans();
+	pgSolver->extendedDijkstra(true);
+
+	cout << "====Results===" << endl;
 	show();
 }
 
