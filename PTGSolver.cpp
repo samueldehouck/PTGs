@@ -46,9 +46,9 @@ void PTGSolver::solvePTG(PTG* p){
 
 	SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies);
 	sptgSolver->solveSPTG();
-	delete sptgSolver;
+	//delete sptgSolver;
 	cout << "====Results===" << endl;
-	show();
+	//show();
 }
 
 void PTGSolver::init(){

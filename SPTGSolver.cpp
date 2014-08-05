@@ -23,13 +23,14 @@ SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, 
 	time = Fraction(1);
 	show();
 
-	//Initialization
+	//Initialization of the other vectors and lists
 	size = sptg->getSize();
 	if(size != 0){
 		lambdas.push_back(vector<Fraction>());
 		lambdas[0].push_back(Fraction(0));
 		lambdas[0].push_back(Fraction(0));
 
+		valueFcts = new vector<list<Point> >();
 		valueFcts->push_back(list<Point>());
 
 		for (unsigned int i = 1; i < size; ++i){
@@ -40,12 +41,11 @@ SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, 
 			valueFcts->push_back(list<Point>());
 		}
 	}
-
 }
 
 
 SPTGSolver::~SPTGSolver(){
-	//TODO Change when variables will be put as pointers
+	delete valueFcts;
 }
 
 void SPTGSolver::show(){

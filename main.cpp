@@ -19,16 +19,16 @@ int main(){
 	//    double nbr = 1000;
 	//    for (int i = 0; i < nbr; ++i){
 	//    gettimeofday(&start, NULL);
-	       SPTG sptg;
+	      /* SPTG sptg;
 	       sptg.show();
 	      SPTGSolver solver(&sptg);
-	      solver.solveSPTG();
+	      solver.solveSPTG();*/
 
-	/*PTG ptg;
+	PTG ptg;
 	ptg.show();
 	PTGSolver solver;
 	solver.solvePTG(&ptg);
-	cout << "END" << endl;*/
+	cout << "END" << endl;
 
 
 	//     gettimeofday(&end, NULL);
