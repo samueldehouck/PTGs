@@ -86,6 +86,34 @@ unsigned int PTG::getReset(unsigned int origin, unsigned int dest) const{
 	return (*resets)[origin][dest];
 }
 
+void PTG::createMaxState(Fraction f, unsigned int endCst){
+	states->push_back(f);
+	owners->push_back(false);
+	transitions->push_back(vector<Fraction>());
+	resets->push_back(vector<bool>());
+	startsCstraints->push_back(vector<unsigned int>());
+	endsCstraints->push_back(vector<unsigned int>());
+
+	for (unsigned int i = 0; i < getSize() - 1; ++i){
+		//Fills the new column of each rows
+		(*transitions)[i].push_back(-1);
+		(*resets)[i].push_back(false);
+		(*startsCstraints)[i].push_back(0);
+		(*endsCstraints)[i].push_back(endCst);
+
+		//Fills the columns of the new row
+		(*transitions)[getSize()-1].push_back(-1);
+		(*resets)[getSize()-1].push_back(false);
+		(*startsCstraints)[getSize()-1].push_back(0);
+		(*endsCstraints)[getSize()-1].push_back(endCst);
+
+	}
+	(*transitions)[getSize()-1].push_back(-1);
+	(*resets)[getSize()-1].push_back(false);
+	(*startsCstraints)[getSize()-1].push_back(0);
+	(*endsCstraints)[getSize()-1].push_back(endCst);
+
+}
 
 void PTG::show(){
 	cout << "====PTG===" << endl;

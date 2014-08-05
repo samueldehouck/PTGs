@@ -25,7 +25,8 @@ private:
 	void init();
 	void createEndPoints();
 	void keepTransAvailable(unsigned int, unsigned int);
-	void initBottoms();
+	void updateBottoms();
+	void createMax(const unsigned int, const unsigned int);
 public:
 	PTGSolver();
 	void solvePTG(PTG*);

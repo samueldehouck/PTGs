@@ -14,7 +14,8 @@ void PTGSolver::solvePTG(PTG* p){
 
 
 	createEndPoints();
-	unsigned int lastM = endPoints.back();
+	unsigned int endM = endPoints.back();
+	unsigned int lastM = endM;
 	endPoints.pop_back();
 	time = lastM;
 
@@ -28,35 +29,40 @@ void PTGSolver::solvePTG(PTG* p){
 	pgSolver->extendedDijkstra(false);
 	Fraction x = (Fraction(endPoints.back() + lastM))/(Fraction(2));
 	strategies.push_front(Strategy(size, x));
+	//TODO restore the transitions
 	keepTransAvailable(endPoints.back(), lastM);
 	delete pgSolver;
-	initBottoms();
+	updateBottoms();
+
+
 	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
 	pgSolver->extendedDijkstra(true);
-
+	createMax(endM, lastM - endPoints.back());
+	updateBottoms();
+	ptg->show();
 	cout << "====Results===" << endl;
 	show();
 }
 
 void PTGSolver::init(){
 	vals.push_back(vector<Fraction>());
-	vals[0].push_back(Fraction(0));
-	vals[0].push_back(Fraction(0));
+	vals[0].push_back(0);
+	vals[0].push_back(0);
 
 	strategies.push_front(Strategy(size, time));
 	strategies.front().insert(0,0,false);
 
 	pathsLengths.push_back(0);
 
-	bottoms.push_back(Fraction(0));
+	bottoms.push_back(0);
 
 	valueFcts.push_back(list<Point>());
 
 	// Fill the initial valors, strategies and the ensemble of states
 	for (unsigned int i = 1; i < size; ++i){
 		vals.push_back(vector<Fraction>());
-		vals[i].push_back(Fraction(ifnty));
-		vals[i].push_back(Fraction(0));
+		vals[i].push_back(ifnty);
+		vals[i].push_back(0);
 
 		strategies.front().insert(i, -1, false);
 		pathsLengths.push_back(0);
@@ -95,6 +101,35 @@ void PTGSolver::keepTransAvailable(unsigned int start, unsigned int end){
 	}
 }
 
+
+void PTGSolver::updateBottoms(){
+
+	for (unsigned int i = 0; i < vals.size(); ++i){
+			bottoms[i] = vals[i][0];
+		}
+}
+
+void PTGSolver::createMax(const unsigned int endM, const unsigned int d){
+	cout << "====Creating MAX====" << endl;
+
+	ptg->createMaxState(ifnty, endM);
+	size = ptg->getSize();
+	ptg->setTransition(size - 1, 0, 0);
+	for (unsigned int i = 0; i < size - 1; ++i){
+		ptg->setState(i, ptg->getState(i) * d);
+		if(ptg->getOwner(i) && ptg->getTransition(i, 0) != -1){
+			Fraction tmp = ptg->getTransition(i, 0);
+			storage.push_front(Transition(i,0,tmp));
+			ptg->setTransition(i, size - 1, tmp);
+			ptg->setTransition(i, 0, -1);
+		}
+
+	}
+}
+
+
+
+
 void PTGSolver::show(){
 
 	cout << "bottoms:" << endl;
@@ -131,11 +166,4 @@ void PTGSolver::show(){
 		}
 		cout << endl;
 	}
-}
-
-void PTGSolver::initBottoms(){
-
-	for (unsigned int i = 0; i < vals.size(); ++i){
-			bottoms[i] = vals[i][0];
-		}
 }

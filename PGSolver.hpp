@@ -28,7 +28,6 @@ public:
 	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* , vector<Fraction>*);
 
 	bool extendedDijkstra(bool);
-	void addLambdaTrans();
 };
 
 #endif

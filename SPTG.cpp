@@ -5,7 +5,7 @@ SPTG::SPTG(){
 
 	//  Example of the paper of the three danish
 
-	states = new vector<unsigned int>;
+	states = new vector<Fraction>;
 	/*
  states->push_back(0);
  states->push_back(9);
@@ -65,6 +65,10 @@ void SPTG::show(){
 	cout << endl;
 }
 
-int SPTG::getState(unsigned int index) const{
+Fraction SPTG::getState(unsigned int index) const{
 	return (*states)[index];
+}
+
+void SPTG::setState(unsigned int index, Fraction f){
+	(*states)[index] = f;
 }
