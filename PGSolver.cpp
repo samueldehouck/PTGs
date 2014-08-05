@@ -34,14 +34,14 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	}
 }
 
-PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v, list<Strategy>* s, vector<vector<Fraction> >* l){
+PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v, list<Strategy>* s, vector<Fraction>* b){
 	pg = p;
 	pathsLengths = pl;
 	vals = v;
 	strategies = s;
 	size = vals->size();
 	nbTransitions = 0;
-	lambdas = l;
+	bottoms = b;
 
 	// We need to initialize all vectors
 	ensStates.push_back(false);
@@ -50,7 +50,7 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	ensTransitions.push_back(vector<bool>());
 	for (unsigned int j = 0; j < size; ++j){
 		ensTransitions[0].push_back(false);
-		ensLambdas.push_back(true);
+		ensBottoms.push_back(true);
 	}
 
 	for (unsigned int i = 1; i < size; ++i){
@@ -67,10 +67,10 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	}
 }
 
-bool PGSolver::extendedDijkstra(bool withLambdas){
-//the parameter "withLambdas" is true when we have created a PG in solvePTG
+bool PGSolver::extendedDijkstra(bool withBottoms){
+//the parameter "withBottoms" is true when we have created a PG in solvePTG
 
-	//TODO: maybe refactor it to improve the gestion of lambdas
+	//TODO: maybe refactor it to improve the gestion of lbottom transitions
 
 	cout << endl << "====Extended Dijkstra====" << endl;
 	//Compute the values in a Priced Game
@@ -88,13 +88,13 @@ bool PGSolver::extendedDijkstra(bool withLambdas){
 				//If the state is still in the ensemble
 				//cout << "State " << state << endl;
 				//Check the lambda transition if needed due to "withLambas"
-				//cout << min << " " << lambdas[state] << endl;
-				if(withLambdas && ensLambdas[state]){
-					if( min >  (*lambdas)[state][0]){
-						//cout << "minIsLambda: " << lambdas[state] << endl;
+				//cout << min << " " << bottoms[state] << endl;
+				if(withBottoms && ensBottoms[state]){
+					if( min >  (*bottoms)[state]){
+						//cout << "minIsLambda: " << bottoms[state] << endl;
 						finalState = state;
 						finalTrans = 0;
-						min = (*lambdas)[state][0];
+						min = (*bottoms)[state];
 						minIsLambda = true;
 					}
 				}
@@ -118,8 +118,8 @@ bool PGSolver::extendedDijkstra(bool withLambdas){
 		if((pg->getOwner(finalState) || isLastTransition(finalState, finalTrans, minIsLambda))){
 				//cout << "Change value of state " << finalState << " to ";
 			if(minIsLambda){
-				//cout << lambdas[finalState] << endl;
-				(*vals)[finalState][0] = (*lambdas)[finalState][0];
+				//cout << bottoms[finalState] << endl;
+				(*vals)[finalState][0] = (*bottoms)[finalState];
 				(*pathsLengths)[finalState] = 1;
 				strategies->front().insert(finalState, finalTrans, true);
 
@@ -137,7 +137,7 @@ bool PGSolver::extendedDijkstra(bool withLambdas){
 		else{
 			//cout << "Delete transition " << finalTrans << "from state " << finalState << endl;
 			if(minIsLambda)
-				ensLambdas[finalState] = false;
+				ensBottoms[finalState] = false;
 			else
 				ensTransitions[finalState][finalTrans] = false;
 		}
@@ -147,7 +147,7 @@ bool PGSolver::extendedDijkstra(bool withLambdas){
 		for (unsigned int i = 1; i < size; ++i){
 			if(ensStates[i]){
 				(*vals)[i][0] = ifnty;
-				if(withLambdas){
+				if(withBottoms){
 					strategies->front().insert(i, 0, true);
 					(*pathsLengths)[i] = 1;
 

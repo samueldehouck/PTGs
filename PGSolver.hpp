@@ -15,17 +15,17 @@ private:
 	unsigned int size, nbTransitions;
 	vector<bool> ensStates;
 	vector<vector<bool> > ensTransitions;
-	vector<bool> ensLambdas;
+	vector<bool> ensBottoms;
 	vector<unsigned int>* pathsLengths;
 	vector<vector<Fraction> >* vals;
 	list<Strategy>* strategies;
-	vector<vector<Fraction> >* lambdas; //Equivalent of the "bottom" transition in the paper
+	vector<Fraction>* bottoms; //Equivalent of the "bottom" transition in the paper
 
 	bool remainsStates();
 	bool isLastTransition(unsigned int, unsigned int, bool);
 public:
 	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* );
-	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* , vector<vector<Fraction> >*);
+	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* , vector<Fraction>*);
 
 	bool extendedDijkstra(bool);
 	void addLambdaTrans();

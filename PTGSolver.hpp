@@ -20,12 +20,12 @@ private:
 	list<Strategy> strategies;
 	vector<list<Point> > valueFcts;
 	list<Transition> storage;
-	vector<vector<Fraction> > lambdas;
+	vector<Fraction> bottoms;
 
 	void init();
 	void createEndPoints();
 	void keepTransAvailable(unsigned int, unsigned int);
-	void initLambdas();
+	void initBottoms();
 public:
 	PTGSolver();
 	void solvePTG(PTG*);

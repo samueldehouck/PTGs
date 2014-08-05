@@ -30,8 +30,8 @@ void PTGSolver::solvePTG(PTG* p){
 	strategies.push_front(Strategy(size, x));
 	keepTransAvailable(endPoints.back(), lastM);
 	delete pgSolver;
-	initLambdas();
-	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &lambdas);
+	initBottoms();
+	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
 	pgSolver->extendedDijkstra(true);
 
 	cout << "====Results===" << endl;
@@ -48,9 +48,7 @@ void PTGSolver::init(){
 
 	pathsLengths.push_back(0);
 
-	lambdas.push_back(vector<Fraction>());
-	lambdas[0].push_back(Fraction(0));
-	lambdas[0].push_back(Fraction(0));
+	bottoms.push_back(Fraction(0));
 
 	valueFcts.push_back(list<Point>());
 
@@ -63,9 +61,7 @@ void PTGSolver::init(){
 		strategies.front().insert(i, -1, false);
 		pathsLengths.push_back(0);
 
-		lambdas.push_back(vector<Fraction>());
-		lambdas[i].push_back(0);
-		lambdas[i].push_back(0);
+		bottoms.push_back(0);
 
 		valueFcts.push_back(list<Point>());
 	}
@@ -101,14 +97,12 @@ void PTGSolver::keepTransAvailable(unsigned int start, unsigned int end){
 
 void PTGSolver::show(){
 
-	cout << "Lambdas:" << endl;
-	for (unsigned int i = 0; i < lambdas.size(); ++i){
-		for (unsigned int j = 0; j < lambdas[i].size(); ++j){
-			;
-			cout <<  lambdas[i][j] << "	";
+	cout << "bottoms:" << endl;
+	for (unsigned int i = 0; i < bottoms.size(); ++i){
+			cout <<  bottoms[i]<< "	";
 		}
 		cout << endl;
-	}
+
 
 	cout << "Strategies: " << endl;
 	for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end(); ++it){
@@ -139,9 +133,9 @@ void PTGSolver::show(){
 	}
 }
 
-void PTGSolver::initLambdas(){
+void PTGSolver::initBottoms(){
 
 	for (unsigned int i = 0; i < vals.size(); ++i){
-			lambdas[i][0] = vals[i][0];
+			bottoms[i] = vals[i][0];
 		}
 }
