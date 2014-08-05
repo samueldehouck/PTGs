@@ -11,7 +11,7 @@ private:
 	Fraction time;
 	unsigned int size;
 	vector<unsigned int> dests;
-	vector<bool> lambdas;
+	vector<unsigned int> lambdas;
 public:
 	Strategy();
 	Strategy(unsigned int);

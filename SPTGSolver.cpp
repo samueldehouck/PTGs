@@ -3,9 +3,44 @@
 #include <iostream>
 #include <queue>
 
-SPTGSolver::SPTGSolver(){
-	sptg = NULL;
+SPTGSolver::SPTGSolver(SPTG* s){
+	cout << "Construction" << endl;
+	sptg = s;
+	withBottoms = false;
 	time = Fraction(1);
+	init();
+	show();
+	cout << "Fin construction" << endl;
+}
+
+SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, vector<vector<Fraction> >* v, list<Strategy>* st){
+	sptg = s;
+	withBottoms = true;
+	bottoms = b;
+	pathsLengths = pl;
+	vals = v;
+	strategies = st;
+	time = Fraction(1);
+	show();
+
+	//Initialization
+	size = sptg->getSize();
+	if(size != 0){
+		lambdas.push_back(vector<Fraction>());
+		lambdas[0].push_back(Fraction(0));
+		lambdas[0].push_back(Fraction(0));
+
+		valueFcts->push_back(list<Point>());
+
+		for (unsigned int i = 1; i < size; ++i){
+			lambdas.push_back(vector<Fraction>());
+			lambdas[i].push_back(0);
+			lambdas[i].push_back(0);
+
+			valueFcts->push_back(list<Point>());
+		}
+	}
+
 }
 
 
@@ -25,28 +60,28 @@ void SPTGSolver::show(){
 	}
 
 	cout << "Strategies: " << endl;
-	for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end(); ++it){
+	for (list<Strategy>::iterator it = strategies->begin(); it != strategies->end(); ++it){
 		it->show();
 	}
 	cout << endl;
 
 	cout << "Lengths: " << endl;
-	for (unsigned int i = 0; i < pathsLengths.size(); ++i)
-		cout << pathsLengths[i] << "	";
+	for (unsigned int i = 0; i < pathsLengths->size(); ++i)
+		cout << (*pathsLengths)[i] << "	";
 	cout << endl;
 
 	cout << "Vals:" << endl;
-	for (unsigned int i = 0; i < vals.size(); ++i){
-		for (unsigned int j = 0; j < vals[i].size(); ++j){
-			cout << vals[i][j] << "	";
+	for (unsigned int i = 0; i < vals->size(); ++i){
+		for (unsigned int j = 0; j < (*vals)[i].size(); ++j){
+			cout << (*vals)[i][j] << "	";
 		}
 		cout << endl;
 	}
 
 	cout << "Value Functions" << endl;
-	for (unsigned int i = 1; i < valueFcts.size(); ++i){
+	for (unsigned int i = 1; i < valueFcts->size(); ++i){
 		cout << " State " << i <<": ";
-		for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
+		for(list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it){
 			cout << "(" << it->getX() << "," << it->getY() << ")	";
 		}
 		cout << endl;
@@ -54,50 +89,55 @@ void SPTGSolver::show(){
 }
 
 void SPTGSolver::init(){
+
 	//   Initialization of all vectors and variables used by the solver
 	size = sptg->getSize();
 	if(size != 0){
-		vals.push_back(vector<Fraction>());
-		vals[0].push_back(Fraction(0));
-		vals[0].push_back(Fraction(0));
-		strategies.push_front(Strategy(size, time));
-		strategies.front().insert(0,0,false);
+		vals = new vector<vector<Fraction> >();
+		vals->push_back(vector<Fraction>());
+		(*vals)[0].push_back(Fraction(0));
+		(*vals)[0].push_back(Fraction(0));
 
-		pathsLengths.push_back(0);
+		strategies = new list<Strategy> ();
+		(*strategies).push_front(Strategy(size, time));
+		(*strategies).front().insert(0,0,false);
+
+		pathsLengths = new vector<unsigned int>();
+		pathsLengths->push_back(0);
 
 		lambdas.push_back(vector<Fraction>());
 		lambdas[0].push_back(Fraction(0));
 		lambdas[0].push_back(Fraction(0));
 
-		valueFcts.push_back(list<Point>());
+		valueFcts = new vector<list<Point> >();
+		valueFcts->push_back(list<Point>());
+
 		// Fill the initial valors, strategies and the ensemble of states
 		for (unsigned int i = 1; i < size; ++i){
-			vals.push_back(vector<Fraction>());
-			vals[i].push_back(Fraction(ifnty));
-			vals[i].push_back(Fraction(0));
+			vals->push_back(vector<Fraction>());
+			(*vals)[i].push_back(Fraction(ifnty));
+			(*vals)[i].push_back(Fraction(0));
 
-			strategies.front().insert(i, -1, false);
-			pathsLengths.push_back(0);
+			strategies->front().insert(i, -1, false);
+			pathsLengths->push_back(0);
 
 			lambdas.push_back(vector<Fraction>());
 			lambdas[i].push_back(0);
 			lambdas[i].push_back(0);
 
-			valueFcts.push_back(list<Point>());
+			valueFcts->push_back(list<Point>());
 		}
 	}
 }
 
-void SPTGSolver::solveSPTG(SPTG* s){
+void SPTGSolver::solveSPTG(){
 	// This function is the core of the solver, it computes the strategies and values for the SPTG passed
-	sptg = s;
-	init();
-	show();
-	PGSolver ps(sptg, &pathsLengths, &vals, &strategies);//PGSolver will consider sptg as a pg thanks to inheritance
+
+	PGSolver ps(sptg, pathsLengths, vals, strategies);//PGSolver will consider sptg as a pg thanks to inheritance
 	bool notCycling = ps.extendedDijkstra(false); //If extendedDijkstra returns false, some states can't be treated and there is a cycle
 	show();
 	while (notCycling && time > 0){
-		strategies.push_front(Strategy(size));
+		strategies->push_front(Strategy(size));
 		actualizeLambdas();
 		if(time.num == 1 && time.den == 1)//If it's the first turn, we have to "initialize" the value functions
 			buildValueFcts(0);
@@ -108,7 +148,7 @@ void SPTGSolver::solveSPTG(SPTG* s){
 			epsilon = time;
 		buildValueFcts(epsilon);
 		actualizeVals(epsilon);
-		strategies.front().setTime(time);
+		strategies->front().setTime(time);
 		show();
 	}
 	if(notCycling){
@@ -134,24 +174,24 @@ void SPTGSolver::strategyIteration(){
 
 void SPTGSolver::actualizeLambdas(){
 	for (unsigned int i = 1; i < lambdas.size(); ++i){
-		lambdas[i][0] = vals[i][0];
-		lambdas[i][1] = vals[i][1] + sptg->getState(i);
+		lambdas[i][0] = (*vals)[i][0];
+		lambdas[i][1] = (*vals)[i][1] + sptg->getState(i);
 
 
 		//We need to force P1's states to take the lambda transition before changing.
 		if(sptg->getOwner(i)){
-			vals[i][0] = lambdas[i][0];
-			vals[i][1] = lambdas[i][1];
-			strategies.front().insert(i,0,true);
-			pathsLengths[i] = 1;
+			(*vals)[i][0] = lambdas[i][0];
+			(*vals)[i][1] = lambdas[i][1];
+			strategies->front().insert(i,0,true);
+			(*pathsLengths)[i] = 1;
 		}
 	}
 }
 
 void SPTGSolver::actualizeVals(Fraction epsilon){
-	for (unsigned int i = 1; i < vals.size(); ++i){
-		vals[i][0] = vals[i][0] + vals[i][1]*epsilon;
-		vals[i][1] = Fraction(0);
+	for (unsigned int i = 1; i < vals->size(); ++i){
+		(*vals)[i][0] = (*vals)[i][0] + (*vals)[i][1]*epsilon;
+		(*vals)[i][1] = Fraction(0);
 	}
 }
 
@@ -168,15 +208,15 @@ bool SPTGSolver::makeImpSwitchesP1(){
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					//We need to check all transitions for every states except the lambda transition because it is taken by default
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
-						Fraction tempVal = vals[nextState][0] + sptg->getTransition(state, nextState);
-						unsigned int tempLength = pathsLengths[nextState] + 1;
-						if((tempVal < vals[state][0])//If we have an improvement, we update the values found
-								|| ((tempVal == vals[state][0]) && (vals[nextState][1] < vals[state][1]))
-								||((tempVal == vals[state][0]) && (vals[nextState][1] == vals[state][1]) && (tempLength < pathsLengths[state]))){
-							vals[state][0] = tempVal;
-							vals[state][1] = vals[nextState][1];
-							pathsLengths[state] = tempLength;
-							strategies.front().insert(state, nextState, false);
+						Fraction tempVal = (*vals)[nextState][0] + sptg->getTransition(state, nextState);
+						unsigned int tempLength = (*pathsLengths)[nextState] + 1;
+						if((tempVal < (*vals)[state][0])//If we have an improvement, we update the values found
+								|| ((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] < (*vals)[state][1]))
+								||((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] == (*vals)[state][1]) && (tempLength < (*pathsLengths)[state]))){
+							(*vals)[state][0] = tempVal;
+							(*vals)[state][1] = (*vals)[nextState][1];
+							(*pathsLengths)[state] = tempLength;
+							strategies->front().insert(state, nextState, false);
 							allDone = false;
 							changed = true;
 						}
@@ -205,27 +245,27 @@ bool SPTGSolver::makeImpSwitchesP2(){
 			if(!sptg->getOwner(state)){
 				//Check the lambda transition
 
-				if((lambdas[state][0] > vals[state][0]) ||
-						((lambdas[state][0] == vals[state][0]) && (lambdas[state][1] > vals[state][1]))){
+				if((lambdas[state][0] > (*vals)[state][0]) ||
+						((lambdas[state][0] == (*vals)[state][0]) && (lambdas[state][1] > (*vals)[state][1]))){
 					//If we have an improvement, we update the values found
-					vals[state][0] = lambdas[state][0];
-					vals[state][1] = lambdas[state][1];
-					strategies.front().insert(state, 0, true);
-					pathsLengths[state] = 1;
+					(*vals)[state][0] = lambdas[state][0];
+					(*vals)[state][1] = lambdas[state][1];
+					strategies->front().insert(state, 0, true);
+					(*pathsLengths)[state] = 1;
 					allDone = false;
 					changed = true;
 				}
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
-						Fraction tempVal = vals[nextState][0] + sptg->getTransition(state, nextState);
-						unsigned int tempLength = pathsLengths[nextState] + 1;
-						if((tempVal > vals[state][0]) || ((tempVal == vals[state][0]) && (vals[nextState][1] > vals[state][1]))
-								||((tempVal == vals[state][0]) && (vals[nextState][1] == vals[state][1]) && (tempLength > pathsLengths[state]))){
+						Fraction tempVal = (*vals)[nextState][0] + sptg->getTransition(state, nextState);
+						unsigned int tempLength = (*pathsLengths)[nextState] + 1;
+						if((tempVal > (*vals)[state][0]) || ((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] > (*vals)[state][1]))
+								||((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] == (*vals)[state][1]) && (tempLength > (*pathsLengths)[state]))){
 							//If we have an improvement, we update the values found
-							vals[state][0] = tempVal;
-							vals[state][1] = vals[nextState][1];
-							pathsLengths[state] = tempLength;
-							strategies.front().insert(state, nextState, false);
+							(*vals)[state][0] = tempVal;
+							(*vals)[state][1] = (*vals)[nextState][1];
+							(*pathsLengths)[state] = tempLength;
+							strategies->front().insert(state, nextState, false);
 							allDone = false;
 							changed = true;
 						}
@@ -251,10 +291,10 @@ void SPTGSolver::propagate(unsigned int state){
 	while (!q.empty() ){
 		unsigned int tmpState = q.front();
 		for(unsigned int i = 1; i < size; ++i){
-			if(strategies.front().getDest(i) == tmpState){
-				vals[i][0] = vals[tmpState][0] + sptg->getTransition(i,tmpState);
-				vals[i][1] = vals[tmpState][1];
-				pathsLengths[i] = pathsLengths[tmpState] + 1;
+			if(strategies->front().getDest(i) == tmpState){
+				(*vals)[i][0] = (*vals)[tmpState][0] + sptg->getTransition(i,tmpState);
+				(*vals)[i][1] = (*vals)[tmpState][1];
+				(*pathsLengths)[i] = (*pathsLengths)[tmpState] + 1;
 				if(!checked[i]){
 					q.push(i);
 					checked[i] = true;
@@ -266,21 +306,21 @@ void SPTGSolver::propagate(unsigned int state){
 }
 
 void SPTGSolver::addPoint(unsigned int index, Fraction x, Fraction y){
-	valueFcts[index].push_front(Point(x,y));
+	(*valueFcts)[index].push_front(Point(x,y));
 }
 
 void SPTGSolver::buildValueFcts(Fraction epsilon){
 	//   Add a point for every state
 	time = time - epsilon;
 	for (unsigned int i = 1; i < size; ++i){
-		Fraction tmpVal = vals[i][0] + (vals[i][1]*epsilon);
-		list<Point>::iterator it = valueFcts[i].begin();
+		Fraction tmpVal = (*vals)[i][0] + ((*vals)[i][1]*epsilon);
+		list<Point>::iterator it = (*valueFcts)[i].begin();
 		++it;
-		if(it != valueFcts[i].end()){
+		if(it != (*valueFcts)[i].end()){
 			Fraction coef = (it->getY() - tmpVal)/(it->getX() - time);
 
-			if(tmpVal + (coef * (valueFcts[i].front().getX() - time)) == valueFcts[i].front().getY()){
-				valueFcts[i].pop_front();
+			if(tmpVal + (coef * ((*valueFcts)[i].front().getX() - time)) == (*valueFcts)[i].front().getY()){
+				(*valueFcts)[i].pop_front();
 			}
 		}
 		addPoint(i, time , tmpVal);
@@ -294,8 +334,8 @@ Fraction SPTGSolver::nextEventPoint(){
 	for (unsigned int state = 1; state < size; ++state){
 		//     First we have to check if an epsilon can be found using the lambda transition
 		Fraction tempMin(ifnty);
-		if(vals[state][0] != lambdas[state][0] && lambdas[state][1] != vals[state][1]){
-			tempMin = (vals[state][0] - lambdas[state][0])/(lambdas[state][1] - vals[state][1]);
+		if((*vals)[state][0] != lambdas[state][0] && lambdas[state][1] != (*vals)[state][1]){
+			tempMin = ((*vals)[state][0] - lambdas[state][0])/(lambdas[state][1] - (*vals)[state][1]);
 			if(tempMin < 0)
 				tempMin = ifnty;
 			if( time - tempMin < min)
@@ -305,11 +345,11 @@ Fraction SPTGSolver::nextEventPoint(){
 		for (unsigned int nextState = 0; nextState < size; ++nextState){
 			//       Then we need to check if there is another epsilon that can be found using the other transitions
 			tempMin = Fraction(ifnty);
-			if(sptg->getTransition(state, nextState) != -1 && (vals[state][0] != vals[nextState][0] + sptg->getTransition(state, nextState)) &&
-					(vals[nextState][1] != vals[state][1]))
+			if(sptg->getTransition(state, nextState) != -1 && ((*vals)[state][0] != (*vals)[nextState][0] + sptg->getTransition(state, nextState)) &&
+					((*vals)[nextState][1] != (*vals)[state][1]))
 			{
 
-				tempMin = (vals[state][0] - (vals[nextState][0]+sptg->getTransition(state, nextState)))/(vals[nextState][1] - vals[state][1]);
+				tempMin = ((*vals)[state][0] - ((*vals)[nextState][0]+sptg->getTransition(state, nextState)))/((*vals)[nextState][1] - (*vals)[state][1]);
 
 				if(tempMin < 0)
 					tempMin = ifnty;
@@ -324,6 +364,6 @@ Fraction SPTGSolver::nextEventPoint(){
 	return min;
 }
 
-list<Strategy> SPTGSolver::getStrategies(){
+list<Strategy>* SPTGSolver::getStrategies(){
 	return strategies;
 }

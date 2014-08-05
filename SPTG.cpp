@@ -6,7 +6,7 @@ SPTG::SPTG(){
 	//  Example of the paper of the three danish
 
 	states = new vector<Fraction>;
-	/*
+
  states->push_back(0);
  states->push_back(9);
  states->push_back(3);
@@ -15,7 +15,7 @@ SPTG::SPTG(){
  states->push_back(0);
 
  for (int i = 0; i <= 5; ++i){
-   transitions->push_back(vector<int>());
+   transitions->push_back(vector<Fraction>());
    for (int j = 0; j <= 5; ++j)
     (*transitions)[i].push_back(-1);
  }
@@ -37,7 +37,7 @@ SPTG::SPTG(){
   owners->push_back(1);
   owners->push_back(1);
 
- cout << "SPTG initalized" << endl;*/
+ cout << "SPTG initalized" << endl;
 }
 
 SPTG::~SPTG(){

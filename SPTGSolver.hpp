@@ -13,12 +13,14 @@
 class SPTGSolver{
 private:
 	SPTG* sptg;
+	bool withBottoms;
 	unsigned int size;
-	vector<vector<Fraction> > vals;
-	vector<unsigned int> pathsLengths;
+	vector<vector<Fraction> >* vals;
+	vector<unsigned int>* pathsLengths;
 	vector<vector<Fraction> > lambdas;
-	vector<list<Point> > valueFcts;//We need a list of points for every state
-	list<Strategy> strategies;
+	vector<list<Point> >* valueFcts;//We need a list of points for every state
+	list<Strategy>* strategies;
+	vector<Fraction>* bottoms;
 	Fraction time;
 
 	void init();
@@ -34,13 +36,14 @@ private:
 	void addPoint(unsigned int, Fraction, Fraction);
 	void buildValueFcts(Fraction);
 	Fraction nextEventPoint();
-	list<Strategy> getStrategies();
+	list<Strategy>* getStrategies();
 
 public:
-	SPTGSolver();
+	SPTGSolver(SPTG*);
+	SPTGSolver(SPTG*, vector<Fraction>*,  vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>*);
 	~SPTGSolver();
 	void show();
-	void solveSPTG(SPTG*);
+	void solveSPTG();
 
 };
 

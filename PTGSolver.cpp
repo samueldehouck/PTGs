@@ -27,19 +27,26 @@ void PTGSolver::solvePTG(PTG* p){
 	//First extendedDijkstra on the biggest "M"
 	PGSolver* pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies);
 	pgSolver->extendedDijkstra(false);
+	delete pgSolver;
+
+	//Start of the loop
 	Fraction x = (Fraction(endPoints.back() + lastM))/(Fraction(2));
 	strategies.push_front(Strategy(size, x));
-	//TODO restore the transitions
+
+
 	keepTransAvailable(endPoints.back(), lastM);
-	delete pgSolver;
 	updateBottoms();
-
-
 	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
 	pgSolver->extendedDijkstra(true);
 	createMax(endM, lastM - endPoints.back());
 	updateBottoms();
 	ptg->show();
+
+	delete pgSolver;
+
+	SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies);
+	sptgSolver->solveSPTG();
+	delete sptgSolver;
 	cout << "====Results===" << endl;
 	show();
 }
@@ -71,6 +78,7 @@ void PTGSolver::init(){
 
 		valueFcts.push_back(list<Point>());
 	}
+
 }
 
 void PTGSolver::createEndPoints(){
@@ -91,6 +99,13 @@ void PTGSolver::createEndPoints(){
 }
 
 void PTGSolver::keepTransAvailable(unsigned int start, unsigned int end){
+//TODO needs to be improved
+
+	while (!storage.empty()){
+		ptg->setTransition(storage.front().origin, storage.front().dest, storage.front().dest);
+		storage.pop_front();
+	}
+
 	for (unsigned int i = 0; i < size; ++i){
 		for (unsigned int j = 0; j < size; ++j){
 			if(ptg->getTransition(i,j) != -1 && (ptg->getStartCst(i,j) > start || ptg->getEndCst(i,j) < end)){
@@ -111,7 +126,7 @@ void PTGSolver::updateBottoms(){
 
 void PTGSolver::createMax(const unsigned int endM, const unsigned int d){
 	cout << "====Creating MAX====" << endl;
-
+	//Create the new sptg with the MAX state
 	ptg->createMaxState(ifnty, endM);
 	size = ptg->getSize();
 	ptg->setTransition(size - 1, 0, 0);
