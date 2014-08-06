@@ -30,6 +30,7 @@ void PTGSolver::solvePTG(PTG* p){
 	delete pgSolver;
 
 	//Start of the loop
+	cout << "loop" << endl;
 	Fraction x = (Fraction(endPoints.back() + lastM))/(Fraction(2));
 	strategies.push_front(Strategy(size, x));
 
@@ -39,14 +40,14 @@ void PTGSolver::solvePTG(PTG* p){
 	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
 	pgSolver->extendedDijkstra(true);
 	createMax(endM, lastM - endPoints.back());
-	updateBottoms();
 	ptg->show();
 
 	delete pgSolver;
 
 	SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies);
+
 	sptgSolver->solveSPTG();
-	//delete sptgSolver;
+	delete sptgSolver;
 	cout << "====Results===" << endl;
 	//show();
 }
@@ -129,8 +130,7 @@ void PTGSolver::createMax(const unsigned int endM, const unsigned int d){
 	//Create the new sptg with the MAX state
 	ptg->createMaxState(ifnty, endM);
 	size = ptg->getSize();
-	ptg->setTransition(size - 1, 0, 0);
-	for (unsigned int i = 0; i < size - 1; ++i){
+	for (unsigned int i = 0; i < size; ++i){
 		ptg->setState(i, ptg->getState(i) * d);
 		if(ptg->getOwner(i) && ptg->getTransition(i, 0) != -1){
 			Fraction tmp = ptg->getTransition(i, 0);
@@ -138,8 +138,13 @@ void PTGSolver::createMax(const unsigned int endM, const unsigned int d){
 			ptg->setTransition(i, size - 1, tmp);
 			ptg->setTransition(i, 0, -1);
 		}
-
 	}
+	vals.push_back(vector<Fraction>());
+	vals.back().push_back(0);
+	vals.back().push_back(0);
+
+	//The transition from MAX to bottom is considered as a bottom transition
+	bottoms[size - 1] = 0;
 }
 
 

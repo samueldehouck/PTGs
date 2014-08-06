@@ -131,10 +131,24 @@ void SPTGSolver::init(){
 }
 
 void SPTGSolver::solveSPTG(){
+	cout << "====SolveSPTG====" << endl;
 	// This function is the core of the solver, it computes the strategies and values for the SPTG passed
+	PGSolver* ps;
+	bool notCycling = false;
+	if(withBottoms){
+		ps = new PGSolver(sptg, pathsLengths, vals, strategies, bottoms);//PGSolver will consider sptg as a pg thanks to inheritance
+		notCycling = ps->extendedDijkstra(true);
+	}
+	else{
+		ps = new PGSolver(sptg, pathsLengths, vals, strategies);//PGSolver will consider sptg as a pg thanks to inheritance
+		notCycling = ps->extendedDijkstra(false); //If extendedDijkstra returns false, some states can't be treated and there is a cycle
+	}
+	sptg->show();
+	for (unsigned int i = 0; i < size; ++i){
+		cout << (*bottoms)[i] << " ";
+	}
+	cout << endl;
 
-	PGSolver ps(sptg, pathsLengths, vals, strategies);//PGSolver will consider sptg as a pg thanks to inheritance
-	bool notCycling = ps.extendedDijkstra(false); //If extendedDijkstra returns false, some states can't be treated and there is a cycle
 	show();
 	while (notCycling && time > 0){
 		strategies->push_front(Strategy(size));

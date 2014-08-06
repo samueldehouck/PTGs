@@ -15,7 +15,7 @@ PTG::PTG(){
 	states->push_back(6);
 	states->push_back(2);
 	states->push_back(5);
-	states->push_back(4);
+	states->push_back(3);
 
 	for (unsigned int i = 0; i < states->size(); ++i){
 		transitions->push_back(vector<Fraction>());

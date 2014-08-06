@@ -47,6 +47,8 @@ SPTG::~SPTG(){
 }
 
 void SPTG::show(){
+	cout << "====GAME====" << endl;
+
 	cout << "Rates: " << endl;
 	for (unsigned int i =0; i < states->size(); ++i)
 		cout << (*states)[i] << " ";
