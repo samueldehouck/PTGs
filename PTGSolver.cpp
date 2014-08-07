@@ -31,6 +31,10 @@ void PTGSolver::solvePTG(PTG* p){
 	pgSolver->extendedDijkstra(false);
 	delete pgSolver;
 
+	//Updating the value functions
+	for (unsigned int i = 0; i < size; ++i){
+		valueFcts[i].push_front(Point(time,vals[i][0]));
+	}
 	show();
 
 	//Start of the (future) loop
@@ -44,7 +48,7 @@ void PTGSolver::solvePTG(PTG* p){
 	pgSolver->extendedDijkstra(true);
 	createMax(endM, lastM - endPoints.back());
 	ptg->show();
-
+	show();
 	delete pgSolver;
 
 	SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts);
@@ -59,9 +63,13 @@ void PTGSolver::solvePTG(PTG* p){
 	updateBottoms();
 	ptg->show();
 	strategies.push_front(Strategy(size, endPoints.back(), true));
-
+	time = endPoints.back();
+	endPoints.pop_back();
 	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
 	pgSolver->extendedDijkstra(true);
+	for (unsigned int i = 0; i < size; ++i){
+		valueFcts[i].push_front(Point(time,vals[i][0]));
+	}
 
 	cout << "====Results SolvePTG===" << endl;
 	show();
@@ -145,8 +153,8 @@ void PTGSolver::keepTransAvailable(unsigned int start, unsigned int end){
 void PTGSolver::updateBottoms(){
 
 	for (unsigned int i = 0; i < vals.size(); ++i){
-			bottoms[i] = vals[i][0];
-		}
+		bottoms[i] = vals[i][0];
+	}
 }
 
 void PTGSolver::createMax(const unsigned int endM, const unsigned int d){
@@ -196,9 +204,9 @@ void PTGSolver::show(){
 
 	cout << "bottoms:" << endl;
 	for (unsigned int i = 0; i < bottoms.size(); ++i){
-			cout <<  bottoms[i]<< "	";
-		}
-		cout << endl;
+		cout <<  bottoms[i]<< "	";
+	}
+	cout << endl;
 
 
 	cout << "Strategies: " << endl;

@@ -92,7 +92,7 @@ bool PGSolver::extendedDijkstra(bool withBottoms){
 
 				if(withBottoms && ensBottoms[state]){
 					if( min >  (*bottoms)[state]){
-						cout << "minIsLambda: " << (*bottoms)[state] << endl;
+						cout << "minisBottom: " << (*bottoms)[state] << endl;
 						finalState = state;
 						finalTrans = 0;
 						min = (*bottoms)[state];
@@ -116,7 +116,7 @@ bool PGSolver::extendedDijkstra(bool withBottoms){
 		}
 		//Change the values
 
-		if((pg->getOwner(finalState) || isLastTransition(finalState, finalTrans, minIsBottom))){
+		if((pg->getOwner(finalState) || isLastTransition(finalState, finalTrans, minIsBottom, withBottoms))){
 			cout << "Change value of state " << finalState << " to ";
 			if(minIsBottom){
 				cout << (*bottoms)[finalState] << endl;
@@ -136,7 +136,7 @@ bool PGSolver::extendedDijkstra(bool withBottoms){
 			ensStates[finalState] = false;
 		}
 		else{
-			cout << "Delete transition " << finalTrans << "from state " << finalState << endl;
+			cout << "Delete transition to " << finalTrans << " from state " << finalState << endl;
 			if(minIsBottom)
 				ensBottoms[finalState] = false;
 			else
@@ -177,12 +177,18 @@ bool PGSolver::remainsStates(){
 	return false;
 }
 
-bool PGSolver::isLastTransition(unsigned int state, unsigned int nextState, bool isLambda){
+bool PGSolver::isLastTransition(unsigned int state, unsigned int nextState, bool isBottom, bool withBottoms){
 	//Check if the transition going from state to nextState is the last one
+
 	bool isLast = true;
-	for (unsigned int i;isLast && i < ensTransitions[state].size(); ++i){
-		if((isLambda || i != nextState) && ensTransitions[state][i])
-			isLast = false;
+	if(withBottoms && !isBottom && ensBottoms[state] != -1){
+		return false;
+	}
+	else{
+		for (unsigned int i;isLast && i < ensTransitions[state].size(); ++i){
+			if((i != nextState) && ensTransitions[state][i])
+				isLast = false;
+		}
 	}
 	return isLast;
 }
