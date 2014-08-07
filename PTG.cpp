@@ -115,6 +115,24 @@ void PTG::createMaxState(Fraction f, unsigned int endCst){
 
 }
 
+void PTG::deleteMaxState(){
+	states->pop_back();
+	owners->pop_back();
+	transitions->pop_back();
+	resets->pop_back();
+	startsCstraints->pop_back();
+	endsCstraints->pop_back();
+
+	//Delete at all ends
+	for (unsigned int i = 0; i < getSize(); ++i){
+		(*transitions)[i].pop_back();
+		(*resets)[i].pop_back();
+		(*startsCstraints)[i].pop_back();
+		(*endsCstraints)[i].pop_back();
+	}
+
+}
+
 void PTG::show(){
 	cout << "====PTG===" << endl;
 	SPTG::show();

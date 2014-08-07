@@ -21,7 +21,9 @@ public:
 	Fraction operator*(Fraction);
 	Fraction operator/(Fraction);
 	bool operator<(Fraction);
+	bool operator<=(Fraction);
 	bool operator>(Fraction);
+	bool operator>=(Fraction);
 	bool operator==(Fraction);
 	bool operator!=(Fraction);
 	void reduce();

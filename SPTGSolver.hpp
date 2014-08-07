@@ -40,7 +40,7 @@ private:
 
 public:
 	SPTGSolver(SPTG*);
-	SPTGSolver(SPTG*, vector<Fraction>*,  vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>*);
+	SPTGSolver(SPTG*, vector<Fraction>*,  vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>*, vector<list<Point> >*);
 	~SPTGSolver();
 	void show();
 	void solveSPTG();

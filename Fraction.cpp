@@ -102,12 +102,26 @@ bool Fraction::operator<(Fraction i){
 
 }
 
+bool Fraction::operator <=(Fraction i){
+	if((num/(double)den) <= (i.num/(double)i.den))
+			return true;
+		else
+			return false;
+}
+
 bool Fraction::operator>(Fraction i){
 	if((num/(double)den) > (i.num/(double)i.den))
 		return true;
 	else
 		return false;
 
+}
+
+bool Fraction::operator >=(Fraction i){
+	if((num/(double)den) >= (i.num/(double)i.den))
+			return true;
+		else
+			return false;
 }
 
 bool Fraction::operator==(Fraction i){

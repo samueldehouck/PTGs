@@ -27,6 +27,8 @@ private:
 	void keepTransAvailable(unsigned int, unsigned int);
 	void updateBottoms();
 	void createMax(const unsigned int, const unsigned int);
+	void rescale(unsigned int, unsigned int);
+	void deleteMax();
 public:
 	PTGSolver();
 	void solvePTG(PTG*);

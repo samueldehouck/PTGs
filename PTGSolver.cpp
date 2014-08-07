@@ -21,6 +21,7 @@ void PTGSolver::solvePTG(PTG* p){
 
 	init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
 
+	//Update the transitions that can be taken between the two given parameters
 	keepTransAvailable(time, time);
 	ptg->show();
 
@@ -29,8 +30,7 @@ void PTGSolver::solvePTG(PTG* p){
 	pgSolver->extendedDijkstra(false);
 	delete pgSolver;
 
-	//Start of the loop
-	cout << "loop" << endl;
+	//Start of the (future) loop
 	Fraction x = (Fraction(endPoints.back() + lastM))/(Fraction(2));
 	strategies.push_front(Strategy(size, x));
 
@@ -44,12 +44,20 @@ void PTGSolver::solvePTG(PTG* p){
 
 	delete pgSolver;
 
-	SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies);
+	SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts);
 
 	sptgSolver->solveSPTG();
 	delete sptgSolver;
-	cout << "====Results===" << endl;
-	//show();
+
+	rescale(endPoints.back(), lastM);
+	deleteMax();
+	keepTransAvailable(endPoints.back(), endPoints.back());
+	updateBottoms();
+	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
+	pgSolver->extendedDijkstra(true);
+
+	cout << "====Results PTG===" << endl;
+	show();
 }
 
 void PTGSolver::init(){
@@ -102,11 +110,13 @@ void PTGSolver::createEndPoints(){
 void PTGSolver::keepTransAvailable(unsigned int start, unsigned int end){
 //TODO needs to be improved
 
+	//Restore all transitions
 	while (!storage.empty()){
 		ptg->setTransition(storage.front().origin, storage.front().dest, storage.front().dest);
 		storage.pop_front();
 	}
 
+	//Store the ones that can't be taken
 	for (unsigned int i = 0; i < size; ++i){
 		for (unsigned int j = 0; j < size; ++j){
 			if(ptg->getTransition(i,j) != -1 && (ptg->getStartCst(i,j) > start || ptg->getEndCst(i,j) < end)){
@@ -142,13 +152,29 @@ void PTGSolver::createMax(const unsigned int endM, const unsigned int d){
 	vals.push_back(vector<Fraction>());
 	vals.back().push_back(0);
 	vals.back().push_back(0);
+	valueFcts.push_back(list<Point>());
 
 	//The transition from MAX to bottom is considered as a bottom transition
 	bottoms[size - 1] = 0;
 }
 
 
+void PTGSolver::rescale(unsigned int start, unsigned int end){
+	cout << "====Rescaling====" << endl;
+	for (vector<list<Point> >::iterator it = valueFcts.begin(); it != valueFcts.end(); ++it){
+		for (list<Point>::iterator itL = it->begin(); itL != it->end() && itL->getX() <= 1 ; ++itL){
+			itL->setX((itL->getX() * Fraction(end - start)) + start);
+		}
+	}
+}
 
+void PTGSolver::deleteMax(){
+	cout << "====Deleting Max====" << endl;
+	ptg->deleteMaxState();
+	size = ptg->getSize();
+	vals.pop_back();
+	valueFcts.pop_back();
+}
 
 void PTGSolver::show(){
 

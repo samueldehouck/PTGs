@@ -16,3 +16,7 @@ Fraction Point::getX() const{
 Fraction Point::getY() const {
 	return y;
 }
+
+void Point::setX(Fraction i){
+	x = i;
+}

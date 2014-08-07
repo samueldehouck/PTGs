@@ -13,13 +13,14 @@ SPTGSolver::SPTGSolver(SPTG* s){
 	cout << "Fin construction" << endl;
 }
 
-SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, vector<vector<Fraction> >* v, list<Strategy>* st){
+SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, vector<vector<Fraction> >* v, list<Strategy>* st, vector<list<Point> >* vF){
 	sptg = s;
 	withBottoms = true;
 	bottoms = b;
 	pathsLengths = pl;
 	vals = v;
 	strategies = st;
+	valueFcts = vF;
 	time = Fraction(1);
 	show();
 
@@ -30,22 +31,21 @@ SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, 
 		lambdas[0].push_back(Fraction(0));
 		lambdas[0].push_back(Fraction(0));
 
-		valueFcts = new vector<list<Point> >();
-		valueFcts->push_back(list<Point>());
+
 
 		for (unsigned int i = 1; i < size; ++i){
 			lambdas.push_back(vector<Fraction>());
 			lambdas[i].push_back(0);
 			lambdas[i].push_back(0);
 
-			valueFcts->push_back(list<Point>());
 		}
 	}
 }
 
 
 SPTGSolver::~SPTGSolver(){
-	delete valueFcts;
+	if(!withBottoms)
+		delete valueFcts;
 }
 
 void SPTGSolver::show(){

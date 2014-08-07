@@ -18,6 +18,7 @@ public:
 	unsigned int getEndCst(unsigned int, unsigned int) const;
 	unsigned int getReset(unsigned int, unsigned int) const;
 	void createMaxState(Fraction, unsigned int);
+	void deleteMaxState();
 	void show();
 };
 

@@ -13,6 +13,7 @@ public:
 	Point(Fraction, Fraction);
 	Fraction getX() const;
 	Fraction getY() const ;
+	void setX(Fraction);
 };
 
 #endif
