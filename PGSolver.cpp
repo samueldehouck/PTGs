@@ -73,7 +73,7 @@ bool PGSolver::extendedDijkstra(bool withBottoms){
 	//the parameter "withBottoms" is true when we have created a PG in solvePTG
 
 	//TODO: maybe refactor it to improve the gestion of bottom transitions
-	cout << endl << "====Extended Dijkstra====" << endl;
+	cout << "====Extended Dijkstra====" << endl;
 	//Compute the values in a Priced Game
 	unsigned int cnt = nbTransitions;
 

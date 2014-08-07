@@ -26,15 +26,18 @@ void PTGSolver::solvePTG(PTG* p){
 	ptg->show();
 
 	//First extendedDijkstra on the biggest "M"
+	cout << "====First extended Dijkstra====" << endl;
 	PGSolver* pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies);
 	pgSolver->extendedDijkstra(false);
 	delete pgSolver;
 
+	show();
+
 	//Start of the (future) loop
-	Fraction x = (Fraction(endPoints.back() + lastM))/(Fraction(2));
-	strategies.push_front(Strategy(size, x));
+	//Fraction x = (Fraction(endPoints.back() + lastM))/(Fraction(2));
+	//strategies.push_front(Strategy(size, x));
 
-
+	strategies.push_front(Strategy(size, time, false));
 	keepTransAvailable(endPoints.back(), lastM);
 	updateBottoms();
 	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
@@ -55,11 +58,14 @@ void PTGSolver::solvePTG(PTG* p){
 	keepTransAvailable(endPoints.back(), endPoints.back());
 	updateBottoms();
 	ptg->show();
-	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
-	//pgSolver->extendedDijkstra(true);
+	strategies.push_front(Strategy(size, endPoints.back(), true));
 
-	cout << "====Results PTG===" << endl;
+	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
+	pgSolver->extendedDijkstra(true);
+
+	cout << "====Results SolvePTG===" << endl;
 	show();
+
 }
 
 void PTGSolver::init(){
@@ -67,7 +73,7 @@ void PTGSolver::init(){
 	vals[0].push_back(0);
 	vals[0].push_back(0);
 
-	strategies.push_front(Strategy(size, time));
+	strategies.push_front(Strategy(size, time, true));
 	strategies.front().insert(0,0,false);
 
 	pathsLengths.push_back(0);
@@ -174,6 +180,8 @@ void PTGSolver::rescale(unsigned int start, unsigned int end){
 			itL->setX((itL->getX() * Fraction(end - start)) + start);
 		}
 	}
+	for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end() && it->getTime() < 1; ++it)
+		it->setTime((it->getTime() * Fraction(end - start)) + start);
 }
 
 void PTGSolver::deleteMax(){

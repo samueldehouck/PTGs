@@ -99,7 +99,7 @@ void SPTGSolver::init(){
 		(*vals)[0].push_back(Fraction(0));
 
 		strategies = new list<Strategy> ();
-		(*strategies).push_front(Strategy(size, time));
+		(*strategies).push_front(Strategy(size, time, false));
 		(*strategies).front().insert(0,0,false);
 
 		pathsLengths = new vector<unsigned int>();
