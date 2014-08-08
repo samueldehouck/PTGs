@@ -205,6 +205,33 @@ void PTGSolver::deleteMax(){
 void PTGSolver::cleanValueFcts(){
 	cout << "====Cleaning Value Fcts====" << endl;
 
+	for (vector<list<Point> >::iterator itV = valueFcts.begin(); itV != valueFcts.end(); ++itV){
+		//For every state
+		list<Point>::iterator itNext = itV->begin();
+		++itNext;
+		if(itNext != itV->end()){
+			list<Point>::iterator itCurrent = itV->begin();
+			++itNext;
+			++itCurrent;
+			for (list<Point>::iterator itLast = itV->begin(); itNext != itV->end(); ++itNext){
+				bool deleted = false;
+				Fraction coef = (itNext->getY() - itLast->getY())/(itNext->getX() - itLast->getX());
+
+				if(itLast->getY() + (coef * (itCurrent->getX() - itLast->getX())) == itCurrent->getY()){
+					itV->erase(itCurrent);
+					deleted = true;
+				}
+				if(deleted){
+					//itCurrent is on a space that has been deleted so we can't do ++itCurrent and itLast needs to stay where it was
+					itCurrent = itNext;
+				}
+				else{
+					++itCurrent;
+					++itLast;
+				}
+			}
+		}
+	}
 }
 
 void PTGSolver::show(){
