@@ -336,9 +336,9 @@ void SPTGSolver::buildValueFcts(Fraction epsilon){
 			tmpVal = ifnty;
 		list<Point>::iterator it = (*valueFcts)[i].begin();
 		++it;
-		if(it != (*valueFcts)[i].end()){
+		if(it != (*valueFcts)[i].end() && !withBottoms){
 			Fraction coef = (it->getY() - tmpVal)/(it->getX() - time);
-
+			//Doesn't work when resolving PTGs because the rescaling hasn't been made yet
 			if(tmpVal + (coef * ((*valueFcts)[i].front().getX() - time)) == (*valueFcts)[i].front().getY()){
 				(*valueFcts)[i].pop_front();
 			}

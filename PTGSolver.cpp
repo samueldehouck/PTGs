@@ -58,6 +58,7 @@ void PTGSolver::solvePTG(PTG* p){
 
 	rescale(endPoints.back(), lastM);
 	ptg->show();
+
 	deleteMax();
 	keepTransAvailable(endPoints.back(), endPoints.back());
 	updateBottoms();
@@ -71,6 +72,7 @@ void PTGSolver::solvePTG(PTG* p){
 		valueFcts[i].push_front(Point(time,vals[i][0]));
 	}
 
+	cleanValueFcts();
 	cout << "====Results SolvePTG===" << endl;
 	show();
 
@@ -198,6 +200,11 @@ void PTGSolver::deleteMax(){
 	size = ptg->getSize();
 	vals.pop_back();
 	valueFcts.pop_back();
+}
+
+void PTGSolver::cleanValueFcts(){
+	cout << "====Cleaning Value Fcts====" << endl;
+
 }
 
 void PTGSolver::show(){

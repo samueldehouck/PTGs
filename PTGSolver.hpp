@@ -29,6 +29,7 @@ private:
 	void createMax(const unsigned int, const unsigned int);
 	void rescale(unsigned int, unsigned int);
 	void deleteMax();
+	void cleanValueFcts();
 public:
 	PTGSolver();
 	void solvePTG(PTG*);
