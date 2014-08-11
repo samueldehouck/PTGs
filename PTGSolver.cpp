@@ -15,9 +15,8 @@ void PTGSolver::solvePTG(PTG* p){
 
 	createEndPoints();
 	unsigned int endM = endPoints.back();
-	unsigned int lastM = endM;
 	endPoints.pop_back();
-	time = lastM;
+	time = endM;
 
 	init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
 
@@ -36,43 +35,56 @@ void PTGSolver::solvePTG(PTG* p){
 		valueFcts[i].push_front(Point(time,vals[i][0]));
 	}
 	show();
-
+	unsigned int count = 3;
 	//Start of the (future) loop
-	//Fraction x = (Fraction(endPoints.back() + lastM))/(Fraction(2));
-	//strategies.push_front(Strategy(size, x));
+	while(!endPoints.empty() && count != 0){
 
-	strategies.push_front(Strategy(size, time, false));
-	keepTransAvailable(endPoints.back(), lastM);
-	updateBottoms();
-	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
-	pgSolver->extendedDijkstra(true);
-	createMax(endM, lastM - endPoints.back());
-	ptg->show();
-	show();
-	delete pgSolver;
 
-	SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts);
+		time = endPoints.back();
+		cout << "===TIME: " << time << " ===" << endl;
 
-	sptgSolver->solveSPTG();
-	delete sptgSolver;
+		endPoints.pop_back();
+		//First ExtendedDijkstra done at the last "M"
+		strategies.push_front(Strategy(size, endM, false));
+		keepTransAvailable(time, endM);
+		updateBottoms();
+		pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
+		pgSolver->extendedDijkstra(true);
+		delete pgSolver;
 
-	rescale(endPoints.back(), lastM);
-	ptg->show();
+		//We need to update the time to get the interval for the resolution of the SPTG
+		createMax(endM, endM - time);
+		//ptg->show();
 
-	deleteMax();
-	keepTransAvailable(endPoints.back(), endPoints.back());
-	updateBottoms();
-	ptg->show();
-	strategies.push_front(Strategy(size, endPoints.back(), true));
-	time = endPoints.back();
-	endPoints.pop_back();
-	pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
-	pgSolver->extendedDijkstra(true);
-	for (unsigned int i = 0; i < size; ++i){
-		valueFcts[i].push_front(Point(time,vals[i][0]));
+		//The solveSPTG is done on the new SPTG with the "max" state
+		SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts);
+		sptgSolver->solveSPTG();
+		delete sptgSolver;
+
+		//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
+		rescale(time, endM);
+		show();
+
+		deleteMax();
+
+		//The last step is to do an extendedDijkstra on the game in the "time" instant
+		keepTransAvailable(time, time);
+		updateBottoms();
+		ptg->show();
+		strategies.push_front(Strategy(size, time, true));
+
+		//Update the time
+
+		pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms);
+		pgSolver->extendedDijkstra(true);
+		for (unsigned int i = 0; i < size; ++i){
+			valueFcts[i].push_front(Point(time,vals[i][0]));
+		}
+
+		cleanValueFcts();
+		endM = time;
+		--count;
 	}
-
-	cleanValueFcts();
 	cout << "====Results SolvePTG===" << endl;
 	show();
 
@@ -126,14 +138,14 @@ void PTGSolver::createEndPoints(){
 }
 
 void PTGSolver::keepTransAvailable(unsigned int start, unsigned int end){
-	cout << "===Updating Transitions====" << endl;
+	cout << "===Updating Transitions (" << start << "," << end << ") ====" << endl;
 
 	//Restore the transitions stored
 	list<Transition>::iterator next = storage.begin();
 	for (list<Transition>::iterator it = storage.begin(); it != storage.end(); it = next){
 		++next;
 		if(ptg->getStartCst(it->origin, it->dest) <= start && ptg->getEndCst(it->origin, it->dest) >= end){
-			ptg->setTransition(storage.front().origin, storage.front().dest, storage.front().cost);
+			ptg->setTransition(it->origin, it->dest, it->cost);
 			storage.erase(it);
 
 		}
@@ -149,6 +161,7 @@ void PTGSolver::keepTransAvailable(unsigned int start, unsigned int end){
 			}
 		}
 	}
+	ptg->show();
 }
 
 
@@ -160,7 +173,7 @@ void PTGSolver::updateBottoms(){
 }
 
 void PTGSolver::createMax(const unsigned int endM, const unsigned int d){
-	cout << "====Creating MAX====" << endl;
+	cout << "====Creating MAX==== "  << d << endl;
 	//Create the new sptg with the MAX state
 	ptg->createMaxState(ifnty, endM);
 	size = ptg->getSize();
