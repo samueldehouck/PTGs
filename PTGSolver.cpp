@@ -35,9 +35,9 @@ void PTGSolver::solvePTG(PTG* p){
 		valueFcts[i].push_front(Point(time,vals[i][0]));
 	}
 	show();
-	unsigned int count = 3;
+	unsigned int count = 4;
 	//Start of the (future) loop
-	while(!endPoints.empty() && count != 0){
+	while(!endPoints.empty()){
 
 
 		time = endPoints.back();
