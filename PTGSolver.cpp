@@ -279,7 +279,7 @@ void PTGSolver::show(){
 	for (unsigned int i = 1; i < valueFcts.size(); ++i){
 		cout << " State " << i <<": ";
 		for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
-			cout << "(" << it->getX() << "," << it->getY() << ")	";
+			cout << "(" << it->getX() << "," << it->getY() << ") ";
 		}
 		cout << endl;
 	}
