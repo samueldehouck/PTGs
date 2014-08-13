@@ -13,7 +13,7 @@ Strategy::Strategy(unsigned int s){
 	included = false;
 	for (unsigned int j = 0; j <= size; ++j){
 		dests.push_back(0);
-		lambdas.push_back(false);
+		types.push_back(0);
 	}
 }
 
@@ -23,26 +23,26 @@ Strategy::Strategy(unsigned int s, Fraction t, bool i){
 	included = i;
 	for (unsigned int j = 0; j < size; ++j){
 		dests.push_back(0);
-		lambdas.push_back(false);
+		types.push_back(0);
 	}
 }
 
 Strategy::Strategy(const Strategy& s){
 	time = s.getTime();
 	dests.clear();
-	lambdas.clear();
+	types.clear();
 	size = s.getSize();
 	included = s.getInclusion();
 	for (unsigned int i = 0; i < size; ++i){
 		dests.push_back(s.getDest(i));
-		lambdas.push_back(s.getLambda(i));
+		types.push_back(s.getType(i));
 	}
 }
 
-void Strategy::insert(unsigned int index, unsigned int dest, bool lambda){
+void Strategy::insert(unsigned int index, unsigned int dest, unsigned int type){
 	if(dests.size() > index){
 		dests[index] = dest;
-		lambdas[index] = lambda;
+		types[index] = type;
 	}
 }
 
@@ -50,8 +50,8 @@ unsigned int Strategy::getDest(unsigned int index) const{
 	return dests[index];
 }
 
-bool Strategy::getLambda(unsigned int index) const{
-	return lambdas[index];
+unsigned int Strategy::getType(unsigned int index) const{
+	return types[index];
 }
 
 Fraction Strategy::getTime() const{
@@ -76,7 +76,7 @@ void Strategy::show(){
 	else
 		cout << "Time: " << time << endl;
 	for (unsigned int i = 0; i < size; ++i){
-		cout << dests[i] << " (" << lambdas[i] << ") ";
+		cout << dests[i] << " (" << types[i] << ") ";
 	}
 	cout << endl;
 }

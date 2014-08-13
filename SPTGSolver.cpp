@@ -98,7 +98,7 @@ void SPTGSolver::init(){
 
 		strategies = new list<Strategy> ();
 		(*strategies).push_front(Strategy(size, time, false));
-		(*strategies).front().insert(0,0,false);
+		(*strategies).front().insert(0,0,0);
 
 		pathsLengths = new vector<unsigned int>();
 		pathsLengths->push_back(0);
@@ -116,7 +116,7 @@ void SPTGSolver::init(){
 			(*vals)[i].push_back(Fraction(ifnty));
 			(*vals)[i].push_back(Fraction(0));
 
-			strategies->front().insert(i, -1, false);
+			strategies->front().insert(i, -1, 0);
 			pathsLengths->push_back(0);
 
 			lambdas.push_back(vector<Fraction>());
@@ -194,7 +194,7 @@ void SPTGSolver::actualizeLambdas(){
 		if(sptg->getOwner(i)){
 			(*vals)[i][0] = lambdas[i][0];
 			(*vals)[i][1] = lambdas[i][1];
-			strategies->front().insert(i,0,true);
+			strategies->front().insert(i,0,1);
 			(*pathsLengths)[i] = 1;
 		}
 	}
@@ -212,13 +212,21 @@ void SPTGSolver::actualizeVals(Fraction epsilon){
 bool SPTGSolver::makeImpSwitchesP1(){
 	bool allDone = false;
 	bool changed = false;
-
 	while (!allDone){
 		//For all states
 		allDone = true;
 		for (unsigned int state = 1; state < size; ++state){
 			//Owned by P1 because we are checking the improving switches for the P1
 			if(sptg->getOwner(state)){
+				//We don't need to look at the bottom transitions for the player 1 because it goes to MAX and will never be taken
+				/*if(withBottoms && ((*bottoms)[state] < (*vals)[state][0])){//If we have an improvement, we update the values found
+					(*vals)[state][0] = (*bottoms)[state];
+					(*vals)[state][1] = 0;
+					strategies->front().insert(state, 0, 2);
+					allDone = false;
+					changed = true;
+				}*/
+
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					//We need to check all transitions for every states except the lambda transition because it is taken by default
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
@@ -230,7 +238,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 							(*vals)[state][0] = tempVal;
 							(*vals)[state][1] = (*vals)[nextState][1];
 							(*pathsLengths)[state] = tempLength;
-							strategies->front().insert(state, nextState, false);
+							strategies->front().insert(state, nextState, 0);
 							allDone = false;
 							changed = true;
 						}
@@ -250,7 +258,6 @@ bool SPTGSolver::makeImpSwitchesP2(){
 
 	bool allDone = false;
 	bool changed = false;
-
 	while (!allDone){
 		//For all states
 		allDone = true;
@@ -258,13 +265,20 @@ bool SPTGSolver::makeImpSwitchesP2(){
 			//Owned by P2 because we are checking the improving switches for the P2
 			if(!sptg->getOwner(state)){
 				//Check the lambda transition
-
+				//We don't need to take a look at the bottom transitions because the lambda transitions will always be better for P2
+				/*if(withBottoms && ((*bottoms)[state] > (*vals)[state][0])){//If we have an improvement, we update the values found
+					(*vals)[state][0] = (*bottoms)[state];
+					(*vals)[state][1] = 0;
+					strategies->front().insert(state, 0, 2);
+					allDone = false;
+					changed = true;
+				}*/
 				if((lambdas[state][0] > (*vals)[state][0]) ||
 						((lambdas[state][0] == (*vals)[state][0]) && (lambdas[state][1] > (*vals)[state][1]))){
 					//If we have an improvement, we update the values found
 					(*vals)[state][0] = lambdas[state][0];
 					(*vals)[state][1] = lambdas[state][1];
-					strategies->front().insert(state, 0, true);
+					strategies->front().insert(state, 0, 1);
 					(*pathsLengths)[state] = 1;
 					allDone = false;
 					changed = true;
@@ -279,7 +293,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 							(*vals)[state][0] = tempVal;
 							(*vals)[state][1] = (*vals)[nextState][1];
 							(*pathsLengths)[state] = tempLength;
-							strategies->front().insert(state, nextState, false);
+							strategies->front().insert(state, nextState, 0);
 							allDone = false;
 							changed = true;
 						}

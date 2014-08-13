@@ -122,7 +122,7 @@ bool PGSolver::extendedDijkstra(bool withBottoms){
 				//cout << (*bottoms)[finalState] << endl;
 				(*vals)[finalState][0] = (*bottoms)[finalState];
 				(*pathsLengths)[finalState] = 1;
-				strategies->front().insert(finalState, finalTrans, true);
+				strategies->front().insert(finalState, finalTrans, 2);
 
 			}
 			else{
@@ -131,7 +131,7 @@ bool PGSolver::extendedDijkstra(bool withBottoms){
 
 				(*vals)[finalState][0].upperSign();
 				(*pathsLengths)[finalState] = (*pathsLengths)[finalTrans] + 1;
-				strategies->front().insert(finalState, finalTrans, false);
+				strategies->front().insert(finalState, finalTrans, 0);
 			}
 			ensStates[finalState] = false;
 		}
@@ -149,12 +149,12 @@ bool PGSolver::extendedDijkstra(bool withBottoms){
 			if(ensStates[i]){
 				(*vals)[i][0] = ifnty;
 				if(withBottoms){
-					strategies->front().insert(i, 0, true);
+					strategies->front().insert(i, 0, 1);
 					(*pathsLengths)[i] = 1;
 
 				}
 				else{
-					strategies->front().insert(i, i, false);
+					strategies->front().insert(i, i, 0);
 
 					(*pathsLengths)[i] = ifnty;
 				}

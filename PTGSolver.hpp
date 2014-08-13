@@ -21,6 +21,7 @@ private:
 	vector<list<Point> > valueFcts;
 	list<Transition> storage;
 	vector<Fraction> bottoms;
+	vector<Fraction> resets;
 
 	void init();
 	void createEndPoints();

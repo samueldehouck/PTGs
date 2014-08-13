@@ -12,16 +12,16 @@ private:
 	bool included;
 	unsigned int size;
 	vector<unsigned int> dests;
-	vector<unsigned int> lambdas;
+	vector<unsigned int> types;
 public:
 	Strategy();
 	Strategy(unsigned int);
 	Strategy(unsigned int, Fraction, bool);
 	Strategy(const Strategy&);
-	void insert(unsigned int, unsigned int, bool);
+	void insert(unsigned int, unsigned int, unsigned int);
 	unsigned int getDest(unsigned int) const;
 	bool getInclusion() const;
-	bool getLambda(unsigned int) const;
+	unsigned int getType(unsigned int) const;
 	Fraction getTime() const;
 	void setTime(Fraction);
 	unsigned int getSize() const;
