@@ -4,13 +4,11 @@
 #include <queue>
 
 SPTGSolver::SPTGSolver(SPTG* s){
-	cout << "Construction" << endl;
 	sptg = s;
 	withBottoms = false;
 	time = Fraction(1);
 	init();
-	show();
-	cout << "Fin construction" << endl;
+	//show();
 }
 
 SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, vector<vector<Fraction> >* v, list<Strategy>* st, vector<list<Point> >* vF){
@@ -22,7 +20,7 @@ SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, 
 	strategies = st;
 	valueFcts = vF;
 	time = Fraction(1);
-	show();
+	//show();
 
 	//Initialization of the other vectors and lists
 	size = sptg->getSize();
@@ -143,13 +141,13 @@ void SPTGSolver::solveSPTG(){
 		ps = new PGSolver(sptg, pathsLengths, vals, strategies);//PGSolver will consider sptg as a pg thanks to inheritance
 		notCycling = ps->extendedDijkstra(false); //If extendedDijkstra returns false, some states can't be treated and there is a cycle
 	}
-	sptg->show();
-	for (unsigned int i = 0; i < size; ++i){
+	//sptg->show();
+	/*for (unsigned int i = 0; i < size; ++i){
 		cout << (*bottoms)[i] << " ";
 	}
 	cout << endl;
 
-	show();
+	show();*/
 	while (notCycling && time > 0){
 		strategies->push_front(Strategy(size));
 		actualizeLambdas();
@@ -157,20 +155,20 @@ void SPTGSolver::solveSPTG(){
 			buildValueFcts(0);
 		strategyIteration();
 		Fraction epsilon = nextEventPoint();
-		cout << "NextEventPoint: " << epsilon << endl;
+		//cout << "NextEventPoint: " << epsilon << endl;
 		if((time - epsilon) < 0)
 			epsilon = time;
 		buildValueFcts(epsilon);
 		actualizeVals(epsilon);
 		strategies->front().setTime(time);
-		show();
+		//show();
 	}
-	if(notCycling){
+	/*if(notCycling){
 		cout << "====Result==== " << endl;
 		show();
 	}
 	else
-		cout << "There is a cycle!" << endl;
+		cout << "There is a cycle!" << endl;*/
 	sptg = NULL;
 }
 

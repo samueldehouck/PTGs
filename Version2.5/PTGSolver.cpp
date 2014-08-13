@@ -22,7 +22,7 @@ void PTGSolver::solvePTG(PTG* p){
 
 	//Update the transitions that can be taken between the two given parameters
 	keepTransAvailable(time, time);
-	ptg->show();
+	//ptg->show();
 
 	//First extendedDijkstra on the biggest "M"
 	cout << "====First extended Dijkstra====" << endl;
@@ -34,7 +34,7 @@ void PTGSolver::solvePTG(PTG* p){
 	for (unsigned int i = 0; i < size; ++i){
 		valueFcts[i].push_front(Point(time,vals[i][0]));
 	}
-	show();
+	//show();
 	unsigned int count = 4;
 	//Start of the (future) loop
 	while(!endPoints.empty()){
@@ -63,14 +63,14 @@ void PTGSolver::solvePTG(PTG* p){
 
 		//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
 		rescale(time, endM);
-		show();
+		//show();
 
 		deleteMax();
 
 		//The last step is to do an extendedDijkstra on the game in the "time" instant
 		keepTransAvailable(time, time);
 		updateBottoms();
-		ptg->show();
+		//ptg->show();
 		strategies.push_front(Strategy(size, time, true));
 
 		//Update the time
@@ -161,7 +161,7 @@ void PTGSolver::keepTransAvailable(unsigned int start, unsigned int end){
 			}
 		}
 	}
-	ptg->show();
+	//ptg->show();
 }
 
 
@@ -173,7 +173,7 @@ void PTGSolver::updateBottoms(){
 }
 
 void PTGSolver::createMax(const unsigned int endM, const unsigned int d){
-	cout << "====Creating MAX==== "  << d << endl;
+	cout << "====Creating MAX==== "<< endl;
 	//Create the new sptg with the MAX state
 	ptg->createMaxState(ifnty, endM);
 	size = ptg->getSize();
@@ -279,7 +279,7 @@ void PTGSolver::show(){
 	for (unsigned int i = 1; i < valueFcts.size(); ++i){
 		cout << " State " << i <<": ";
 		for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
-			cout << "(" << it->getX() << "," << it->getY() << ")	";
+			cout << "(" << it->getX() << "," << it->getY() << ") ";
 		}
 		cout << endl;
 	}

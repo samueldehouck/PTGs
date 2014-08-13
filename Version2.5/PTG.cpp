@@ -4,7 +4,6 @@
 using namespace std;
 
 PTG::PTG(){
-	//TODO put everything together to go faster
 	//   Init of a game
 	resets = new vector<vector<bool> >();
 	startsCstraints = new vector<vector<unsigned int> >();
@@ -73,7 +72,7 @@ PTG::PTG(){
 	cout << "PTG initalized" << endl;
 */
 
-	//Second example
+	//Second example (more interesting because solveSPTG change the strategy
 		states->push_back(0);
 		states->push_back(2);
 		states->push_back(5);
