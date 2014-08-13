@@ -138,7 +138,7 @@ PTG::PTG(){
 		(*startsCstraints)[5][0] = 0;
 		(*endsCstraints)[5][0] = 3;
 
-
+		nbResets = 0;
 		cout << "PTG initalized" << endl;
 }
 
@@ -154,6 +154,9 @@ unsigned int PTG::getReset(unsigned int origin, unsigned int dest) const{
 	return (*resets)[origin][dest];
 }
 
+unsigned int PTG::getNbResets() const{
+	return nbResets;
+}
 void PTG::createMaxState(Fraction f, unsigned int endCst){
 	states->push_back(f);
 	owners->push_back(false);

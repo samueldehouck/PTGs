@@ -21,7 +21,7 @@ private:
 	vector<list<Point> > valueFcts;
 	list<Transition> storage;
 	vector<Fraction> bottoms;
-	vector<Fraction> resets;
+	vector<vector<Fraction> > resets;
 
 	void init();
 	void createEndPoints();
@@ -31,6 +31,8 @@ private:
 	void rescale(unsigned int, unsigned int);
 	void deleteMax();
 	void cleanValueFcts();
+	void createResets();
+	void updateResets();
 public:
 	PTGSolver();
 	void solvePTG(PTG*);
