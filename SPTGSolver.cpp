@@ -261,11 +261,9 @@ bool SPTGSolver::makeImpSwitchesP1(){
 }
 
 bool SPTGSolver::makeImpSwitchesP2(){
-	cout << "Imp2" << endl;
 	bool allDone = false;
 	bool changed = false;
 	while (!allDone){
-		cout << "ici" << endl;
 		//For all states
 		allDone = true;
 		for (unsigned int state = 1; state < size; ++state){

@@ -20,8 +20,8 @@ void PTGSolver::solvePTG(PTG* p){
 		unsigned int endM = endPoints.back();
 		endPoints.pop_back();
 		time = endM;
-
-		init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
+		if(copyNb == (int)ptg->getNbResets())
+			init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
 		//Update the transitions that can be taken between the two given parameters
 		keepTransAvailable(time, time);
 
@@ -49,7 +49,6 @@ void PTGSolver::solvePTG(PTG* p){
 			updateBottoms();
 
 			pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms, &resets);
-			cout << "+" << endl;
 
 			pgSolver->extendedDijkstra(true);
 			delete pgSolver;
@@ -63,15 +62,24 @@ void PTGSolver::solvePTG(PTG* p){
 			sptgSolver->solveSPTG();
 			delete sptgSolver;
 
+
 			//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
 			rescale(time, endM);
 
 			deleteMax();
-
+			show();
 			//The last step is to do an extendedDijkstra on the game in the "time" instant
 			keepTransAvailable(time, time);
 			updateBottoms();
 			strategies.push_front(Strategy(size, time, true));
+
+			for (unsigned int i = 0; i < size; ++i){
+					for (unsigned int j = 0; j < size; ++j){
+						cout << resets[i][j] << "	";
+					}
+					cout << endl;
+				}
+
 
 			pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms, &resets);
 			pgSolver->extendedDijkstra(true);
@@ -83,8 +91,8 @@ void PTGSolver::solvePTG(PTG* p){
 			endM = time;
 			show();
 		}
-		updateResets();
 		restoreAllTrans();
+		updateResets();
 		show();
 		--copyNb;
 
@@ -177,7 +185,7 @@ void PTGSolver::restoreAllTrans(){
 
 void PTGSolver::updateBottoms(){
 //Update the bottom transitions
-	for (unsigned int i = 0; i < vals.size(); ++i){
+	for (unsigned int i = 0; i < size; ++i){
 		bottoms[i] = vals[i][0];
 	}
 }
@@ -284,10 +292,18 @@ void PTGSolver::updateResets(){
 	for (unsigned int i = 0; i < size; ++i){
 		for (unsigned int j = 0; j < size; ++j){
 			if(ptg->getReset(i,j)){
+				cout << i << " " << j << " " << ptg->getTransition(i,j) << " " << vals[j][0] << endl;
 				resets[i][j] = ptg->getTransition(i,j) + vals[j][0];
 			}
 		}
 	}
+
+/*	for (unsigned int i = 0; i < size; ++i){
+		for (unsigned int j = 0; j < size; ++j){
+			cout << resets[i][j] << "	";
+		}
+		cout << endl;
+	}*/
 }
 
 void PTGSolver::show(){

@@ -24,7 +24,6 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 		ensResets[0].push_back(false);
 	}
 
-
 	for (unsigned int i = 1; i < size; ++i){
 		ensStates.push_back(true);
 		ensTransitions.push_back(vector<bool>());
@@ -36,6 +35,7 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 
 				if((*resets)[i][j] != -1){
 					ensResets[i].push_back(true);
+					ensTransitions[i][j] = false;
 					++nbTransitions;
 				}
 				else
@@ -54,7 +54,8 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	pathsLengths = pl;
 	vals = v;
 	strategies = s;
-	size = vals->size();
+	cout << vals->size() << endl;
+	size = p->getSize();
 	nbTransitions = 0;
 	bottoms = b;
 	resets = r;
@@ -70,6 +71,7 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 		ensBottoms.push_back(true);
 		ensResets[0].push_back(false);
 	}
+
 	for (unsigned int i = 1; i < size; ++i){
 		ensStates.push_back(true);
 		ensTransitions.push_back(vector<bool>());
@@ -81,6 +83,7 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 
 				if((*resets)[i][j] != -1){
 					ensResets[i].push_back(true);
+					ensTransitions[i][j] = false;
 					++nbTransitions;
 				}
 				else
@@ -89,11 +92,19 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 			}
 			else{
 				ensTransitions[i].push_back(false);
+				ensResets[i].push_back(false);
 			}
 		}
 		if((*bottoms)[i] != -1)
 			++nbTransitions;
 	}
+cout << "ensresets" << endl;
+	for (unsigned int i = 0; i < ensResets.size(); ++i){
+			for (unsigned int j = 0; j < ensResets[i].size(); ++j){
+				cout << ensResets[i][j] << "	";
+			}
+			cout << endl;
+		}
 }
 
 bool PGSolver::extendedDijkstra(bool solvePTG){
@@ -129,7 +140,7 @@ bool PGSolver::extendedDijkstra(bool solvePTG){
 
 				}
 				for (unsigned int j = 0; resets != NULL && j < size; ++j){
-					if((*resets)[state][j] != -1 && min > (*resets)[state][j] ){
+					if(ensResets[state][j] && min > (*resets)[state][j] ){
 						cout << "minisReset: " << (*resets)[state][j] << endl;
 						finalState = state;
 						finalTrans = j;
@@ -186,7 +197,7 @@ bool PGSolver::extendedDijkstra(bool solvePTG){
 			ensStates[finalState] = false;
 		}
 		else{
-			cout << "Delete transition to " << finalTrans << " from state " << finalState << endl;
+			cout << "Delete transition to " << finalTrans << " from state " << finalState  << endl;
 			if(minIsBottom)
 				ensBottoms[finalState] = false;
 			else if(minIsReset)
