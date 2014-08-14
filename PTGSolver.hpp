@@ -26,6 +26,7 @@ private:
 	void init();
 	void createEndPoints();
 	void keepTransAvailable(unsigned int, unsigned int);
+	void restoreAllTrans();
 	void updateBottoms();
 	void createMax(const unsigned int, const unsigned int);
 	void rescale(unsigned int, unsigned int);

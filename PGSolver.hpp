@@ -20,12 +20,14 @@ private:
 	vector<vector<Fraction> >* vals;
 	list<Strategy>* strategies;
 	vector<Fraction>* bottoms; //Equivalent of the "bottom" transitions in the paper
+	vector<vector<Fraction> >* resets;
+	vector<vector<bool> > ensResets;
 
 	bool remainsStates();
-	bool isLastTransition(unsigned int, unsigned int, bool, bool);
+	bool isLastTransition(unsigned int, unsigned int, bool, bool, bool);
 public:
-	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* );
-	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* , vector<Fraction>*);
+	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* , vector<vector<Fraction> >*);
+	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* , vector<Fraction>*, vector<vector<Fraction> >*);
 
 	bool extendedDijkstra(bool);
 };

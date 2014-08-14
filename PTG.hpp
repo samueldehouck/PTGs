@@ -15,6 +15,7 @@ protected:
 
 public:
 	PTG();
+	~PTG();
 	unsigned int getStartCst(unsigned int, unsigned int) const;
 	unsigned int getEndCst(unsigned int, unsigned int) const;
 	unsigned int getReset(unsigned int, unsigned int) const;

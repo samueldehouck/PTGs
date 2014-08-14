@@ -5,20 +5,21 @@
 
 SPTGSolver::SPTGSolver(SPTG* s){
 	sptg = s;
-	withBottoms = false;
+	solvePTG = false;
 	time = Fraction(1);
 	init();
 	//show();
 }
 
-SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, vector<vector<Fraction> >* v, list<Strategy>* st, vector<list<Point> >* vF){
+SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, vector<vector<Fraction> >* v, list<Strategy>* st, vector<list<Point> >* vF, vector<vector<Fraction> >* r){
 	sptg = s;
-	withBottoms = true;
+	solvePTG = true;
 	bottoms = b;
 	pathsLengths = pl;
 	vals = v;
 	strategies = st;
 	valueFcts = vF;
+	resets = r;
 	time = Fraction(1);
 	//show();
 
@@ -28,8 +29,6 @@ SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, 
 		lambdas.push_back(vector<Fraction>());
 		lambdas[0].push_back(Fraction(0));
 		lambdas[0].push_back(Fraction(0));
-
-
 
 		for (unsigned int i = 1; i < size; ++i){
 			lambdas.push_back(vector<Fraction>());
@@ -42,7 +41,7 @@ SPTGSolver::SPTGSolver(SPTG* s, vector<Fraction>* b,  vector<unsigned int>* pl, 
 
 
 SPTGSolver::~SPTGSolver(){
-	if(!withBottoms)
+	if(!solvePTG)
 		delete valueFcts;
 }
 
@@ -133,12 +132,15 @@ void SPTGSolver::solveSPTG(){
 	// This function is the core of the solver, it computes the strategies and values for the SPTG passed
 	PGSolver* ps;
 	bool notCycling = false;
-	if(withBottoms){
-		ps = new PGSolver(sptg, pathsLengths, vals, strategies, bottoms);//PGSolver will consider sptg as a pg thanks to inheritance
+
+	if(solvePTG){
+		cout << "ici" << endl;
+		ps = new PGSolver(sptg, pathsLengths, vals, strategies, bottoms, resets);//PGSolver will consider sptg as a pg thanks to inheritance
 		notCycling = ps->extendedDijkstra(true);
+		cout << "ici" << endl;
 	}
 	else{
-		ps = new PGSolver(sptg, pathsLengths, vals, strategies);//PGSolver will consider sptg as a pg thanks to inheritance
+		ps = new PGSolver(sptg, pathsLengths, vals, strategies, resets);//PGSolver will consider sptg as a pg thanks to inheritance
 		notCycling = ps->extendedDijkstra(false); //If extendedDijkstra returns false, some states can't be treated and there is a cycle
 	}
 	//sptg->show();
@@ -148,6 +150,7 @@ void SPTGSolver::solveSPTG(){
 	cout << endl;
 
 	show();*/
+	cout << "ici" << endl;
 	while (notCycling && time > 0){
 		strategies->push_front(Strategy(size));
 		actualizeLambdas();
@@ -210,6 +213,7 @@ void SPTGSolver::actualizeVals(Fraction epsilon){
 }
 
 bool SPTGSolver::makeImpSwitchesP1(){
+	cout << "Imp1" << endl;
 	bool allDone = false;
 	bool changed = false;
 	while (!allDone){
@@ -219,7 +223,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 			//Owned by P1 because we are checking the improving switches for the P1
 			if(sptg->getOwner(state)){
 				//We don't need to look at the bottom transitions for the player 1 because it goes to MAX and will never be taken
-				/*if(withBottoms && ((*bottoms)[state] < (*vals)[state][0])){//If we have an improvement, we update the values found
+				/*if(solvePTG && ((*bottoms)[state] < (*vals)[state][0])){//If we have an improvement, we update the values found
 					(*vals)[state][0] = (*bottoms)[state];
 					(*vals)[state][1] = 0;
 					strategies->front().insert(state, 0, 2);
@@ -231,6 +235,8 @@ bool SPTGSolver::makeImpSwitchesP1(){
 					//We need to check all transitions for every states except the lambda transition because it is taken by default
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 						Fraction tempVal = (*vals)[nextState][0] + sptg->getTransition(state, nextState);
+						if(tempVal > ifnty)
+							tempVal = ifnty;
 						unsigned int tempLength = (*pathsLengths)[nextState] + 1;
 						if((tempVal < (*vals)[state][0])//If we have an improvement, we update the values found
 								|| ((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] < (*vals)[state][1]))
@@ -255,18 +261,20 @@ bool SPTGSolver::makeImpSwitchesP1(){
 }
 
 bool SPTGSolver::makeImpSwitchesP2(){
-
+	cout << "Imp2" << endl;
 	bool allDone = false;
 	bool changed = false;
 	while (!allDone){
+		cout << "ici" << endl;
 		//For all states
 		allDone = true;
 		for (unsigned int state = 1; state < size; ++state){
 			//Owned by P2 because we are checking the improving switches for the P2
 			if(!sptg->getOwner(state)){
+				cout << "State: " << state << endl;
 				//Check the lambda transition
 				//We don't need to take a look at the bottom transitions because the lambda transitions will always be better for P2
-				/*if(withBottoms && ((*bottoms)[state] > (*vals)[state][0])){//If we have an improvement, we update the values found
+				/*if(solvePTG && ((*bottoms)[state] > (*vals)[state][0])){//If we have an improvement, we update the values found
 					(*vals)[state][0] = (*bottoms)[state];
 					(*vals)[state][1] = 0;
 					strategies->front().insert(state, 0, 2);
@@ -275,6 +283,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 				}*/
 				if((lambdas[state][0] > (*vals)[state][0]) ||
 						((lambdas[state][0] == (*vals)[state][0]) && (lambdas[state][1] > (*vals)[state][1]))){
+					cout << "lambda is better" << endl;
 					//If we have an improvement, we update the values found
 					(*vals)[state][0] = lambdas[state][0];
 					(*vals)[state][1] = lambdas[state][1];
@@ -286,9 +295,14 @@ bool SPTGSolver::makeImpSwitchesP2(){
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 						Fraction tempVal = (*vals)[nextState][0] + sptg->getTransition(state, nextState);
+						if(tempVal > ifnty)
+							tempVal = ifnty;
 						unsigned int tempLength = (*pathsLengths)[nextState] + 1;
+						cout << state << ": " << (*vals)[state][0] << " " << (*vals)[state][1] << endl;
+						cout << "to: " << nextState << ": " << tempVal <<  " " << (*vals)[nextState][1] << endl;
 						if((tempVal > (*vals)[state][0]) || ((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] > (*vals)[state][1]))
 								||((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] == (*vals)[state][1]) && (tempLength > (*pathsLengths)[state]))){
+							cout << "to " << nextState << " is better" << endl;
 							//If we have an improvement, we update the values found
 							(*vals)[state][0] = tempVal;
 							(*vals)[state][1] = (*vals)[nextState][1];
@@ -348,7 +362,7 @@ void SPTGSolver::buildValueFcts(Fraction epsilon){
 			tmpVal = ifnty;
 		list<Point>::iterator it = (*valueFcts)[i].begin();
 		++it;
-		if(it != (*valueFcts)[i].end() && !withBottoms){
+		if(it != (*valueFcts)[i].end() && !solvePTG){
 			Fraction coef = (it->getY() - tmpVal)/(it->getX() - time);
 			//Doesn't work when resolving PTGs because the rescaling hasn't been made yet
 			if(tmpVal + (coef * ((*valueFcts)[i].front().getX() - time)) == (*valueFcts)[i].front().getY()){

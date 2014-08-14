@@ -104,9 +104,9 @@ PTG::PTG(){
 
 
 
-		for (unsigned int i = 0; i < transitions->size(); ++i){
+		for (unsigned int i = 0; i < states->size(); ++i){
 			resets->push_back(vector<bool>());
-			for (unsigned int j = 0; j < (*transitions)[i].size(); ++j)
+			for (unsigned int j = 0; j < states->size(); ++j)
 				(*resets)[i].push_back(false);
 		}
 
@@ -138,8 +138,18 @@ PTG::PTG(){
 		(*startsCstraints)[5][0] = 0;
 		(*endsCstraints)[5][0] = 3;
 
-		nbResets = 0;
+		(*resets)[4][3] = true;
+		nbResets = 1;
 		cout << "PTG initalized" << endl;
+}
+
+PTG::~PTG(){
+	delete startsCstraints;
+	delete endsCstraints;
+	delete resets;
+	//delete states;
+	//delete transitions;
+	//delete owners;
 }
 
 unsigned int PTG::getStartCst(unsigned int origin, unsigned int dest) const{
