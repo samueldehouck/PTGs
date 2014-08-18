@@ -11,6 +11,7 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	size = p->getSize();
 	nbTransitions = 0;
 	resets = r;
+	bottoms = NULL;
 
 	// We need to initialize all vectors
 	ensStates.push_back(false);
@@ -98,13 +99,13 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 		if((*bottoms)[i] != -1)
 			++nbTransitions;
 	}
-cout << "ensresets" << endl;
+	cout << "ensresets" << endl;
 	for (unsigned int i = 0; i < ensResets.size(); ++i){
-			for (unsigned int j = 0; j < ensResets[i].size(); ++j){
-				cout << ensResets[i][j] << "	";
-			}
-			cout << endl;
+		for (unsigned int j = 0; j < ensResets[i].size(); ++j){
+			cout << ensResets[i][j] << "	";
 		}
+		cout << endl;
+	}
 }
 
 bool PGSolver::extendedDijkstra(bool solvePTG){
@@ -155,6 +156,7 @@ bool PGSolver::extendedDijkstra(bool solvePTG){
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					if(ensTransitions[state][nextState]){
 						cout << state << " to " << nextState << endl;
+
 						if( (*resets)[state][nextState] == -1 && min > ((*vals)[nextState][0] + pg->getTransition(state, nextState))){
 							cout << "New min to " << nextState << " with cost " << (*vals)[nextState][0] + pg->getTransition(state, nextState) << endl;
 							finalState = state;

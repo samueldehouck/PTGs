@@ -231,6 +231,8 @@ bool SPTGSolver::makeImpSwitchesP1(){
 					changed = true;
 				}*/
 
+
+
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					//We need to check all transitions for every states except the lambda transition because it is taken by default
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
@@ -238,6 +240,16 @@ bool SPTGSolver::makeImpSwitchesP1(){
 						if(tempVal > ifnty)
 							tempVal = ifnty;
 						unsigned int tempLength = (*pathsLengths)[nextState] + 1;
+
+						//Check if the reset exists and is better
+						if(solvePTG && ((*resets)[state][nextState] != -1) && ((*resets)[state][nextState] < (*vals)[state][0])){
+							(*vals)[state][0] = (*resets)[state][nextState];
+							(*vals)[state][1] = 0;
+							strategies->front().insert(state, 0, 3);
+							allDone = false;
+							changed = true;
+						}
+
 						if((tempVal < (*vals)[state][0])//If we have an improvement, we update the values found
 								|| ((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] < (*vals)[state][1]))
 								||((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] == (*vals)[state][1]) && (tempLength < (*pathsLengths)[state]))){
@@ -251,7 +263,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 					}
 				}
 			}
-			if(changed)//If a changed has been made, it can have an impact on the values of other states
+			if(changed)//If a change has been made, it can have an impact on the values of other states
 				propagate(state);
 		}
 
@@ -296,6 +308,16 @@ bool SPTGSolver::makeImpSwitchesP2(){
 						if(tempVal > ifnty)
 							tempVal = ifnty;
 						unsigned int tempLength = (*pathsLengths)[nextState] + 1;
+
+						//Check if the reset exists and is better
+						if(solvePTG && ((*resets)[state][nextState] != -1) &&  ((*resets)[state][nextState] > (*vals)[state][0])){//If we have an improvement, we update the values found
+							(*vals)[state][0] = (*resets)[state][nextState];
+							(*vals)[state][1] = 0;
+							strategies->front().insert(state, 0, 3);
+							allDone = false;
+							changed = true;
+						}
+
 						cout << state << ": " << (*vals)[state][0] << " " << (*vals)[state][1] << endl;
 						cout << "to: " << nextState << ": " << tempVal <<  " " << (*vals)[nextState][1] << endl;
 						if((tempVal > (*vals)[state][0]) || ((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] > (*vals)[state][1]))
@@ -312,7 +334,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 					}
 				}
 			}
-			if(changed)//If a changed has been made, it can have an impact on the values of other states
+			if(changed)//If a change has been made, it can have an impact on the values of other states
 				propagate(state);
 		}
 	}
