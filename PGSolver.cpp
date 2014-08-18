@@ -175,12 +175,16 @@ bool PGSolver::extendedDijkstra(bool solvePTG){
 			if(minIsBottom){
 				cout << (*bottoms)[finalState] << endl;
 				(*vals)[finalState][0] = (*bottoms)[finalState];
+				if((*vals)[finalState][0] > ifnty)
+					(*vals)[finalState][0] = ifnty;
 				(*pathsLengths)[finalState] = 1;
 				strategies->front().insert(finalState, finalTrans, 2);
 
 			}
 			else if(minIsReset){
 				(*vals)[finalState][0] = (*resets)[finalState][finalTrans];
+				if((*vals)[finalState][0] > ifnty)
+					(*vals)[finalState][0] = ifnty;
 				cout << (*resets)[finalState][finalTrans] << endl;
 				(*pathsLengths)[finalState] = 1;
 				strategies->front().insert(finalState, finalTrans, 3);

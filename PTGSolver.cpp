@@ -16,6 +16,9 @@ void PTGSolver::solvePTG(PTG* p){
 	createResets();
 	while (copyNb >= 0){
 		cout << "====Solving copy nb: " << copyNb << " ====" << endl;
+
+
+
 		createEndPoints();
 		unsigned int endM = endPoints.back();
 		endPoints.pop_back();
@@ -24,6 +27,7 @@ void PTGSolver::solvePTG(PTG* p){
 			init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
 		//Update the transitions that can be taken between the two given parameters
 		keepTransAvailable(time, time);
+
 
 		//First extendedDijkstra on the biggest "M"
 		cout << "====First extended Dijkstra====" << endl;
@@ -288,6 +292,8 @@ void PTGSolver::createResets(){
 }
 
 void PTGSolver::updateResets(){
+	cout << "===Update resets===" << endl;
+
 	//The cost of the reset transition is the sum between the cost of the transition and the value of the destination
 	for (unsigned int i = 0; i < size; ++i){
 		for (unsigned int j = 0; j < size; ++j){
@@ -297,13 +303,13 @@ void PTGSolver::updateResets(){
 			}
 		}
 	}
-
-/*	for (unsigned int i = 0; i < size; ++i){
+cout << "===Update resets===" << endl;
+	for (unsigned int i = 0; i < size; ++i){
 		for (unsigned int j = 0; j < size; ++j){
 			cout << resets[i][j] << "	";
 		}
 		cout << endl;
-	}*/
+	}
 }
 
 void PTGSolver::show(){
