@@ -18,6 +18,7 @@ public:
 	Fraction operator+(Fraction);
 	Fraction operator+(int);
 	Fraction operator-(Fraction);
+	Fraction operator-(int);
 	Fraction operator*(Fraction);
 	Fraction operator/(Fraction);
 	bool operator<(Fraction);

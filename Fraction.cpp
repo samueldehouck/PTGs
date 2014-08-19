@@ -73,6 +73,15 @@ Fraction Fraction::operator-(Fraction i){
 
 }
 
+Fraction Fraction::operator-(int i){
+	Fraction tmp;
+	upperSign();
+	reduce();
+	tmp = (*this + Fraction(i));
+	tmp.reduce();
+	return tmp;
+}
+
 Fraction Fraction::operator*(Fraction i){
 
 	upperSign();

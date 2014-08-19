@@ -9,18 +9,18 @@
 class PTG: public SPTG{
 protected:
 	vector<vector<bool> >* resets;
-	vector<vector<unsigned int> >* startsCstraints;
-	vector<vector<unsigned int> >* endsCstraints;
+	vector<vector<Fraction> >* startsCstraints;
+	vector<vector<Fraction> >* endsCstraints;
 	unsigned int nbResets;
 
 public:
 	PTG();
 	~PTG();
-	unsigned int getStartCst(unsigned int, unsigned int) const;
-	unsigned int getEndCst(unsigned int, unsigned int) const;
-	unsigned int getReset(unsigned int, unsigned int) const;
+	Fraction getStartCst(unsigned int, unsigned int) const;
+	Fraction getEndCst(unsigned int, unsigned int) const;
+	bool getReset(unsigned int, unsigned int) const;
 	unsigned int getNbResets() const;
-	void createMaxState(Fraction, unsigned int);
+	void createMaxState(Fraction, Fraction);
 	void deleteMaxState();
 	void show();
 };

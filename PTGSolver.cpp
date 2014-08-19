@@ -6,6 +6,9 @@ using namespace std;
 
 PTGSolver::PTGSolver(){
 	size = 0;
+	ptg = NULL;
+	size = 0;
+	time = 0;
 }
 
 void PTGSolver::solvePTG(PTG* p){
@@ -20,7 +23,7 @@ void PTGSolver::solvePTG(PTG* p){
 
 
 		createEndPoints();
-		unsigned int endM = endPoints.back();
+		Fraction endM = endPoints.back();
 		endPoints.pop_back();
 		time = endM;
 		if(copyNb == (int)ptg->getNbResets())
@@ -71,18 +74,18 @@ void PTGSolver::solvePTG(PTG* p){
 			rescale(time, endM);
 
 			deleteMax();
-			show();
+			//show();
 			//The last step is to do an extendedDijkstra on the game in the "time" instant
 			keepTransAvailable(time, time);
 			updateBottoms();
 			strategies.push_front(Strategy(size, time, true));
 
-			for (unsigned int i = 0; i < size; ++i){
+			/*for (unsigned int i = 0; i < size; ++i){
 					for (unsigned int j = 0; j < size; ++j){
 						cout << resets[i][j] << "	";
 					}
 					cout << endl;
-				}
+				}*/
 
 
 			pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms, &resets);
@@ -93,15 +96,15 @@ void PTGSolver::solvePTG(PTG* p){
 
 			cleanValueFcts();
 			endM = time;
-			show();
+			//show();
 		}
 		restoreAllTrans();
 		updateResets();
-		show();
+		//show();
 		--copyNb;
 
 	}
-	cout << "====Results SolvePTG===" << endl;
+	cout << endl << "====Results SolvePTG===" << endl;
 	show();
 
 
@@ -153,7 +156,7 @@ void PTGSolver::createEndPoints(){
 
 }
 
-void PTGSolver::keepTransAvailable(unsigned int start, unsigned int end){
+void PTGSolver::keepTransAvailable(Fraction start, Fraction end){
 	cout << "===Updating Transitions (" << start << "," << end << ") ====" << endl;
 
 	//Restore the transitions stored
@@ -162,7 +165,8 @@ void PTGSolver::keepTransAvailable(unsigned int start, unsigned int end){
 		++next;
 		if(ptg->getStartCst(it->origin, it->dest) <= start && ptg->getEndCst(it->origin, it->dest) >= end){
 			ptg->setTransition(it->origin, it->dest, it->cost);
-			resets[it->origin][it->dest] = -1;
+
+			//resets[it->origin][it->dest] = -1;
 			storage.erase(it);
 
 		}
@@ -188,13 +192,13 @@ void PTGSolver::restoreAllTrans(){
 }
 
 void PTGSolver::updateBottoms(){
-//Update the bottom transitions
+	//Update the bottom transitions
 	for (unsigned int i = 0; i < size; ++i){
 		bottoms[i] = vals[i][0];
 	}
 }
 
-void PTGSolver::createMax(const unsigned int endM, const unsigned int d){
+void PTGSolver::createMax(const Fraction endM, const Fraction d){
 	cout << "====Creating MAX==== "<< endl;
 	//Create the new sptg with the MAX state
 	ptg->createMaxState(ifnty, endM);
@@ -223,7 +227,7 @@ void PTGSolver::createMax(const unsigned int endM, const unsigned int d){
 }
 
 
-void PTGSolver::rescale(unsigned int start, unsigned int end){
+void PTGSolver::rescale(Fraction start, Fraction end){
 	//The result given by the solveSPTG
 	cout << "====Rescaling====" << endl;
 	for (vector<list<Point> >::iterator it = valueFcts.begin(); it != valueFcts.end(); ++it){
@@ -298,27 +302,26 @@ void PTGSolver::updateResets(){
 	for (unsigned int i = 0; i < size; ++i){
 		for (unsigned int j = 0; j < size; ++j){
 			if(ptg->getReset(i,j)){
-				cout << i << " " << j << " " << ptg->getTransition(i,j) << " " << vals[j][0] << endl;
+				//cout << i << " " << j << " " << ptg->getTransition(i,j) << " " << vals[j][0] << endl;
 				resets[i][j] = ptg->getTransition(i,j) + vals[j][0];
 			}
 		}
 	}
-cout << "===Update resets===" << endl;
-	for (unsigned int i = 0; i < size; ++i){
+	/*	for (unsigned int i = 0; i < size; ++i){
 		for (unsigned int j = 0; j < size; ++j){
 			cout << resets[i][j] << "	";
 		}
 		cout << endl;
-	}
+	}*/
 }
 
 void PTGSolver::show(){
 
-	cout << "bottoms:" << endl;
+	/*cout << "bottoms:" << endl;
 	for (unsigned int i = 0; i < bottoms.size(); ++i){
 		cout <<  bottoms[i]<< "	";
 	}
-	cout << endl;
+	cout << endl;*/
 
 
 	cout << "Strategies: " << endl;
@@ -327,18 +330,18 @@ void PTGSolver::show(){
 	}
 	cout << endl;
 
-	cout << "Lengths: " << endl;
+	/*cout << "Lengths: " << endl;
 	for (unsigned int i = 0; i < pathsLengths.size(); ++i)
 		cout << pathsLengths[i] << "	";
-	cout << endl;
+	cout << endl;*/
 
-	cout << "Vals:" << endl;
+	/*cout << "Vals:" << endl;
 	for (unsigned int i = 0; i < vals.size(); ++i){
 		for (unsigned int j = 0; j < vals[i].size(); ++j){
 			cout << vals[i][j] << "	";
 		}
 		cout << endl;
-	}
+	}*/
 
 	cout << "Value Functions" << endl;
 	for (unsigned int i = 1; i < valueFcts.size(); ++i){

@@ -19,7 +19,7 @@ int main(){
 	//    double nbr = 1000;
 	//    for (int i = 0; i < nbr; ++i){
 	//    gettimeofday(&start, NULL);
-	      /* SPTG sptg;
+	/* SPTG sptg;
 	       sptg.show();
 	      SPTGSolver solver(&sptg);
 	      solver.solveSPTG();*/

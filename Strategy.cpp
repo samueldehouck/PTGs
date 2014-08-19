@@ -4,7 +4,9 @@
 using namespace std;
 
 Strategy::Strategy(){
-
+	time = ifnty;
+	size = 0;
+	included = false;
 }
 
 Strategy::Strategy(unsigned int s){

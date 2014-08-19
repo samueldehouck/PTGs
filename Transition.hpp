@@ -4,13 +4,13 @@
 #include "Fraction.hpp"
 
 class Transition{
-  //This class is used to save changements of transitions accessibles
+	//This class is used to save changements of transitions accessibles
 public:  
-  unsigned int origin, dest;
-  Fraction cost;
-  
-  Transition();
-  Transition(unsigned int, unsigned int, Fraction);
+	unsigned int origin, dest;
+	Fraction cost;
+
+	Transition();
+	Transition(unsigned int, unsigned int, Fraction);
 };
 
 #endif

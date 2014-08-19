@@ -12,9 +12,9 @@
 class PTGSolver{
 private:
 	PTG* ptg;
-	unsigned int time;
+	Fraction time;
 	unsigned int size;
-	list<unsigned int> endPoints;
+	list<Fraction> endPoints;
 	vector<unsigned int> pathsLengths;
 	vector<vector<Fraction> > vals;
 	list<Strategy> strategies;
@@ -25,11 +25,11 @@ private:
 
 	void init();
 	void createEndPoints();
-	void keepTransAvailable(unsigned int, unsigned int);
+	void keepTransAvailable(Fraction, Fraction);
 	void restoreAllTrans();
 	void updateBottoms();
-	void createMax(const unsigned int, const unsigned int);
-	void rescale(unsigned int, unsigned int);
+	void createMax(const Fraction, const Fraction);
+	void rescale(Fraction, Fraction);
 	void deleteMax();
 	void cleanValueFcts();
 	void createResets();
