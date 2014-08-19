@@ -15,11 +15,16 @@ protected:
 
 public:
 	PTG();
+	PTG(unsigned int);
 	~PTG();
 	Fraction getStartCst(unsigned int, unsigned int) const;
+	void setStartCst(unsigned int, unsigned int, Fraction);
 	Fraction getEndCst(unsigned int, unsigned int) const;
+	void setEndCst(unsigned int, unsigned int, Fraction);
 	bool getReset(unsigned int, unsigned int) const;
+	void setReset(unsigned int, unsigned int, bool);
 	unsigned int getNbResets() const;
+	void setNbResets(unsigned int);
 	void createMaxState(Fraction, Fraction);
 	void deleteMaxState();
 	void show();

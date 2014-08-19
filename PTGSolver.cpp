@@ -15,72 +15,73 @@ void PTGSolver::solvePTG(PTG* p){
 	cout << "====SolvePTG====" << endl;
 	ptg = p;
 	size = ptg->getSize();
-	int copyNb = ptg->getNbResets();
-	createResets();
-	while (copyNb >= 0){
-		cout << "====Solving copy nb: " << copyNb << " ====" << endl;
+	if(size > 0){
+		int copyNb = ptg->getNbResets();
+		createResets();
+		while (copyNb >= 0){
+			cout << "====Solving copy nb: " << copyNb << " ====" << endl;
 
 
 
-		createEndPoints();
-		Fraction endM = endPoints.back();
-		endPoints.pop_back();
-		time = endM;
-		if(copyNb == (int)ptg->getNbResets())
-			init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
-		//Update the transitions that can be taken between the two given parameters
-		keepTransAvailable(time, time);
-
-
-		//First extendedDijkstra on the biggest "M"
-		cout << "====First extended Dijkstra====" << endl;
-		PGSolver* pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &resets);
-		pgSolver->extendedDijkstra(false);
-		delete pgSolver;
-		//Updating the value functions
-		for (unsigned int i = 0; i < size; ++i){
-			valueFcts[i].push_front(Point(time,vals[i][0]));
-		}
-
-		//Start of the (future) loop
-		while(!endPoints.empty()){
-
-
-			time = endPoints.back();
-			cout << "===TIME: " << time << " ===" << endl;
-
+			createEndPoints();
+			Fraction endM = endPoints.back();
 			endPoints.pop_back();
-			//First ExtendedDijkstra done at the last "M"
-			strategies.push_front(Strategy(size, endM, false));
-			keepTransAvailable(time, endM);
-			updateBottoms();
-
-			pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms, &resets);
-
-			pgSolver->extendedDijkstra(true);
-			delete pgSolver;
-
-			//We need to update the time to get the interval for the resolution of the SPTG
-			createMax(endM, endM - time);
-			//ptg->show();
-
-			//The solveSPTG is done on the new SPTG with the "max" state
-			SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
-			sptgSolver->solveSPTG();
-			delete sptgSolver;
-
-
-			//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
-			rescale(time, endM);
-
-			deleteMax();
-			//show();
-			//The last step is to do an extendedDijkstra on the game in the "time" instant
+			time = endM;
+			if(copyNb == (int)ptg->getNbResets())
+				init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
+			//Update the transitions that can be taken between the two given parameters
 			keepTransAvailable(time, time);
-			updateBottoms();
-			strategies.push_front(Strategy(size, time, true));
 
-			/*for (unsigned int i = 0; i < size; ++i){
+
+			//First extendedDijkstra on the biggest "M"
+			cout << "====First extended Dijkstra====" << endl;
+			PGSolver* pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &resets);
+			pgSolver->extendedDijkstra(false);
+			delete pgSolver;
+			//Updating the value functions
+			for (unsigned int i = 0; i < size; ++i){
+				valueFcts[i].push_front(Point(time,vals[i][0]));
+			}
+
+			//Start of the (future) loop
+			while(!endPoints.empty()){
+
+
+				time = endPoints.back();
+				cout << "===TIME: " << time << " ===" << endl;
+
+				endPoints.pop_back();
+				//First ExtendedDijkstra done at the last "M"
+				strategies.push_front(Strategy(size, endM, false));
+				keepTransAvailable(time, endM);
+				updateBottoms();
+
+				pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms, &resets);
+
+				pgSolver->extendedDijkstra(true);
+				delete pgSolver;
+
+				//We need to update the time to get the interval for the resolution of the SPTG
+				createMax(endM, endM - time);
+				//ptg->show();
+
+				//The solveSPTG is done on the new SPTG with the "max" state
+				SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
+				sptgSolver->solveSPTG();
+				delete sptgSolver;
+
+
+				//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
+				rescale(time, endM);
+
+				deleteMax();
+				//show();
+				//The last step is to do an extendedDijkstra on the game in the "time" instant
+				keepTransAvailable(time, time);
+				updateBottoms();
+				strategies.push_front(Strategy(size, time, true));
+
+				/*for (unsigned int i = 0; i < size; ++i){
 					for (unsigned int j = 0; j < size; ++j){
 						cout << resets[i][j] << "	";
 					}
@@ -88,25 +89,27 @@ void PTGSolver::solvePTG(PTG* p){
 				}*/
 
 
-			pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms, &resets);
-			pgSolver->extendedDijkstra(true);
-			for (unsigned int i = 0; i < size; ++i){
-				valueFcts[i].push_front(Point(time,vals[i][0]));
+				pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms, &resets);
+				pgSolver->extendedDijkstra(true);
+				for (unsigned int i = 0; i < size; ++i){
+					valueFcts[i].push_front(Point(time,vals[i][0]));
+				}
+
+				cleanValueFcts();
+				endM = time;
+				//show();
 			}
-
-			cleanValueFcts();
-			endM = time;
+			restoreAllTrans();
+			updateResets();
 			//show();
+			--copyNb;
+
 		}
-		restoreAllTrans();
-		updateResets();
-		//show();
-		--copyNb;
-
+		cout << endl << "====Results SolvePTG===" << endl;
+		show();
 	}
-	cout << endl << "====Results SolvePTG===" << endl;
-	show();
-
+	else
+		cout << "The game is empty" << endl;
 
 }
 

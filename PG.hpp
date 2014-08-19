@@ -18,6 +18,7 @@ public:
 	Fraction getTransition(unsigned int, unsigned int) const;
 	void setTransition(unsigned int,unsigned int, Fraction);
 	bool getOwner(unsigned int) const;
+	void setOwner(unsigned int, bool);
 };
 
 #endif

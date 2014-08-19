@@ -36,3 +36,7 @@ void PG::setTransition(unsigned int origin, unsigned int end, Fraction value){
 bool PG::getOwner(unsigned int index) const {
 	return (*owners)[index];
 }
+
+void PG::setOwner(unsigned int index, bool o){
+	(*owners)[index] = o;
+}

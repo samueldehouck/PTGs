@@ -4,6 +4,7 @@
 #include "PTG.hpp"
 #include "PTGSolver.hpp"
 #include "PG.hpp"
+#include "PTGFactory.hpp"
 #include <sys/time.h>
 #include <fstream>
 
@@ -24,10 +25,13 @@ int main(){
 	      SPTGSolver solver(&sptg);
 	      solver.solveSPTG();*/
 
-	PTG ptg;
-	ptg.show();
+	//PTG ptg();
+	//ptg.show();
+	PTGFactory factory;
+	PTG* ptg = factory.build();
+	ptg->show();
 	PTGSolver solver;
-	solver.solvePTG(&ptg);
+	solver.solvePTG(ptg);
 	cout << "END" << endl;
 
 
