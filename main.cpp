@@ -27,14 +27,16 @@ int main(){
 
 	//PTG ptg();
 	//ptg.show();
-	PTGFactory factory;
-	PTG* ptg = factory.build();
-	ptg->show();
-	PTGSolver solver;
-	solver.solvePTG(ptg);
-	cout << "END" << endl;
-
-
+	for (unsigned int i = 0; i < 1000; ++i){
+		freopen("output.txt","w",stdout);
+		PTGFactory factory;
+		PTG* ptg = factory.build();
+		ptg->show();
+		PTGSolver solver;
+		solver.solvePTG(ptg);
+		cerr << ".";
+	}
+	cerr << endl;
 	//     gettimeofday(&end, NULL);
 	//
 	//     seconds  = end.tv_sec  - start.tv_sec;

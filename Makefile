@@ -1,5 +1,5 @@
 all: main.o Fraction.o Point.o Strategy.o Transition.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o
-	g++ -o solver main.o Fraction.o Point.o Transition.o Strategy.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o
+	g++ -W -Wextra -Wall -pedantic -o solver main.o Fraction.o Point.o Transition.o Strategy.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o
 
 Point.o: Point.cpp Point.hpp
 	g++ -c -W -Wextra -Wall -pedantic Point.cpp
@@ -35,7 +35,7 @@ PTGFactory.o: PTGFactory.cpp PTGFactory.hpp
 	g++ -c -W -Wextra -Wall -pedantic PTGFactory.cpp
 	
 main.o: main.cpp
-	g++ -c -W -Wall -pedantic main.cpp
+	g++ -c -W -Wextra -Wall -pedantic main.cpp
 	
 clean:
-	rm *.o solver
+	rm *.o solver output.txt

@@ -10,10 +10,10 @@ PTG* PTGFactory::build(){
 	ptg->setNbResets(nbResets);
 	//Generates everything
 	for(unsigned int i = 1; i < ptg->getSize(); ++i){
-		int r = rand() % (maxNbTrans + 1) + minNbTrans;
+		int r = rand() % maxNbTrans + minNbTrans;
 		while(r != 0){
 			int index = rand() % nbStates;
-			if(ptg->getTransition(i,index) == -1){
+			if(((unsigned int)index != i) && ptg->getTransition(i,index) == -1){
 				ptg->setTransition(i,index, rand() % (maxCost + 1));
 				int endCst = rand() % (maxCst + 1);
 				ptg->setEndCst(i, index, endCst);

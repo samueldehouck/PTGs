@@ -42,7 +42,7 @@ void PTGSolver::solvePTG(PTG* p){
 			for (unsigned int i = 0; i < size; ++i){
 				valueFcts[i].push_front(Point(time,vals[i][0]));
 			}
-
+			show();
 			//Start of the (future) loop
 			while(!endPoints.empty()){
 
@@ -97,11 +97,11 @@ void PTGSolver::solvePTG(PTG* p){
 
 				cleanValueFcts();
 				endM = time;
-				//show();
+				show();
 			}
 			restoreAllTrans();
 			updateResets();
-			//show();
+			show();
 			--copyNb;
 
 		}
@@ -266,7 +266,6 @@ void PTGSolver::cleanValueFcts(){
 			for (list<Point>::iterator itLast = itV->begin(); itNext != itV->end(); ++itNext){
 				bool deleted = false;
 				Fraction coef = (itNext->getY() - itLast->getY())/(itNext->getX() - itLast->getX());
-
 				if(itLast->getY() + (coef * (itCurrent->getX() - itLast->getX())) == itCurrent->getY()){
 					itV->erase(itCurrent);
 					deleted = true;
@@ -307,15 +306,11 @@ void PTGSolver::updateResets(){
 			if(ptg->getReset(i,j)){
 				//cout << i << " " << j << " " << ptg->getTransition(i,j) << " " << vals[j][0] << endl;
 				resets[i][j] = ptg->getTransition(i,j) + vals[j][0];
+				if(resets[i][j] > ifnty)
+					resets[i][j] = ifnty;
 			}
 		}
 	}
-	/*	for (unsigned int i = 0; i < size; ++i){
-		for (unsigned int j = 0; j < size; ++j){
-			cout << resets[i][j] << "	";
-		}
-		cout << endl;
-	}*/
 }
 
 void PTGSolver::show(){

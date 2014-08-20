@@ -157,8 +157,10 @@ bool Fraction::operator!=(Fraction i){
 
 void Fraction::reduce(){
 	int g = gcd(num,den);
-	num /= g;
-	den /= g;
+	if(g != 0){
+		num /= g;
+		den /= g;
+	}
 	upperSign();
 }
 

@@ -29,7 +29,7 @@ public:
 	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* , vector<vector<Fraction> >*);
 	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* , vector<Fraction>*, vector<vector<Fraction> >*);
 
-	bool extendedDijkstra(bool);
+	void extendedDijkstra(bool);
 };
 
 #endif

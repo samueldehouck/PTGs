@@ -107,7 +107,7 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	}*/
 }
 
-bool PGSolver::extendedDijkstra(bool solvePTG){
+void PGSolver::extendedDijkstra(bool solvePTG){
 	//the parameter "solvePTG" is true when we have created a PG in solvePTG
 
 	cout << "====Extended Dijkstra====" << endl;
@@ -230,10 +230,7 @@ bool PGSolver::extendedDijkstra(bool solvePTG){
 			}
 
 		}
-
-		return false;
 	}
-	return true;
 }
 
 bool PGSolver::remainsStates(){
