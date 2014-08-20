@@ -27,7 +27,7 @@ int main(){
 
 	//PTG ptg();
 	//ptg.show();
-	for (unsigned int i = 0; i < 1000; ++i){
+	for (unsigned int i = 0; i < 10000; ++i){
 		freopen("output.txt","w",stdout);
 		PTGFactory factory;
 		PTG* ptg = factory.build();

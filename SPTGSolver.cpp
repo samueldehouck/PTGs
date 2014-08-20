@@ -244,7 +244,8 @@ bool SPTGSolver::makeImpSwitchesP1(){
 						unsigned int tempLength = (*pathsLengths)[nextState] + 1;
 
 						//Check if the reset exists and is better
-						if(solvePTG && ((*resets)[state][nextState] != -1) && ((*resets)[state][nextState] < (*vals)[state][0])){
+						//Reset will never be better because it goes to MAX
+						/*if(solvePTG && ((*resets)[state][nextState] != -1) && ((*resets)[state][nextState] < (*vals)[state][0])){
 							cout << "reset to " << nextState << " is better" << endl;
 							(*vals)[state][0] = (*resets)[state][nextState];
 							(*vals)[state][1] = 0;
@@ -253,7 +254,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 							strategies->front().insert(state, nextState, 3);
 							allDone = false;
 							changed = true;
-						}
+						}*/
 
 						if((tempVal < (*vals)[state][0])//If we have an improvement, we update the values found
 								|| ((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] < (*vals)[state][1]))
@@ -419,26 +420,37 @@ Fraction SPTGSolver::nextEventPoint(){
 	Fraction min(ifnty);
 
 	for (unsigned int state = 1; state < size; ++state){
-		//     First we have to check if an epsilon can be found using the lambda transition
+		//First we have to check if an epsilon can be found using the lambda transition
 		Fraction tempMin(ifnty);
 		if((*vals)[state][0] != lambdas[state][0] && lambdas[state][1] != (*vals)[state][1]){
 			tempMin = ((*vals)[state][0] - lambdas[state][0])/(lambdas[state][1] - (*vals)[state][1]);
-			if(tempMin < 0)
+			if(tempMin <= 0)
 				tempMin = ifnty;
 			if( time - tempMin < min)
 				min = tempMin;
 		}
 
+
 		for (unsigned int nextState = 0; nextState < size; ++nextState){
-			//       Then we need to check if there is another epsilon that can be found using the other transitions
+			//Then we need to check if there is another epsilon that can be found using the other transitions
 			tempMin = Fraction(ifnty);
-			if(sptg->getTransition(state, nextState) != -1 && ((*vals)[state][0] != (*vals)[nextState][0] + sptg->getTransition(state, nextState)) &&
+
+			if(solvePTG && (*resets)[state][nextState] != -1 && sptg->getOwner(state) == 0){
+				//If we are solving a PTG (with resets), if there is a reset and the state belongs to P2 because it goes to the target
+				tempMin = ((*vals)[state][0] - (*resets)[state][nextState])/(*vals)[state][1];
+
+				if(tempMin <= 0)
+					tempMin = ifnty;
+
+				if(tempMin < min)
+					min = tempMin;
+			}
+			else if((*resets)[state][nextState] == -1 && sptg->getTransition(state, nextState) != -1 && ((*vals)[state][0] != (*vals)[nextState][0] + sptg->getTransition(state, nextState)) &&
 					((*vals)[nextState][1] != (*vals)[state][1]))
 			{
-
 				tempMin = ((*vals)[state][0] - ((*vals)[nextState][0]+sptg->getTransition(state, nextState)))/((*vals)[nextState][1] - (*vals)[state][1]);
 
-				if(tempMin < 0)
+				if(tempMin <= 0)
 					tempMin = ifnty;
 
 				if(tempMin < min)
