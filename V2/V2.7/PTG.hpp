@@ -25,6 +25,8 @@ public:
 	void setReset(unsigned int, unsigned int, bool);
 	unsigned int getNbResets() const;
 	void setNbResets(unsigned int);
+	void createMaxState(Fraction, Fraction);
+	void deleteMaxState();
 	void show();
 };
 

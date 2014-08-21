@@ -30,7 +30,7 @@ int main(){
 	for (unsigned int i = 0; i < 1; ++i){
 		freopen("output.txt","w",stdout);
 		PTGFactory factory;
-		PTG* ptg = factory.hardBuild();
+		PTG* ptg = factory.build();
 		ptg->show();
 		PTGSolver solver;
 		solver.solvePTG(ptg);

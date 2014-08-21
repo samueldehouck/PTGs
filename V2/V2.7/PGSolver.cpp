@@ -110,14 +110,12 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 void PGSolver::extendedDijkstra(bool solvePTG){
 	//the parameter "solvePTG" is true when we have created a PG in solvePTG
 
-
 	cout << "====Extended Dijkstra====" << endl;
 	//Compute the values in a Priced Game
 	unsigned int cnt = nbTransitions;
 
 	while (remainsStates() && cnt > 0){
 		Fraction min = ifnty * 2; //We need that an ifnty transition is still better than the min
-		cout << cnt << endl;
 		unsigned int finalState = 1;
 		unsigned int finalTrans = 0;
 		bool minIsBottom = false;
@@ -132,7 +130,7 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 
 				if(solvePTG && ensBottoms[state]){
 					if( min > (*bottoms)[state]){
-						cout << "minisBottom: " << (*bottoms)[state] << endl;
+						//cout << "minisBottom: " << (*bottoms)[state] << endl;
 						finalState = state;
 						finalTrans = 0;
 						min = (*bottoms)[state];
@@ -171,7 +169,7 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 			}
 		}
 		//Change the values
-		if(ensTransitions[finalState][finalTrans] && ensStates[finalState] && (pg->getOwner(finalState) || isLastTransition(finalState, finalTrans, minIsBottom, minIsReset, solvePTG))){
+		if(ensStates[finalState] && (pg->getOwner(finalState) || isLastTransition(finalState, finalTrans, minIsBottom, minIsReset, solvePTG))){
 			cout << "Change value of state " << finalState << " to ";
 			if(minIsBottom){
 				cout << (*bottoms)[finalState] << endl;
@@ -203,7 +201,7 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 			}
 			ensStates[finalState] = false;
 		}
-		else if(ensTransitions[finalState][finalTrans] && ensStates[finalState]){
+		else if(ensStates[finalState]){
 			cout << "Delete transition to " << finalTrans << " from state " << finalState  << endl;
 			if(minIsBottom)
 				ensBottoms[finalState] = false;
@@ -246,9 +244,9 @@ bool PGSolver::remainsStates(){
 
 bool PGSolver::isLastTransition(unsigned int state, unsigned int nextState, bool isBottom, bool isReset, bool solvePTG){
 	//Check if the transition going from state to nextState is the last one
-	cout << "is? ";
+	//cout << "is? ";
 	bool isLast = true;
-
+	//if(solvePTG)
 	//cout << isBottom << " " << ensBottoms[state] << endl;
 	if(solvePTG && !isBottom && ensBottoms[state] != false){
 		return false;
@@ -257,12 +255,12 @@ bool PGSolver::isLastTransition(unsigned int state, unsigned int nextState, bool
 
 	//cout << " " << isReset << " " << ensResets[state][nextState] << endl;
 
-	for(unsigned int i = 0; solvePTG && resets != NULL && isLast && !isReset&& i < ensResets[state].size(); ++i)
+	for(unsigned int i = 0; resets != NULL && isLast && !isReset&& i < ensResets[state].size(); ++i)
 		if(ensResets[state][i])
 			isLast = false;
 
 	//cout << "+" << endl;
-	for (unsigned int i = 0; isLast && i < ensTransitions[state].size(); ++i){
+	for (unsigned int i = 0;isLast && i < ensTransitions[state].size(); ++i){
 		if((i != nextState) && ensTransitions[state][i])
 			isLast = false;
 

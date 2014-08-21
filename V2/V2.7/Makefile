@@ -1,4 +1,4 @@
-all: main.o Fraction.o Point.o Strategy.o Transition.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o 
+all: main.o Fraction.o Point.o Strategy.o Transition.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o
 	g++ -W -Wextra -Wall -pedantic -o solver main.o Fraction.o Point.o Transition.o Strategy.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o
 
 Point.o: Point.cpp Point.hpp

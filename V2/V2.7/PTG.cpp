@@ -73,6 +73,51 @@ unsigned int PTG::getNbResets() const{
 void PTG::setNbResets(unsigned int nb){
 	nbResets = nb;
 }
+void PTG::createMaxState(Fraction f, Fraction endCst){
+	states->push_back(f);
+	owners->push_back(false);
+	transitions->push_back(vector<Fraction>());
+	resets->push_back(vector<bool>());
+	startsCstraints->push_back(vector<Fraction>());
+	endsCstraints->push_back(vector<Fraction>());
+
+	for (unsigned int i = 0; i < getSize() - 1; ++i){
+		//Fills the new column of each rows
+		(*transitions)[i].push_back(-1);
+		(*resets)[i].push_back(false);
+		(*startsCstraints)[i].push_back(0);
+		(*endsCstraints)[i].push_back(endCst);
+
+		//Fills the columns of the new row
+		(*transitions)[getSize()-1].push_back(-1);
+		(*resets)[getSize()-1].push_back(false);
+		(*startsCstraints)[getSize()-1].push_back(0);
+		(*endsCstraints)[getSize()-1].push_back(endCst);
+
+	}
+	(*transitions)[getSize()-1].push_back(-1);
+	(*resets)[getSize()-1].push_back(false);
+	(*startsCstraints)[getSize()-1].push_back(0);
+	(*endsCstraints)[getSize()-1].push_back(endCst);
+
+}
+
+void PTG::deleteMaxState(){
+	states->pop_back();
+	owners->pop_back();
+	transitions->pop_back();
+	resets->pop_back();
+	startsCstraints->pop_back();
+	endsCstraints->pop_back();
+
+	//Delete at all ends
+	for (unsigned int i = 0; i < getSize(); ++i){
+		(*transitions)[i].pop_back();
+		(*resets)[i].pop_back();
+		(*startsCstraints)[i].pop_back();
+		(*endsCstraints)[i].pop_back();
+	}
+}
 
 void PTG::show(){
 	cout << "====PTG===" << endl;

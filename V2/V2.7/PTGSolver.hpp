@@ -28,7 +28,9 @@ private:
 	void keepTransAvailable(Fraction, Fraction);
 	void restoreAllTrans();
 	void updateBottoms();
+	void createMax(const Fraction, const Fraction);
 	void rescale(Fraction, Fraction);
+	void deleteMax();
 	void cleanValueFcts();
 	void createResets();
 	void updateResets();

@@ -43,7 +43,7 @@ void PTGSolver::solvePTG(PTG* p){
 				valueFcts[i].push_front(Point(time,vals[i][0]));
 			}
 			show();
-
+			//Start of the (future) loop
 			while(!endPoints.empty()){
 
 
@@ -61,8 +61,11 @@ void PTGSolver::solvePTG(PTG* p){
 				pgSolver->extendedDijkstra(true);
 				delete pgSolver;
 
+				//We need to update the time to get the interval for the resolution of the SPTG
+				createMax(endM, endM - time);
 				//ptg->show();
 
+				//The solveSPTG is done on the new SPTG with the "max" state
 				SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
 				sptgSolver->solveSPTG();
 				delete sptgSolver;
@@ -71,6 +74,7 @@ void PTGSolver::solvePTG(PTG* p){
 				//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
 				rescale(time, endM);
 
+				deleteMax();
 				//show();
 				//The last step is to do an extendedDijkstra on the game in the "time" instant
 				keepTransAvailable(time, time);
@@ -197,6 +201,35 @@ void PTGSolver::updateBottoms(){
 	}
 }
 
+void PTGSolver::createMax(const Fraction endM, const Fraction d){
+	cout << "====Creating MAX==== "<< endl;
+	//Create the new sptg with the MAX state
+	ptg->createMaxState(ifnty, endM);
+	size = ptg->getSize();
+	resets.push_back(vector<Fraction>());
+	for (unsigned int i = 0; i < size; ++i){
+		resets[i].push_back(-1);
+		resets[size - 1].push_back(-1);
+	}
+	for (unsigned int i = 0; i < size; ++i){
+		ptg->setState(i, ptg->getState(i) * d);
+		if(ptg->getOwner(i) && ptg->getTransition(i, 0) != -1){
+			Fraction tmp = ptg->getTransition(i, 0);
+			storage.push_front(Transition(i,0,tmp));
+			ptg->setTransition(i, size - 1, tmp);
+			ptg->setTransition(i, 0, -1);
+		}
+	}
+	vals.push_back(vector<Fraction>());
+	vals.back().push_back(0);
+	vals.back().push_back(0);
+	valueFcts.push_back(list<Point>());
+
+	//The transition from MAX to bottom is considered as a bottom transition
+	bottoms[size - 1] = 0;
+}
+
+
 void PTGSolver::rescale(Fraction start, Fraction end){
 	//The result given by the solveSPTG
 	cout << "====Rescaling====" << endl;
@@ -207,6 +240,15 @@ void PTGSolver::rescale(Fraction start, Fraction end){
 	}
 	for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end() && it->getTime() < 1; ++it)
 		it->setTime((it->getTime() * Fraction(end - start)) + start);
+}
+
+void PTGSolver::deleteMax(){
+	//Restore the game as it was before the construction of the SPTG with "MAX"
+	cout << "====Deleting Max====" << endl;
+	ptg->deleteMaxState();
+	size = ptg->getSize();
+	vals.pop_back();
+	valueFcts.pop_back();
 }
 
 void PTGSolver::cleanValueFcts(){
