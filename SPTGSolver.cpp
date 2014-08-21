@@ -143,6 +143,7 @@ void SPTGSolver::solveSPTG(){
 
 
 	while (time > 0){
+
 		strategies->push_front(Strategy(size));
 		actualizeLambdas();
 		if(time.num == 1 && time.den == 1)//If it's the first turn, we have to "initialize" the value functions
@@ -305,7 +306,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 				}*/
 				//Check the lambda transition
 				if((lambdas[state][0] > (*vals)[state][0]) ||
-						((lambdas[state][0] == (*vals)[state][0]) && (lambdas[state][1] > (*vals)[state][1]))){
+						(((*vals)[state][0] != ifnty) && (lambdas[state][0] == (*vals)[state][0]) && (lambdas[state][1] > (*vals)[state][1]))){
 					cout << "lambda is better" << endl;
 					//If we have an improvement, we update the values found
 					(*vals)[state][0] = lambdas[state][0];
@@ -323,35 +324,37 @@ bool SPTGSolver::makeImpSwitchesP2(){
 						if(tempVal > ifnty)
 							tempVal = ifnty;
 						unsigned int tempLength = (*pathsLengths)[nextState] + 1;
+						cout << "temp: " << tempLength << endl;
+						if(tempLength < ifnty){
+							//Check if the reset exists and is better
+							if(solvePTG && ((*resets)[state][nextState] != -1) &&  ((*resets)[state][nextState] > (*vals)[state][0])){//If we have an improvement, we update the values found
+								cout << "reset to " << nextState << " is better" << endl;
+								(*vals)[state][0] = (*resets)[state][nextState];
+								(*vals)[state][1] = 0;
+								cout << (*vals)[state][0] << "+" << (*vals)[state][1] << "e" << endl;
 
-						//Check if the reset exists and is better
-						if(solvePTG && ((*resets)[state][nextState] != -1) &&  ((*resets)[state][nextState] > (*vals)[state][0])){//If we have an improvement, we update the values found
-							cout << "reset to " << nextState << " is better" << endl;
-							(*vals)[state][0] = (*resets)[state][nextState];
-							(*vals)[state][1] = 0;
-							cout << (*vals)[state][0] << "+" << (*vals)[state][1] << "e" << endl;
+								strategies->front().insert(state, nextState, 3);
+								allDone = false;
+								changed = true;
+							}
 
-							strategies->front().insert(state, nextState, 3);
-							allDone = false;
-							changed = true;
-						}
+							//cout << state << ": " << (*vals)[state][0] << " " << (*vals)[state][1] << endl;
+							//cout << "to: " << nextState << ": " << tempVal <<  " " << (*vals)[nextState][1] << endl;
+							if((strategies->front().getDest(nextState) != state) &&
+									((tempVal > (*vals)[state][0]) || ((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] > (*vals)[state][1]))
+											||((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] == (*vals)[state][1]) && (tempLength > (*pathsLengths)[state])))){
+								cout << "to " << nextState << " is better" << endl;
+								//If we have an improvement, we update the values found
+								(*vals)[state][0] = tempVal;
+								(*vals)[state][1] = (*vals)[nextState][1];
+								cout << (*vals)[state][0] << "+" << (*vals)[state][1] << "e" << endl;
+								cout << tempLength << endl;
 
-						//cout << state << ": " << (*vals)[state][0] << " " << (*vals)[state][1] << endl;
-						//cout << "to: " << nextState << ": " << tempVal <<  " " << (*vals)[nextState][1] << endl;
-						if((strategies->front().getDest(nextState) != state) &&
-								((tempVal > (*vals)[state][0]) || ((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] > (*vals)[state][1]))
-								||((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] == (*vals)[state][1]) && (tempLength > (*pathsLengths)[state])))){
-							cout << "to " << nextState << " is better" << endl;
-							//If we have an improvement, we update the values found
-							(*vals)[state][0] = tempVal;
-							(*vals)[state][1] = (*vals)[nextState][1];
-							cout << (*vals)[state][0] << "+" << (*vals)[state][1] << "e" << endl;
-							cout << tempLength << endl;
-
-							(*pathsLengths)[state] = tempLength;
-							strategies->front().insert(state, nextState, 0);
-							allDone = false;
-							changed = true;
+								(*pathsLengths)[state] = tempLength;
+								strategies->front().insert(state, nextState, 0);
+								allDone = false;
+								changed = true;
+							}
 						}
 					}
 				}
@@ -366,6 +369,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 
 void SPTGSolver::propagate(unsigned int state){
 	//Use a queue to update the value of all state that can reach the one given
+	cout << "====Propagate===" << endl;
 	queue<unsigned int> q;
 	vector<bool> checked;
 	for (unsigned int i = 0; i < size; ++i)
@@ -375,16 +379,25 @@ void SPTGSolver::propagate(unsigned int state){
 	while (!q.empty() ){
 		unsigned int tmpState = q.front();
 		for(unsigned int i = 1; i < size; ++i){
-			if(strategies->front().getDest(i) == tmpState){
+			if(strategies->front().getDest(i) == tmpState && !checked[i]){
+				cout  << "Not checked" << endl;
 				(*vals)[i][0] = (*vals)[tmpState][0] + sptg->getTransition(i,tmpState);
 				if((*vals)[i][0] > ifnty)
 					(*vals)[i][0] = ifnty;
 				(*vals)[i][1] = (*vals)[tmpState][1];
 				(*pathsLengths)[i] = (*pathsLengths)[tmpState] + 1;
-				if(!checked[i]){
-					q.push(i);
-					checked[i] = true;
-				}
+				q.push(i);
+				checked[i] = true;
+			}
+			else if(strategies->front().getDest(i) == tmpState && checked[i] && (*vals)[i][0] != ifnty){
+				cout << "Cycle!!" << endl;
+				(*vals)[i][0] = ifnty;
+				(*vals)[i][1] = ifnty;
+				(*pathsLengths)[i] = ifnty;
+				q.push(i);
+			}
+			else if(strategies->front().getDest(i) == tmpState && checked[i] && (*vals)[i][0] == ifnty){
+				(*pathsLengths)[i] = ifnty;
 			}
 		}
 		q.pop();
@@ -465,4 +478,20 @@ Fraction SPTGSolver::nextEventPoint(){
 
 list<Strategy>* SPTGSolver::getStrategies(){
 	return strategies;
+}
+
+void SPTGSolver::manageCycle(unsigned int index){
+	cout << "====Manage Cycle==== " << endl;
+
+	//It means there is a cycle where every vals and lengths equal to ifnty
+	unsigned int nextState = strategies->front().getDest(index);
+	(*pathsLengths)[index] = ifnty;
+	(*vals)[index][0] = ifnty;
+	(*vals)[index][1] = 0;
+	while(nextState != index){
+		(*pathsLengths)[nextState] = ifnty;
+		(*vals)[nextState][0] = ifnty;
+		(*vals)[nextState][1] = 0;
+		nextState = strategies->front().getDest(nextState);
+	}
 }
