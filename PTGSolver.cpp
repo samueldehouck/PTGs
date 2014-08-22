@@ -67,9 +67,9 @@ void PTGSolver::solvePTG(PTG* p){
 				sptgSolver->solveSPTG();
 				delete sptgSolver;
 
-
 				//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
 				rescale(time, endM);
+				show();
 
 				//show();
 				//The last step is to do an extendedDijkstra on the game in the "time" instant

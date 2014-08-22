@@ -214,13 +214,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 				cout << "Actual value: " << (*vals)[state][0] << "+" << (*vals)[state][1] << "e" << endl;
 
 				//We don't need to look at the bottom transitions for the player 1 because it goes to MAX and will never be taken
-				/*if(solvePTG && ((*bottoms)[state] < (*vals)[state][0])){//If we have an improvement, we update the values found
-					(*vals)[state][0] = (*bottoms)[state];
-					(*vals)[state][1] = 0;
-					strategies->front().insert(state, 0, 2);
-					allDone = false;
-					changed = true;
-				}*/
+
 				//Check the lambda transition
 				if((lambdas[state][0] < (*vals)[state][0]) ||
 						((lambdas[state][0] == (*vals)[state][0]) && (lambdas[state][1] < (*vals)[state][1]))){
@@ -236,26 +230,15 @@ bool SPTGSolver::makeImpSwitchesP1(){
 				}
 
 
-				for (unsigned int nextState = 0; nextState < size; ++nextState){
-					//We need to check all transitions for every states except the lambda transition because it is taken by default
+				for (unsigned int nextState = 1; nextState < size; ++nextState){
+					//We need to check all transitions for every states except the lambda transition because it is taken by default and the ones that go to "MAX" (fictive state)
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 						Fraction tempVal = (*vals)[nextState][0] + sptg->getTransition(state, nextState);
 						if(tempVal > ifnty)
 							tempVal = ifnty;
 						unsigned int tempLength = (*pathsLengths)[nextState] + 1;
 
-						//Check if the reset exists and is better
-						//Reset will never be better because it goes to MAX
-						/*if(solvePTG && ((*resets)[state][nextState] != -1) && ((*resets)[state][nextState] < (*vals)[state][0])){
-							cout << "reset to " << nextState << " is better" << endl;
-							(*vals)[state][0] = (*resets)[state][nextState];
-							(*vals)[state][1] = 0;
-							cout << (*vals)[state][0] << "+" << (*vals)[state][1] << "e" << endl;
-
-							strategies->front().insert(state, nextState, 3);
-							allDone = false;
-							changed = true;
-						}*/
+						//We don't need to check the resets because it is always worse
 
 						if((tempVal < (*vals)[state][0])//If we have an improvement, we update the values found
 								|| ((tempVal == (*vals)[state][0]) && ((*vals)[nextState][1] < (*vals)[state][1]))
@@ -297,13 +280,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 				cout << "Actual value: " << (*vals)[state][0] << "+" << (*vals)[state][1] << "e" << endl;
 
 				//We don't need to take a look at the bottom transitions because the lambda transitions will always be better for P2
-				/*if(solvePTG && ((*bottoms)[state] > (*vals)[state][0])){//If we have an improvement, we update the values found
-					(*vals)[state][0] = (*bottoms)[state];
-					(*vals)[state][1] = 0;
-					strategies->front().insert(state, 0, 2);
-					allDone = false;
-					changed = true;
-				}*/
+
 				//Check the lambda transition
 				if((lambdas[state][0] > (*vals)[state][0]) ||
 						(((*vals)[state][0] != ifnty) && (lambdas[state][0] == (*vals)[state][0]) && (lambdas[state][1] > (*vals)[state][1]))){
@@ -478,20 +455,4 @@ Fraction SPTGSolver::nextEventPoint(){
 
 list<Strategy>* SPTGSolver::getStrategies(){
 	return strategies;
-}
-
-void SPTGSolver::manageCycle(unsigned int index){
-	cout << "====Manage Cycle==== " << endl;
-
-	//It means there is a cycle where every vals and lengths equal to ifnty
-	unsigned int nextState = strategies->front().getDest(index);
-	(*pathsLengths)[index] = ifnty;
-	(*vals)[index][0] = ifnty;
-	(*vals)[index][1] = 0;
-	while(nextState != index){
-		(*pathsLengths)[nextState] = ifnty;
-		(*vals)[nextState][0] = ifnty;
-		(*vals)[nextState][1] = 0;
-		nextState = strategies->front().getDest(nextState);
-	}
 }

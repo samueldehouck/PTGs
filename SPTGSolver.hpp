@@ -35,7 +35,6 @@ private:
 	void buildValueFcts(Fraction);
 	Fraction nextEventPoint();
 	list<Strategy>* getStrategies();
-	void manageCycle(unsigned int);
 
 public:
 	SPTGSolver(SPTG*);
