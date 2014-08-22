@@ -1,5 +1,5 @@
-all: main.o Fraction.o Point.o Strategy.o Transition.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o 
-	g++ -W -Wextra -Wall -pedantic -o solver main.o Fraction.o Point.o Transition.o Strategy.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o
+all: Fraction.o Value.o CompositeValue.o Point.o Strategy.o Transition.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o main.o
+	g++ -W -Wextra -Wall -pedantic -o solver Fraction.o Value.o CompositeValue.o Point.o Transition.o Strategy.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o main.o 
 
 Point.o: Point.cpp Point.hpp
 	g++ -c -W -Wextra -Wall -pedantic Point.cpp
@@ -34,6 +34,11 @@ PGSolver.o: PGSolver.cpp PGSolver.hpp
 PTGFactory.o: PTGFactory.cpp PTGFactory.hpp
 	g++ -c -W -Wextra -Wall -pedantic PTGFactory.cpp
 	
+Value.o: Value.cpp Value.hpp
+	g++ -c -W -Wextra -Wall -pedantic Value.cpp
+
+CompositeValue.o: CompositeValue.cpp CompositeValue.hpp
+	g++ -c -W -Wextra -Wall -pedantic CompositeValue.cpp
 main.o: main.cpp
 	g++ -c -W -Wextra -Wall -pedantic main.cpp
 	

@@ -57,8 +57,8 @@ Fraction Fraction::operator+(int i){
 	tmp = (*this + Fraction(i));
 	tmp.reduce();
 	return tmp;
-
 }
+
 Fraction Fraction::operator-(Fraction i){
 	Fraction tmp;
 	upperSign();

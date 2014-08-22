@@ -25,18 +25,16 @@ int main(){
 	      SPTGSolver solver(&sptg);
 	      solver.solveSPTG();*/
 
-	//PTG ptg();
-	//ptg.show();
-	for (unsigned int i = 0; i < 1; ++i){
+	/*for (unsigned int i = 0; i < 1; ++i){
 		freopen("output.txt","w",stdout);
 		PTGFactory factory;
-		PTG* ptg = factory.hardBuild();
+		PTG* ptg = factory.build();
 		ptg->show();
 		PTGSolver solver;
 		solver.solvePTG(ptg);
 		cerr << ".";
 	}
-	cerr << endl;
+	cerr << endl;*/
 	//     gettimeofday(&end, NULL);
 	//
 	//     seconds  = end.tv_sec  - start.tv_sec;
