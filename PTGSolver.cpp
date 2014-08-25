@@ -61,7 +61,6 @@ void PTGSolver::solvePTG(PTG* p){
 				pgSolver->extendedDijkstra(true);
 				delete pgSolver;
 
-				cout << "cici" << endl;
 				show();
 
 				SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
@@ -72,7 +71,6 @@ void PTGSolver::solvePTG(PTG* p){
 				rescale(time, endM);
 				show();
 
-				//show();
 				//The last step is to do an extendedDijkstra on the game in the "time" instant
 				keepTransAvailable(time, time);
 				updateBottoms();
@@ -188,8 +186,10 @@ void PTGSolver::restoreAllTrans(){
 
 void PTGSolver::updateBottoms(){
 	//Update the bottom transitions
+	//cout << "updatebottoms" << endl;
 	for (unsigned int i = 0; i < size; ++i){
 		bottoms[i] = vals[i];
+		//cout << bottoms[i] << " " << vals[i] << endl;
 	}
 }
 

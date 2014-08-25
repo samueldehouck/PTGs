@@ -11,7 +11,7 @@ private:
 public:
 	PTGFactory();
 	PTG* build();
-	PTG* hardBuild();
+	PTG* hardBuild(unsigned int);
 };
 
 #endif
