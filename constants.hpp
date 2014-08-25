@@ -1,7 +1,6 @@
 #ifndef CST_HPP
 #define CST_HPP
 
-const int ifnty = 10000000;
 const unsigned int nbStates = 5;
 const unsigned int minNbTrans = 1;
 const unsigned int maxNbTrans = nbStates - 1;

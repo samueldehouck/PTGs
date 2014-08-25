@@ -3,7 +3,7 @@
 
 using namespace std;
 
-PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v, list<Strategy>* s, vector<vector<Fraction> >* r){
+PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, list<Strategy>* s, vector<vector<Value> >* r){
 	pg = p;
 	pathsLengths = pl;
 	vals = v;
@@ -50,7 +50,7 @@ PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v
 	}
 }
 
-PGSolver::PGSolver(PG* p, vector<unsigned int>* pl, vector<vector<Fraction> >* v, list<Strategy>* s, vector<Fraction>* b, vector<vector<Fraction> >* r){
+PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, list<Strategy>* s, vector<Value>* b, vector<vector<Value> >* r){
 	pg = p;
 	pathsLengths = pl;
 	vals = v;
@@ -109,7 +109,8 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 	unsigned int cnt = nbTransitions;
 
 	while (remainsStates() && cnt > 0){
-		Fraction min = ifnty * 2; //We need that an ifnty transition is still better than the min
+		Value min;
+		min.setInf(true);
 		cout << cnt << endl;
 		unsigned int finalState = 1;
 		unsigned int finalTrans = 0;
@@ -150,12 +151,11 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					if(ensTransitions[state][nextState]){
 						cout << state << " to " << nextState << endl;
-
-						if( (*resets)[state][nextState] == -1 && min > ((*vals)[nextState][0] + pg->getTransition(state, nextState))){
-							cout << "New min to " << nextState << " with cost " << (*vals)[nextState][0] + pg->getTransition(state, nextState) << endl;
+						if( (*resets)[state][nextState] == -1 && min > ((*vals)[nextState] + pg->getTransition(state, nextState))){
+							cout << "New min to " << nextState << " with cost " << (*vals)[nextState] + pg->getTransition(state, nextState) << endl;
 							finalState = state;
 							finalTrans = nextState;
-							min = (*vals)[nextState][0] + pg->getTransition(state, nextState);
+							min = (*vals)[nextState] + pg->getTransition(state, nextState);
 							minIsBottom = false;
 							minIsReset = false;
 						}
@@ -168,29 +168,25 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 			cout << "Change value of state " << finalState << " to ";
 			if(minIsBottom){
 				cout << (*bottoms)[finalState] << endl;
-				(*vals)[finalState][0] = (*bottoms)[finalState];
-				if((*vals)[finalState][0] > ifnty)
-					(*vals)[finalState][0] = ifnty;
+				(*vals)[finalState] = (*bottoms)[finalState];
 				(*pathsLengths)[finalState] = 1;
 				strategies->front().insert(finalState, finalTrans, 2);
 
 			}
 			else if(minIsReset){
-				(*vals)[finalState][0] = (*resets)[finalState][finalTrans];
-				if((*vals)[finalState][0] > ifnty)
-					(*vals)[finalState][0] = ifnty;
+				(*vals)[finalState] = (*resets)[finalState][finalTrans];
 				cout << (*resets)[finalState][finalTrans] << endl;
 				(*pathsLengths)[finalState] = 1;
 				strategies->front().insert(finalState, finalTrans, 3);
 			}
 			else{
-				if((*vals)[finalTrans][0] + pg->getTransition(finalState, finalTrans) > ifnty)
-					(*vals)[finalState][0] = ifnty;
+				if((*vals)[finalTrans].isInfinity() || pg->getTransition(finalState, finalTrans).isInfinity())
+					(*vals)[finalState].setInf(true);
 				else
-					(*vals)[finalState][0] = (*vals)[finalTrans][0] + pg->getTransition(finalState, finalTrans);
-				cout << (*vals)[finalState][0] << endl;
+					(*vals)[finalState] = (*vals)[finalTrans] + pg->getTransition(finalState, finalTrans);
+				cout << (*vals)[finalState] << endl;
 
-				(*vals)[finalState][0].upperSign();
+				(*vals)[finalState].getVal().upperSign();
 				(*pathsLengths)[finalState] = (*pathsLengths)[finalTrans] + 1;
 				strategies->front().insert(finalState, finalTrans, 0);
 			}
@@ -210,7 +206,7 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 	if(cnt == 0 && remainsStates()){
 		for (unsigned int i = 1; i < size; ++i){
 			if(ensStates[i]){
-				(*vals)[i][0] = ifnty;
+				(*vals)[i].setInf(true);
 				if(solvePTG){
 					strategies->front().insert(i, 0, 1);
 					(*pathsLengths)[i] = 1;
@@ -219,7 +215,7 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 				else{
 					strategies->front().insert(i, i, 0);
 
-					(*pathsLengths)[i] = ifnty;
+					(*pathsLengths)[i].setInf(true);
 				}
 
 			}

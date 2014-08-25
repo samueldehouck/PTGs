@@ -2,21 +2,21 @@
 #define PG_HPP
 
 #include <vector>
-#include "Fraction.hpp"
+#include "Value.hpp"
 
 using namespace std;
 
 class PG{
 protected:
-	vector<vector<Fraction> >* transitions;
+	vector<vector<Value> >* transitions;
 	vector<bool>* owners;
 public:
 	PG();
-	PG(vector<vector<Fraction> >*, vector<bool>*);
+	PG(vector<vector<Value> >*, vector<bool>*);
 	~PG();
 	unsigned int getSize() const;
-	Fraction getTransition(unsigned int, unsigned int) const;
-	void setTransition(unsigned int,unsigned int, Fraction);
+	Value getTransition(unsigned int, unsigned int) const;
+	void setTransition(unsigned int,unsigned int, Value);
 	bool getOwner(unsigned int) const;
 	void setOwner(unsigned int, bool);
 };

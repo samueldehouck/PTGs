@@ -4,19 +4,19 @@
 #include <vector>
 
 #include "PG.hpp"
-#include "Fraction.hpp"
+#include "Value.hpp"
 
 using namespace std;
 
 class SPTG: public PG{
 protected:
-	vector<Fraction>* states;
+	vector<Value>* states;
 public:
 	SPTG();
 	~SPTG();
 	void show();
-	Fraction getState(unsigned int) const;
-	void setState(unsigned int, Fraction);
+	Value getState(unsigned int) const;
+	void setState(unsigned int, Value);
 };
 
 #endif

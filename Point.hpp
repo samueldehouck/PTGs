@@ -1,19 +1,18 @@
 #ifndef POINT_HPP
 #define POINT_HPP
 
-#include "Fraction.hpp"
+#include "Value.hpp"
 
 class Point{
 private:
-	Fraction x;
-	Fraction y;
+	Value x;
+	Value y;
 public:
 	Point();
-	Point(int, int, int, int);
-	Point(Fraction, Fraction);
-	Fraction getX() const;
-	Fraction getY() const ;
-	void setX(Fraction);
+	Point(Value, Value);
+	Value getX() const;
+	Value getY() const ;
+	void setX(Value);
 };
 
 #endif

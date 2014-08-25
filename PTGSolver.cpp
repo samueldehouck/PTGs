@@ -24,10 +24,10 @@ void PTGSolver::solvePTG(PTG* p){
 
 
 			createEndPoints();
-			Fraction endM = endPoints.back();
+			Value endM = endPoints.back();
 			endPoints.pop_back();
 			time = endM;
-			if(copyNb == (int)ptg->getNbResets())
+			if(vals.size() == 0)
 				init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
 			//Update the transitions that can be taken between the two given parameters
 			keepTransAvailable(time, time);
@@ -40,7 +40,7 @@ void PTGSolver::solvePTG(PTG* p){
 			delete pgSolver;
 			//Updating the value functions
 			for (unsigned int i = 0; i < size; ++i){
-				valueFcts[i].push_front(Point(time,vals[i][0]));
+				valueFcts[i].push_front(Point(time,vals[i]));
 			}
 			show();
 
@@ -61,7 +61,8 @@ void PTGSolver::solvePTG(PTG* p){
 				pgSolver->extendedDijkstra(true);
 				delete pgSolver;
 
-				//ptg->show();
+				cout << "cici" << endl;
+				show();
 
 				SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
 				sptgSolver->solveSPTG();
@@ -77,18 +78,13 @@ void PTGSolver::solvePTG(PTG* p){
 				updateBottoms();
 				strategies.push_front(Strategy(size, time, true));
 
-				/*for (unsigned int i = 0; i < size; ++i){
-					for (unsigned int j = 0; j < size; ++j){
-						cout << resets[i][j] << "	";
-					}
-					cout << endl;
-				}*/
+
 
 
 				pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms, &resets);
 				pgSolver->extendedDijkstra(true);
 				for (unsigned int i = 0; i < size; ++i){
-					valueFcts[i].push_front(Point(time,vals[i][0]));
+					valueFcts[i].push_front(Point(time,vals[i]));
 				}
 
 				cleanValueFcts();
@@ -110,9 +106,7 @@ void PTGSolver::solvePTG(PTG* p){
 }
 
 void PTGSolver::init(){
-	vals.push_back(vector<Fraction>());
-	vals[0].push_back(0);
-	vals[0].push_back(0);
+	vals.push_back(CompositeValue());
 
 	strategies.push_front(Strategy(size, time, true));
 	strategies.front().insert(0,0,false);
@@ -126,12 +120,15 @@ void PTGSolver::init(){
 
 	// Fill the initial valors, strategies and the ensemble of states
 	for (unsigned int i = 1; i < size; ++i){
-		vals.push_back(vector<Fraction>());
-		vals[i].push_back(ifnty);
-		vals[i].push_back(0);
+		vals.push_back(CompositeValue());
+		vals[i].setInf(true);
 
 		strategies.front().insert(i, -1, false);
-		pathsLengths.push_back(0);
+		pathsLengths.push_back(Value());
+		//To force taking the first transitions available.
+		if(ptg->getOwner(i))
+			pathsLengths[i].setInf(true);
+
 
 		bottoms.push_back(0);
 
@@ -155,17 +152,16 @@ void PTGSolver::createEndPoints(){
 
 }
 
-void PTGSolver::keepTransAvailable(Fraction start, Fraction end){
+void PTGSolver::keepTransAvailable(Value start, Value end){
 	cout << "===Updating Transitions (" << start << "," << end << ") ====" << endl;
 
 	//Restore the transitions stored
 	list<Transition>::iterator next = storage.begin();
 	for (list<Transition>::iterator it = storage.begin(); it != storage.end(); it = next){
 		++next;
-		if(ptg->getStartCst(it->origin, it->dest) <= start && ptg->getEndCst(it->origin, it->dest) >= end){
+		if(Value(ptg->getStartCst(it->origin, it->dest)) <= start && Value(ptg->getEndCst(it->origin, it->dest)) >= end){
 			ptg->setTransition(it->origin, it->dest, it->cost);
 
-			//resets[it->origin][it->dest] = -1;
 			storage.erase(it);
 
 		}
@@ -175,7 +171,7 @@ void PTGSolver::keepTransAvailable(Fraction start, Fraction end){
 	//Store the ones that can't be taken
 	for (unsigned int i = 0; i < size; ++i){
 		for (unsigned int j = 0; j < size; ++j){
-			if(ptg->getTransition(i,j) != -1 && (ptg->getStartCst(i,j) > start || ptg->getEndCst(i,j) < end)){
+			if(ptg->getTransition(i,j) != -1 && (Value(ptg->getStartCst(i,j)) > start || Value(ptg->getEndCst(i,j)) < end)){
 				storage.push_back(Transition(i, j, ptg->getTransition(i,j)));
 				ptg->setTransition(i,j,-1);
 			}
@@ -193,20 +189,20 @@ void PTGSolver::restoreAllTrans(){
 void PTGSolver::updateBottoms(){
 	//Update the bottom transitions
 	for (unsigned int i = 0; i < size; ++i){
-		bottoms[i] = vals[i][0];
+		bottoms[i] = vals[i];
 	}
 }
 
-void PTGSolver::rescale(Fraction start, Fraction end){
+void PTGSolver::rescale(Value start, Value end){
 	//The result given by the solveSPTG
 	cout << "====Rescaling====" << endl;
 	for (vector<list<Point> >::iterator it = valueFcts.begin(); it != valueFcts.end(); ++it){
 		for (list<Point>::iterator itL = it->begin(); itL != it->end() && itL->getX() <= 1 ; ++itL){
-			itL->setX((itL->getX() * Fraction(end - start)) + start);
+			itL->setX((itL->getX() * (end.getVal() - start.getVal())) + start);
 		}
 	}
 	for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end() && it->getTime() < 1; ++it)
-		it->setTime((it->getTime() * Fraction(end - start)) + start);
+		it->setTime((it->getTime() * (end.getVal() - start.getVal())) + start);
 }
 
 void PTGSolver::cleanValueFcts(){
@@ -223,7 +219,7 @@ void PTGSolver::cleanValueFcts(){
 			++itCurrent;
 			for (list<Point>::iterator itLast = itV->begin(); itNext != itV->end(); ++itNext){
 				bool deleted = false;
-				Fraction coef = (itNext->getY() - itLast->getY())/(itNext->getX() - itLast->getX());
+				Value coef = (itNext->getY() - itLast->getY())/(itNext->getX() - itLast->getX());
 				if(itLast->getY() + (coef * (itCurrent->getX() - itLast->getX())) == itCurrent->getY()){
 					itV->erase(itCurrent);
 					deleted = true;
@@ -243,13 +239,14 @@ void PTGSolver::cleanValueFcts(){
 
 void PTGSolver::createResets(){
 	for (unsigned int i = 0; i < ptg->getSize(); ++i){
-		resets.push_back(vector<Fraction>());
+		resets.push_back(vector<Value>());
 		for (unsigned int j = 0; j < ptg->getSize(); ++j){
 			if(ptg->getReset(i,j)){
-				resets[i].push_back(ifnty);
+				resets[i].push_back(Value());
+				resets[i][j].setInf(true);
 			}
 			else{
-				resets[i].push_back(-1);
+				resets[i].push_back(CompositeValue(-1));
 			}
 		}
 	}
@@ -263,9 +260,7 @@ void PTGSolver::updateResets(){
 		for (unsigned int j = 0; j < size; ++j){
 			if(ptg->getReset(i,j)){
 				//cout << i << " " << j << " " << ptg->getTransition(i,j) << " " << vals[j][0] << endl;
-				resets[i][j] = ptg->getTransition(i,j) + vals[j][0];
-				if(resets[i][j] > ifnty)
-					resets[i][j] = ifnty;
+				resets[i][j] = vals[j] + ptg->getTransition(i,j);
 			}
 		}
 	}
@@ -291,13 +286,12 @@ void PTGSolver::show(){
 		cout << pathsLengths[i] << "	";
 	cout << endl;*/
 
-	/*cout << "Vals:" << endl;
+	cout << "Vals:" << endl;
 	for (unsigned int i = 0; i < vals.size(); ++i){
-		for (unsigned int j = 0; j < vals[i].size(); ++j){
-			cout << vals[i][j] << "	";
-		}
-		cout << endl;
-	}*/
+			cout << vals[i] << "	";
+	}
+	cout << endl;
+
 
 	cout << "Value Functions" << endl;
 	for (unsigned int i = 1; i < valueFcts.size(); ++i){

@@ -6,11 +6,11 @@
 using namespace std;
 
 PG::PG(){
-	transitions = new vector<vector<Fraction> >();
+	transitions = new vector<vector<Value> >();
 	owners = new vector<bool>();
 }
 
-PG::PG(vector<vector<Fraction> >* t, vector<bool>* o){
+PG::PG(vector<vector<Value> >* t, vector<bool>* o){
 	transitions = t;
 	owners = o;
 }
@@ -25,11 +25,11 @@ unsigned int PG::getSize() const{
 	return owners->size();
 }
 
-Fraction PG::getTransition(unsigned int origin,unsigned int end) const {
+Value PG::getTransition(unsigned int origin,unsigned int end) const {
 	return (*transitions)[origin][end];
 }
 
-void PG::setTransition(unsigned int origin, unsigned int end, Fraction value){
+void PG::setTransition(unsigned int origin, unsigned int end, Value value){
 	(*transitions)[origin][end] = value;
 }
 

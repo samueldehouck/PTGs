@@ -5,7 +5,8 @@
 #include <list>
 
 #include "PG.hpp"
-#include "Fraction.hpp"
+#include "Value.hpp"
+#include "CompositeValue.hpp"
 #include "Strategy.hpp"
 #include "constants.hpp"
 
@@ -16,18 +17,18 @@ private:
 	vector<bool> ensStates;
 	vector<vector<bool> > ensTransitions;
 	vector<bool> ensBottoms;
-	vector<unsigned int>* pathsLengths;
-	vector<vector<Fraction> >* vals;
+	vector<Value>* pathsLengths;
+	vector<CompositeValue>* vals;
 	list<Strategy>* strategies;
-	vector<Fraction>* bottoms; //Equivalent of the "bottom" transitions in the paper
-	vector<vector<Fraction> >* resets;
+	vector<Value>* bottoms; //Equivalent of the "bottom" transitions in the paper
+	vector<vector<Value> >* resets;
 	vector<vector<bool> > ensResets;
 
 	bool remainsStates();
 	bool isLastTransition(unsigned int, unsigned int, bool, bool, bool);
 public:
-	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* , vector<vector<Fraction> >*);
-	PGSolver(PG* , vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>* , vector<Fraction>*, vector<vector<Fraction> >*);
+	PGSolver(PG* , vector<Value>*, vector<CompositeValue>*, list<Strategy>* , vector<vector<Value> >*);
+	PGSolver(PG* , vector<Value>*, vector<CompositeValue>*, list<Strategy>* , vector<Value>*, vector<vector<Value> >*);
 
 	void extendedDijkstra(bool);
 };

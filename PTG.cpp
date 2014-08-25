@@ -19,7 +19,7 @@ PTG::PTG(unsigned int size){
     nbResets = 0;
 
     for (unsigned int i = 0; i < size; ++i){
-    	transitions->push_back(vector<Fraction>());
+    	transitions->push_back(vector<Value>());
     	owners->push_back(0);
     	states->push_back(0);
     	resets->push_back(vector<bool>());

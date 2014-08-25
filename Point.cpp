@@ -3,20 +3,18 @@
 Point::Point() : x() ,y()
 {}
 
-Point::Point(int i, int j, int k, int l) :  x(i,j), y(k,l)
+
+Point::Point(Value i, Value j) : x(i), y(j)
 {}
 
-Point::Point(Fraction i, Fraction j) : x(i), y(j)
-{}
-
-Fraction Point::getX() const{
+Value Point::getX() const{
 	return x;
 
 }
-Fraction Point::getY() const {
+Value Point::getY() const {
 	return y;
 }
 
-void Point::setX(Fraction i){
+void Point::setX(Value i){
 	x = i;
 }

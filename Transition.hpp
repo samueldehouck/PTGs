@@ -1,16 +1,16 @@
 #ifndef TRANSITION_HPP
 #define TRANSITION_HPP
 
-#include "Fraction.hpp"
+#include "Value.hpp"
 
 class Transition{
 	//This class is used to save changements of transitions accessibles
 public:  
 	unsigned int origin, dest;
-	Fraction cost;
+	Value cost;
 
 	Transition();
-	Transition(unsigned int, unsigned int, Fraction);
+	Transition(unsigned int, unsigned int, Value);
 };
 
 #endif

@@ -6,6 +6,6 @@ Transition::Transition(){
 	cost = 0;
 }
 
-Transition::Transition(unsigned int o, unsigned int d,  Fraction c):
+Transition::Transition(unsigned int o, unsigned int d,  Value c):
 		origin(o), dest(d), cost(c)
 {}

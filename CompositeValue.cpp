@@ -31,14 +31,17 @@ CompositeValue& CompositeValue::operator=(const CompositeValue &cv){
 	epsilon = cv.getEps();
 	return *this;
 }
+
 CompositeValue CompositeValue::operator+(CompositeValue cv){
+	//cout << "sum: " << *this << " + " << cv;
 	CompositeValue tmp;
 	if(inf || cv.isInfinity())
 		tmp.setInf(true);
-	else
+	else{
 		tmp.setVal(val + cv.getVal());
-	tmp.setEps(epsilon + cv.getEps());
-
+		tmp.setEps(epsilon + cv.getEps());
+	}
+	//cout << " = " << tmp << endl;
 	return tmp;
 }
 

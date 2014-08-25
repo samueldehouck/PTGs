@@ -4,6 +4,8 @@
 #include "SPTG.hpp"
 #include "Point.hpp"
 #include "Fraction.hpp"
+#include "Value.hpp"
+#include "CompositeValue.hpp"
 #include "Strategy.hpp"
 #include <stddef.h>
 #include <list>
@@ -15,30 +17,30 @@ private:
 	SPTG* sptg;
 	bool solvePTG;
 	unsigned int size;
-	vector<vector<Fraction> >* vals;
-	vector<unsigned int>* pathsLengths;
-	vector<vector<Fraction> > lambdas;
+	vector<CompositeValue>* vals;
+	vector<Value>* pathsLengths;
+	vector<CompositeValue> lambdas;
 	vector<list<Point> >* valueFcts;//We need a list of points for every state
 	list<Strategy>* strategies;
-	vector<Fraction>* bottoms;
-	vector<vector<Fraction> >* resets;
-	Fraction time;
+	vector<Value>* bottoms;
+	vector<vector<Value> >* resets;
+	Value time;
 
 	void init();
 	void strategyIteration();
 	void actualizeLambdas();
-	void actualizeVals(Fraction);
+	void actualizeVals(Value);
 	bool makeImpSwitchesP1();
 	bool makeImpSwitchesP2();
 	void propagate(unsigned int);
-	void addPoint(unsigned int, Fraction, Fraction);
-	void buildValueFcts(Fraction);
-	Fraction nextEventPoint();
+	void addPoint(unsigned int, Value, Value);
+	void buildValueFcts(Value);
+	Value nextEventPoint();
 	list<Strategy>* getStrategies();
 
 public:
 	SPTGSolver(SPTG*);
-	SPTGSolver(SPTG*, vector<Fraction>*,  vector<unsigned int>*, vector<vector<Fraction> >*, list<Strategy>*, vector<list<Point> >*, vector<vector<Fraction> >*);
+	SPTGSolver(SPTG*, vector<Value>*,  vector<Value>*, vector<CompositeValue>*, list<Strategy>*, vector<list<Point> >*, vector<vector<Value> >*);
 	~SPTGSolver();
 	void show();
 	void solveSPTG();

@@ -8,27 +8,28 @@
 #include "Strategy.hpp"
 #include "Point.hpp"
 #include "Transition.hpp"
+#include "Value.hpp"
 
 class PTGSolver{
 private:
 	PTG* ptg;
-	Fraction time;
+	Value time;
 	unsigned int size;
-	list<Fraction> endPoints;
-	vector<unsigned int> pathsLengths;
-	vector<vector<Fraction> > vals;
+	list<Value> endPoints;
+	vector<Value> pathsLengths;
+	vector<CompositeValue> vals;
 	list<Strategy> strategies;
 	vector<list<Point> > valueFcts;
 	list<Transition> storage;
-	vector<Fraction> bottoms;
-	vector<vector<Fraction> > resets;
+	vector<Value> bottoms;
+	vector<vector<Value> > resets;
 
 	void init();
 	void createEndPoints();
-	void keepTransAvailable(Fraction, Fraction);
+	void keepTransAvailable(Value, Value);
 	void restoreAllTrans();
 	void updateBottoms();
-	void rescale(Fraction, Fraction);
+	void rescale(Value, Value);
 	void cleanValueFcts();
 	void createResets();
 	void updateResets();

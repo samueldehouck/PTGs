@@ -4,13 +4,13 @@
 using namespace std;
 
 Strategy::Strategy(){
-	time = ifnty;
+	time.setInf(true);
 	size = 0;
 	included = false;
 }
 
 Strategy::Strategy(unsigned int s){
-	time = ifnty;
+	time.setInf(true);
 	size = s;
 	included = false;
 	for (unsigned int j = 0; j <= size; ++j){
@@ -19,7 +19,7 @@ Strategy::Strategy(unsigned int s){
 	}
 }
 
-Strategy::Strategy(unsigned int s, Fraction t, bool i){
+Strategy::Strategy(unsigned int s, Value t, bool i){
 	time = t;
 	size = s;
 	included = i;
@@ -56,11 +56,11 @@ unsigned int Strategy::getType(unsigned int index) const{
 	return types[index];
 }
 
-Fraction Strategy::getTime() const{
+Value Strategy::getTime() const{
 	return time;
 }
 
-void Strategy::setTime(Fraction t){
+void Strategy::setTime(Value t){
 	time = t;
 }
 

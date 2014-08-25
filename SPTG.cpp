@@ -2,7 +2,7 @@
 #include <iostream>
 
 SPTG::SPTG(){
-	states = new vector<Fraction>();
+	states = new vector<Value>();
 }
 
 SPTG::~SPTG(){
@@ -30,10 +30,10 @@ void SPTG::show(){
 	cout << endl;
 }
 
-Fraction SPTG::getState(unsigned int index) const{
+Value SPTG::getState(unsigned int index) const{
 	return (*states)[index];
 }
 
-void SPTG::setState(unsigned int index, Fraction f){
+void SPTG::setState(unsigned int index, Value f){
 	(*states)[index] = f;
 }
