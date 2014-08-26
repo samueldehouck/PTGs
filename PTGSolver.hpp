@@ -33,6 +33,7 @@ private:
 	void cleanValueFcts();
 	void createResets();
 	void updateResets();
+	void visualize();
 public:
 	PTGSolver();
 	void solvePTG(PTG*);

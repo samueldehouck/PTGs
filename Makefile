@@ -43,4 +43,4 @@ main.o: main.cpp
 	g++ -c -W -Wextra -Wall -pedantic main.cpp
 	
 clean:
-	rm *.o solver output.txt
+	rm *.o solver output.txt *.tex *.log *.aux *.pdf
