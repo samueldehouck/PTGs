@@ -205,7 +205,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 					changed = true;
 				}
 
-				for (unsigned int nextState = 1; nextState < size; ++nextState){
+				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					//We need to check all transitions for every states except the lambda transition because it is taken by default and the ones that go to "MAX" (fictive state)
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 						CompositeValue tempVal = (*vals)[nextState] + sptg->getTransition(state, nextState);

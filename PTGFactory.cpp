@@ -229,5 +229,16 @@ PTG* PTGFactory::hardBuild(unsigned int build){
 		ptg->setStartCst(4,0,1);
 		ptg->setEndCst(4,0,3);
 	}
+	else if(build == 5){
+		ptg = new PTG(2);
+		ptg->setState(0,0);
+		ptg->setState(1,1);
+		ptg->setTransition(1,0,1);
+		ptg->setOwner(0,1);
+		ptg->setOwner(1,1);
+		ptg->setNbResets(0);
+		ptg->setStartCst(1,0,0);
+		ptg->setEndCst(1,0,1);
+	}
 	return ptg;
 }

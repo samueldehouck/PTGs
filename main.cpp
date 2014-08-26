@@ -7,10 +7,10 @@
 #include "PTGFactory.hpp"
 #include <sys/time.h>
 #include <fstream>
-
+#include <cstring>
 using namespace std;
 
-int main(){
+int main(int argc, char *argv[]){
 	//    struct timeval start, end;
 	//
 	//     long seconds, milliseconds, allsecs = 0, allmillisecs = 0;
@@ -28,10 +28,16 @@ int main(){
 	for (unsigned int i = 0; i < 1; ++i){
 		//freopen("output.txt","w",stdout);
 		PTGFactory factory;
-		PTG* ptg = factory.hardBuild(4);
+		PTG* ptg = factory.hardBuild(5);
 		ptg->show();
 		PTGSolver solver;
-		solver.solvePTG(ptg);
+		if(argc > 1 && strcmp(argv[1], "-v") == 0){
+			solver.solvePTG(ptg,true);
+		}
+		else{
+			solver.solvePTG(ptg, false);
+
+		}
 		cerr << ".";
 	}
 	cerr << endl;

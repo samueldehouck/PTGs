@@ -34,9 +34,10 @@ private:
 	void createResets();
 	void updateResets();
 	void visualize();
+
 public:
 	PTGSolver();
-	void solvePTG(PTG*);
+	void solvePTG(PTG*, bool);
 	void show();
 };
 

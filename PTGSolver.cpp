@@ -2,7 +2,9 @@
 
 #include "stdlib.h"
 #include <iostream>
+#include <algorithm>
 #include <fstream>
+#include <list>
 
 using namespace std;
 
@@ -13,7 +15,7 @@ PTGSolver::PTGSolver(){
 	time = 0;
 }
 
-void PTGSolver::solvePTG(PTG* p){
+void PTGSolver::solvePTG(PTG* p, bool visu){
 	cout << "====SolvePTG====" << endl;
 	ptg = p;
 	size = ptg->getSize();
@@ -99,7 +101,9 @@ void PTGSolver::solvePTG(PTG* p){
 		}
 		cout << endl << "====Results SolvePTG===" << endl;
 		show();
-		visualize();
+		if(visu){
+			visualize();
+		}
 	}
 	else
 		cout << "The game is empty" << endl;
@@ -222,8 +226,14 @@ void PTGSolver::cleanValueFcts(){
 			++itCurrent;
 			for (list<Point>::iterator itLast = itV->begin(); itNext != itV->end(); ++itNext){
 				bool deleted = false;
-				Value coef = (itNext->getY() - itLast->getY())/(itNext->getX() - itLast->getX());
-				if(itLast->getY() + (coef * (itCurrent->getX() - itLast->getX())) == itCurrent->getY()){
+				if(!itLast->getY().isInfinity() && !itCurrent->getY().isInfinity() && !itNext->getY().isInfinity()){
+					Value coef = (itNext->getY() - itLast->getY())/(itNext->getX() - itLast->getX());
+					if(itLast->getY() + (coef * (itCurrent->getX() - itLast->getX())) == itCurrent->getY()){
+						itV->erase(itCurrent);
+						deleted = true;
+					}
+				}
+				else if(itLast->getY().isInfinity() && itCurrent->getY().isInfinity() && itNext->getY().isInfinity()){
 					itV->erase(itCurrent);
 					deleted = true;
 				}
@@ -314,52 +324,74 @@ void PTGSolver::visualize(){
 	f << "\\begin{document}" << endl;
 	f << "\\begin{tikzpicture}" << endl;
 
-
 	Fraction y = 0;
-
-	for (unsigned int i = 1; i < size; ++i, y = y - 8){
-
-		Value lastY = valueFcts[i].front().getY();
-		Value lastX = valueFcts[i].front().getX();
+	const int length = 3;
+	for (unsigned int i = 1; i < size; ++i, y = y - (length + 4) ){
+		Fraction x = 0;
+		unsigned int reset = ptg->getNbResets();
+		Fraction lastY = valueFcts[i].front().getY().getVal();
+		Fraction lastX = valueFcts[i].front().getX().getVal();
 		Fraction maxY = 0;
 		Fraction maxX = valueFcts[i].back().getX().getVal();
-
 		for (list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
 			if (!it->getY().isInfinity() && it->getY().getVal() > maxY){
 				maxY = it->getY().getVal();
 			}
 		}
-		f << "\\draw [->] (0," << Fraction(0) - y << ") -- (0," << Fraction(7) - y  << ");" << endl;
-		f << "\\draw (0," << Fraction(5) - y << ") node[left] {$" << maxY << "$};" << endl;
-		f<< "\\draw (0,7) node[above] {$v_" <<  "1" << "(t)$}; " << endl;
-		for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
-			if(!it->getY().isInfinity() && lastX != it->getX().getVal()){
-				f << "\\draw (" << it->getX().getVal() / maxX * 5 << "," << (it->getY().getVal()/maxY * 5)  - y << ") -- (" << lastX / maxX * 5 << "," << lastY / maxY * 5 - y<< ");" << endl;
-				f << "\\draw (" << it->getX().getVal() / maxX * 5 << "," << Fraction (0) - y <<") node[below] {$" << it->getX().getVal() << "$};" << endl;
-				f << "\\draw (0,"  << (it->getY().getVal()/ maxY * 5) - y << ") node[left] {$" << it->getY().getVal() << "$};" << endl;
-				f << "\\draw [dashed] (" << it->getX().getVal() / maxX * 5 << "," << (it->getY().getVal()/maxY * 5) - y << ") -- (0," << (it->getY().getVal() / maxY) * 5 - y << ");" << endl;
 
-			}
-			else if(it->getY().isInfinity()){
-				f << "\\draw (" << it->getX().getVal() / maxX * 5 << "," << Fraction(6)  - y << ") -- (" << lastX / maxX * 5 << "," << Fraction(6) - y << ");" << endl;
-				f << "\\draw (" << it->getX().getVal() / maxX * 5 << "," << Fraction (0) - y <<") node[below] {$" << it->getX().getVal() << "$};" << endl;
-				f << "\\draw (0,"  << Fraction(6) - y << ") node[left] {$inf$};" << endl;
-				f << "\\draw [dashed] (" << it->getX().getVal() / maxX * 5 << "," << Fraction(6) - y << ") -- (0," << Fraction(6) - y << ");" << endl;
-			}
-			if(!it->getY().isInfinity()){
-				f << "\\draw [dashed] (" << it->getX().getVal() / maxX * 5 << "," << (it->getY().getVal()/maxY * 5) - y<< ") -- (0," << it->getY().getVal() / maxY * 5  - y<< ");" << endl;
-				f << "\\draw [dashed] (" << it->getX().getVal()/ maxX * 5 << "," << (it->getY().getVal()/maxY * 5) - y << ") -- (" << it->getX().getVal() / maxX * 5 << "," << Fraction(0) - y << ");" << endl;
+
+		for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
+			if(it->getX().getVal() != 0){
+				if(!it->getY().isInfinity() && lastX != it->getX().getVal()){
+					f << "\\draw (" << it->getX().getVal() / maxX * length + x << "," << (it->getY().getVal()/maxY * length)  - y << ") -- (" << lastX / maxX * length + x<< "," << lastY / maxY * length - y<< ");" << endl;
+					f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {$" << it->getX().getVal() << "$};" << endl;
+					f << "\\draw (0,"  << (it->getY().getVal()/ maxY * length) - y << ") node[left] {$" << it->getY().getVal() << "$};" << endl;
+
+					f << "\\draw [gray!40, opacity=0.3] (" << lastX / maxX * length + x << "," << (it->getY().getVal()/maxY * length) - y << ") -- (0," << (it->getY().getVal() / maxY) * length - y << ");" << endl;
+
+				}
+				else if(it->getY().isInfinity()){
+					f << "\\draw (" << it->getX().getVal() / maxX * length + x << "," << Fraction(length + 1)  - y << ") -- (" << lastX / maxX * length + x<< "," << Fraction(length + 1) - y << ");" << endl;
+					f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {$" << it->getX().getVal() << "$};" << endl;
+					f << "\\draw (0,"  << Fraction(length + 1) - y << ") node[left] {$inf$};" << endl;
+
+					f << "\\draw [gray!20, opacity=0.3] (" << lastX / maxX * length + x<< "," << Fraction(length + 1) - y << ") -- (0," << Fraction(length + 1) - y << ");" << endl;
+				}
 			}
 			else{
-				f << "\\draw [dashed] (" << it->getX().getVal() / maxX * 5 << "," << Fraction(6) - y<< ") -- (0," << Fraction(6)  - y<< ");" << endl;
-				f << "\\draw [dashed] (" << it->getX().getVal()/ maxX * 5 << "," << Fraction(6) - y << ") -- (" << it->getX().getVal() / maxX * 5 << "," << Fraction(0) - y << ");" << endl;
+				f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {$" << it->getX().getVal() << "$};" << endl;
+				f << "\\draw (0,"  << (it->getY().getVal()/ maxY * length) - y << ") node[left] {$" << it->getY().getVal() << "$};" << endl;
+
+			}
+
+			if(!it->getY().isInfinity()){
+				//Horizontal at the end of the line
+				f << "\\draw [gray!20, opacity=0.3] (" << it->getX().getVal() / maxX * length + x<< "," << (it->getY().getVal()/maxY * length) - y<< ") -- (0," << it->getY().getVal() / maxY * length  - y<< ");" << endl;
+				//Vertical at the start of the line
+				if(it->getX().getVal() != 0 || x > 0)
+					f << "\\draw [gray!20, opacity=0.3] (" << it->getX().getVal()/ maxX * length + x<< "," << (it->getY().getVal()/maxY * length) - y << ") -- (" << it->getX().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
+			}
+			else{
+				//Vertical
+				if(it->getX().getVal() != 0 || x > 0)
+					f << "\\draw [gray!20, opacity=0.3] (" << it->getX().getVal()/ maxX * length + x<< "," << Fraction(length + 1) - y << ") -- (" << it->getX().getVal() / maxX * length + x<< "," << Fraction(0) - y << ");" << endl;
 			}
 
 			lastX = it->getX().getVal();
 			lastY = it->getY().getVal();
+
+			if(it->getX().getVal() == maxX){
+				x = x + length + 1;
+			}
 		}
-		f << "\\draw [->] (0," << Fraction(0) - y << ") -- (5.5," << Fraction(0) - y << ");" << endl;
-		f << "\\draw (6," << Fraction(0) - y << ") node[right] {$t$};" << endl;
+
+		//Draw the x axis
+		f << "\\draw [->][thick] (0," << Fraction(0) - y << ") -- ( " << x << "," << Fraction(0) - y << ");" << endl;
+		f << "\\draw ( " << x << "," << Fraction(0) - y << ") node[right] {$t$};" << endl;
+		//Draw the y axis
+		f << "\\draw [->][thick] (0," << Fraction(0) - y << ") -- (0," << Fraction(length + 2) - y  << ");" << endl;
+		//	f << "\\draw (0," << Fraction(5) - y << ") node[left] {$" << maxY << "$};" << endl;
+		f<< "\\draw (0," << Fraction(length + 2) - y<<") node[above] {$v_" <<  i << "(t)$}; " << endl;
 	}
 	f << "\\end{tikzpicture}" << endl;
 
@@ -369,3 +401,5 @@ void PTGSolver::visualize(){
 	system("pdflatex valueFcts.tex");
 
 }
+
+
