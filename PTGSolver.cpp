@@ -2,7 +2,6 @@
 
 #include "stdlib.h"
 #include <iostream>
-#include <algorithm>
 #include <fstream>
 #include <list>
 
@@ -89,7 +88,6 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 					valueFcts[i].push_front(Point(time,vals[i]));
 				}
 
-				cleanValueFcts();
 				endM = time;
 				show();
 			}
@@ -99,6 +97,8 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 			--copyNb;
 
 		}
+		cleanValueFcts();
+		cleanStrats();
 		cout << endl << "====Results SolvePTG===" << endl;
 		show();
 		if(visu){
@@ -250,6 +250,40 @@ void PTGSolver::cleanValueFcts(){
 	}
 }
 
+void PTGSolver::cleanStrats(){
+	//For every state
+	list<Strategy>::iterator itNext = strategies.begin();
+	++itNext;
+	if(itNext != strategies.end()){
+		list<Strategy>::iterator itCurrent = strategies.begin();
+		++itNext;
+		++itCurrent;
+		for (list<Strategy>::iterator itLast = strategies.begin(); itNext != strategies.end(); ++itNext){
+			bool deleted = false;
+			bool equal = true;
+			for (unsigned int i = 0; equal &&  i < size; ++i){
+				if(itNext->getDest(i) != itCurrent->getDest(i) || itCurrent->getDest(i) != itLast->getDest(i) || itNext->getDest(i) != itLast->getDest(i)
+						|| itNext->getType(i) != itCurrent->getType(i) || itCurrent->getType(i) != itLast->getType(i) || itNext->getType(i) != itLast->getType(i))
+					equal = false;
+			}
+			if(equal){
+				strategies.erase(itCurrent);
+				deleted = true;
+			}
+
+			if(deleted){
+				//itCurrent is on a space that has been deleted so we can't do ++itCurrent and itLast needs to stay where it was
+				itCurrent = itNext;
+			}
+			else{
+				++itCurrent;
+				++itLast;
+			}
+		}
+	}
+
+}
+
 void PTGSolver::createResets(){
 	for (unsigned int i = 0; i < ptg->getSize(); ++i){
 		resets.push_back(vector<Value>());
@@ -328,7 +362,6 @@ void PTGSolver::visualize(){
 	const int length = 3;
 	for (unsigned int i = 1; i < size; ++i, y = y - (length + 4) ){
 		Fraction x = 0;
-		unsigned int reset = ptg->getNbResets();
 		Fraction lastY = valueFcts[i].front().getY().getVal();
 		Fraction lastX = valueFcts[i].front().getX().getVal();
 		Fraction maxY = 0;
@@ -393,12 +426,62 @@ void PTGSolver::visualize(){
 		//	f << "\\draw (0," << Fraction(5) - y << ") node[left] {$" << maxY << "$};" << endl;
 		f<< "\\draw (0," << Fraction(length + 2) - y<<") node[above] {$v_" <<  i << "(t)$}; " << endl;
 	}
+
 	f << "\\end{tikzpicture}" << endl;
-
-
 	f << "\\end{document}" << endl;
 	f.close();
-	system("pdflatex valueFcts.tex");
+	//system("pdflatex valueFcts.tex");
+
+	f.open("strategies.tex");
+	f << "\\documentclass{standalone}" << endl;
+	f << "\\usepackage{tikz}" << endl;
+	f << "\\begin{document}" << endl;
+	f << "\\begin{tikzpicture}" << endl;
+
+	y = 0;
+	for(unsigned int i = 1; i < 2; ++i){
+		Fraction x = 0;
+		Value lastX = strategies.front().getTime();
+		unsigned int lastY = strategies.front().getDest(i);
+		Fraction maxX = strategies.back().getTime().getVal();
+		unsigned int maxY = size;
+		cout << "max: " << maxX << endl;
+		for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end(); ++it){
+
+			if(it->getTime().getVal() == 0 && it->getInclusion() && it != strategies.begin()){
+				x = x + length + 1;
+			}
+			//Draw the line
+			if(it->getTime().getVal() != lastX.getVal() && it->getTime().getVal() != 0)
+			{
+				cout << "(" << it->getTime().getVal() << "," << it->getDest(i) << ") -- (" << lastX.getVal() << "," << lastY << ")" << endl;
+
+				f << "\\draw (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length))  - y + 1<< ") -- (" << lastX.getVal()/maxX  * Fraction(length) + x<< "," << Fraction(lastY) / Fraction(maxY) * Fraction(length) - y + 1<< ");" << endl;
+				f << "\\draw (" << it->getTime().getVal() / maxX * Fraction(length) + x<< "," << Fraction (0) - y <<") node[below] {$" << it->getTime().getVal() << "$};" << endl;
+				f << "\\draw (0,"  << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {$" << it->getDest(i) << "$};" << endl;
+			}
+
+			lastX = it->getTime();
+			lastY = it->getDest(i);
+			cout << it->getTime().getVal() << " " << it->getInclusion() << endl;
+
+		}
+
+		//Draw the x axis
+		f << "\\draw [->][thick] (0," << Fraction(0) - y << ") -- ( " << x + length + 1 << "," << Fraction(0) - y << ");" << endl;
+		f << "\\draw ( " << x + length + 1 << "," << Fraction(0) - y << ") node[right] {$t$};" << endl;
+		//Draw the y axis
+		f << "\\draw [->][thick] (0," << Fraction(0) - y << ") -- (0," << Fraction(length + 1) - y  << ");" << endl;
+		//	f << "\\draw (0," << Fraction(5) - y << ") node[left] {$" << maxY << "$};" << endl;
+		f<< "\\draw (0," << Fraction(length + 1) - y<<") node[above] {$\\sigma_" <<  i << "(t)$}; " << endl;
+		y = y + 5;
+	}
+
+
+	f << "\\end{tikzpicture}" << endl;
+	f << "\\end{document}" << endl;
+	system("pdflatex strategies.tex");
+
 
 }
 

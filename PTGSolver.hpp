@@ -31,6 +31,7 @@ private:
 	void updateBottoms();
 	void rescale(Value, Value);
 	void cleanValueFcts();
+	void cleanStrats();
 	void createResets();
 	void updateResets();
 	void visualize();

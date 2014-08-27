@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
 	for (unsigned int i = 0; i < 1; ++i){
 		//freopen("output.txt","w",stdout);
 		PTGFactory factory;
-		PTG* ptg = factory.hardBuild(5);
+		PTG* ptg = factory.hardBuild(3);
 		ptg->show();
 		PTGSolver solver;
 		if(argc > 1 && strcmp(argv[1], "-v") == 0){
