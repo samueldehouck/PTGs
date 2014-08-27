@@ -21,7 +21,9 @@ public:
 	Strategy(const Strategy&);
 	void insert(unsigned int, unsigned int, unsigned int);
 	unsigned int getDest(unsigned int) const;
+	void setDest(unsigned int, unsigned int);
 	bool getInclusion() const;
+	void setInclusion(bool);
 	unsigned int getType(unsigned int) const;
 	Value getTime() const;
 	void setTime(Value);

@@ -367,6 +367,9 @@ void SPTGSolver::addPoint(unsigned int index, Value x, Value y){
 void SPTGSolver::buildValueFcts(Value epsilon){
 	//   Add a point for every state
 	time = time - epsilon;
+	if(time != 0 && time != 1){
+		(strategies->front().setInclusion(true));
+	}
 	for (unsigned int i = 1; i < size; ++i){
 		Value tmpVal = (*vals)[i] + (epsilon * (*vals)[i].getEps());
 		list<Point>::iterator it = (*valueFcts)[i].begin();
@@ -378,6 +381,7 @@ void SPTGSolver::buildValueFcts(Value epsilon){
 				(*valueFcts)[i].pop_front();
 			}
 		}
+
 		addPoint(i, time , tmpVal);
 	}
 }

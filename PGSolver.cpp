@@ -169,7 +169,9 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 				//cout << (*bottoms)[finalState] << endl;
 				(*vals)[finalState] = (*bottoms)[finalState];
 				(*pathsLengths)[finalState] = 1;
-				strategies->front().insert(finalState, finalTrans, 2);
+				list<Strategy>::iterator it = strategies->begin();
+				++it;
+				strategies->front().insert(finalState, it->getDest(finalState), 2);
 
 			}
 			else if(minIsReset){

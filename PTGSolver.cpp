@@ -32,6 +32,10 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 			time = endM;
 			if(vals.size() == 0)
 				init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
+			strategies.push_front(Strategy(size, time, true));
+			strategies.front().insert(0,0,false);
+			for (unsigned int i = 1; i < size; ++i)
+				strategies.front().insert(i, -1, false);
 			//Update the transitions that can be taken between the two given parameters
 			keepTransAvailable(time, time);
 
@@ -90,15 +94,17 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 				endM = time;
 				show();
+				cleanValueFcts();
+				//cleanStrats();
 			}
+
 			restoreAllTrans();
 			updateResets();
 			show();
 			--copyNb;
 
 		}
-		cleanValueFcts();
-		cleanStrats();
+		correctStrats();
 		cout << endl << "====Results SolvePTG===" << endl;
 		show();
 		if(visu){
@@ -113,8 +119,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 void PTGSolver::init(){
 	vals.push_back(CompositeValue());
 
-	strategies.push_front(Strategy(size, time, true));
-	strategies.front().insert(0,0,false);
+
 
 	pathsLengths.push_back(0);
 
@@ -128,7 +133,6 @@ void PTGSolver::init(){
 		vals.push_back(CompositeValue());
 		vals[i].setInf(true);
 
-		strategies.front().insert(i, -1, false);
 		pathsLengths.push_back(Value());
 		//To force taking the first transitions available.
 		if(ptg->getOwner(i))
@@ -250,6 +254,21 @@ void PTGSolver::cleanValueFcts(){
 	}
 }
 
+void PTGSolver::correctStrats(){
+	cout << "====Correction of the strategies====" << endl;
+	for (list<Strategy>::reverse_iterator rit = strategies.rbegin(); rit != strategies.rend(); ++rit){
+		list<Strategy>::reverse_iterator ritPrev = rit;
+		++ritPrev;
+		if(ritPrev != strategies.rend()){
+			for (unsigned int i = 0; i < size; ++i){
+				if(ritPrev->getType(i) == 1 || ritPrev->getType(i) == 2){
+					ritPrev->setDest(i, rit->getDest(i));
+				}
+			}
+		}
+	}
+}
+
 void PTGSolver::cleanStrats(){
 	//For every state
 	list<Strategy>::iterator itNext = strategies.begin();
@@ -259,6 +278,8 @@ void PTGSolver::cleanStrats(){
 		++itNext;
 		++itCurrent;
 		for (list<Strategy>::iterator itLast = strategies.begin(); itNext != strategies.end(); ++itNext){
+
+
 			bool deleted = false;
 			bool equal = true;
 			for (unsigned int i = 0; equal &&  i < size; ++i){
@@ -377,23 +398,33 @@ void PTGSolver::visualize(){
 			if(it->getX().getVal() != 0){
 				if(!it->getY().isInfinity() && lastX != it->getX().getVal()){
 					f << "\\draw (" << it->getX().getVal() / maxX * length + x << "," << (it->getY().getVal()/maxY * length)  - y << ") -- (" << lastX / maxX * length + x<< "," << lastY / maxY * length - y<< ");" << endl;
-					f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {$" << it->getX().getVal() << "$};" << endl;
-					f << "\\draw (0,"  << (it->getY().getVal()/ maxY * length) - y << ") node[left] {$" << it->getY().getVal() << "$};" << endl;
+					f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$" << it->getX().getVal() << "$};" << endl;
+					f << "\\draw (0,"  << (it->getY().getVal()/ maxY * length) - y << ") node[left] {\\footnotesize$" << it->getY().getVal() << "$};" << endl;
 
 					f << "\\draw [gray!40, opacity=0.3] (" << lastX / maxX * length + x << "," << (it->getY().getVal()/maxY * length) - y << ") -- (0," << (it->getY().getVal() / maxY) * length - y << ");" << endl;
 
 				}
 				else if(it->getY().isInfinity()){
 					f << "\\draw (" << it->getX().getVal() / maxX * length + x << "," << Fraction(length + 1)  - y << ") -- (" << lastX / maxX * length + x<< "," << Fraction(length + 1) - y << ");" << endl;
-					f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {$" << it->getX().getVal() << "$};" << endl;
-					f << "\\draw (0,"  << Fraction(length + 1) - y << ") node[left] {$inf$};" << endl;
+					f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$" << it->getX().getVal() << "$};" << endl;
+					f << "\\draw (0,"  << Fraction(length + 1) - y << ") node[left] {\\footnotesize$inf$};" << endl;
 
 					f << "\\draw [gray!20, opacity=0.3] (" << lastX / maxX * length + x<< "," << Fraction(length + 1) - y << ") -- (0," << Fraction(length + 1) - y << ");" << endl;
 				}
+				else{
+					f << "\\draw (0,"  << (it->getY().getVal()/ maxY * length) - y << ") node[left] {\\footnotesize$" << it->getY().getVal() << "$};" << endl;
+
+				}
 			}
 			else{
-				f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {$" << it->getX().getVal() << "$};" << endl;
-				f << "\\draw (0,"  << (it->getY().getVal()/ maxY * length) - y << ") node[left] {$" << it->getY().getVal() << "$};" << endl;
+				if(!it->getY().isInfinity()){
+					f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$" << it->getX().getVal() << "$};" << endl;
+					f << "\\draw (0,"  << (it->getY().getVal()/ maxY * length) - y << ") node[left] {\\footnotesize$" << it->getY().getVal() << "$};" << endl;
+				}
+				else{
+					f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$" << it->getX().getVal() << "$};" << endl;
+					f << "\\draw (0,"  << Fraction(6) - y << ") node[left] {\\footnotesize$" << it->getY().getVal() << "$};" << endl;
+				}
 
 			}
 
@@ -430,7 +461,7 @@ void PTGSolver::visualize(){
 	f << "\\end{tikzpicture}" << endl;
 	f << "\\end{document}" << endl;
 	f.close();
-	//system("pdflatex valueFcts.tex");
+	system("pdflatex valueFcts.tex");
 
 	f.open("strategies.tex");
 	f << "\\documentclass{standalone}" << endl;
@@ -439,13 +470,13 @@ void PTGSolver::visualize(){
 	f << "\\begin{tikzpicture}" << endl;
 
 	y = 0;
-	for(unsigned int i = 1; i < 2; ++i){
+	for(unsigned int i = 1; i < size; ++i){
 		Fraction x = 0;
 		Value lastX = strategies.front().getTime();
 		unsigned int lastY = strategies.front().getDest(i);
 		Fraction maxX = strategies.back().getTime().getVal();
-		unsigned int maxY = size;
 		cout << "max: " << maxX << endl;
+		unsigned int maxY = size;
 		for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end(); ++it){
 
 			if(it->getTime().getVal() == 0 && it->getInclusion() && it != strategies.begin()){
@@ -454,26 +485,49 @@ void PTGSolver::visualize(){
 			//Draw the line
 			if(it->getTime().getVal() != lastX.getVal() && it->getTime().getVal() != 0)
 			{
-				cout << "(" << it->getTime().getVal() << "," << it->getDest(i) << ") -- (" << lastX.getVal() << "," << lastY << ")" << endl;
+				//cout << "(" << it->getTime().getVal() << "," << it->getDest(i) << ") -- (" << lastX.getVal() << "," << lastY << ")" << endl;
 
-				f << "\\draw (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length))  - y + 1<< ") -- (" << lastX.getVal()/maxX  * Fraction(length) + x<< "," << Fraction(lastY) / Fraction(maxY) * Fraction(length) - y + 1<< ");" << endl;
-				f << "\\draw (" << it->getTime().getVal() / maxX * Fraction(length) + x<< "," << Fraction (0) - y <<") node[below] {$" << it->getTime().getVal() << "$};" << endl;
-				f << "\\draw (0,"  << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {$" << it->getDest(i) << "$};" << endl;
+				f << "\\draw (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length))  - y + 1<< ") -- (" << lastX.getVal()/maxX  * Fraction(length) + x<< "," << Fraction(it->getDest(i)) / Fraction(maxY) * Fraction(length) - y + 1<< ");" << endl;
+				f << "\\draw (" << it->getTime().getVal() / maxX * Fraction(length) + x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$" << it->getTime().getVal() << "$};" << endl;
+				f << "\\draw (0,"  << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << it->getDest(i) << "$};" << endl;
+
+
 			}
+			else if(it->getTime().getVal() == 0){
+				f << "\\draw (" <<  x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$0$};" << endl;
+
+			}
+			list<Strategy>::iterator itNext = it;
+			++itNext;
+			cout << "before: " << it->getTime().getVal() << " " << it->getDest(i) << " " << it->getInclusion() << " " << (itNext != strategies.end() && itNext->getDest(i) != it->getDest(i)) << endl;
+			if((it->getInclusion() && (it->getTime().getVal() == 0 || it->getTime().getVal() == maxX || lastY != it->getDest(i) || (itNext != strategies.end() && itNext->getDest(i) != it->getDest(i))))){
+				cout << "dot" << endl;
+				f << "\\draw (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") node {$\\bullet$};" << endl;
+				if(it->getTime().getVal() != 0 || x > 0)
+					f << "\\draw [gray!20, opacity=0.3] (" << it->getTime().getVal()/ maxX * length + x<< "," << (Fraction(it->getDest(i))/maxY * length) - y + 1 << ") -- (" << it->getTime().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
+			}
+			else if(!it->getInclusion() && (itNext != strategies.end() && itNext->getDest(i) != it->getDest(i))){
+
+				f << "\\node[circle,draw,fill=white,scale=0.4] at (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
+				if(it->getTime().getVal() != 0 || x > 0)
+					f << "\\draw [gray!20, opacity=0.3] (" << it->getTime().getVal()/ maxX * length + x<< "," << (Fraction(it->getDest(i))/maxY * length) - y + 1 << ") -- (" << it->getTime().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
+
+			}
+
 
 			lastX = it->getTime();
 			lastY = it->getDest(i);
-			cout << it->getTime().getVal() << " " << it->getInclusion() << endl;
 
 		}
 
 		//Draw the x axis
 		f << "\\draw [->][thick] (0," << Fraction(0) - y << ") -- ( " << x + length + 1 << "," << Fraction(0) - y << ");" << endl;
 		f << "\\draw ( " << x + length + 1 << "," << Fraction(0) - y << ") node[right] {$t$};" << endl;
+		f << "\\draw (0," << Fraction(0) - y <<") node [below]{\\footnotesize$0$};" << endl;
 		//Draw the y axis
 		f << "\\draw [->][thick] (0," << Fraction(0) - y << ") -- (0," << Fraction(length + 1) - y  << ");" << endl;
-		//	f << "\\draw (0," << Fraction(5) - y << ") node[left] {$" << maxY << "$};" << endl;
 		f<< "\\draw (0," << Fraction(length + 1) - y<<") node[above] {$\\sigma_" <<  i << "(t)$}; " << endl;
+
 		y = y + 5;
 	}
 

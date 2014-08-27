@@ -52,6 +52,10 @@ unsigned int Strategy::getDest(unsigned int index) const{
 	return dests[index];
 }
 
+void Strategy::setDest(unsigned int index, unsigned int val){
+	dests[index] = val;
+}
+
 unsigned int Strategy::getType(unsigned int index) const{
 	return types[index];
 }
@@ -70,6 +74,10 @@ unsigned int Strategy::getSize() const{
 
 bool Strategy::getInclusion() const{
 	return included;
+}
+
+void Strategy::setInclusion(bool in){
+	included = in;
 }
 
 void Strategy::show(){
