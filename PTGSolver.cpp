@@ -401,7 +401,7 @@ void PTGSolver::visualize(){
 					f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$" << it->getX().getVal() << "$};" << endl;
 					f << "\\draw (0,"  << (it->getY().getVal()/ maxY * length) - y << ") node[left] {\\footnotesize$" << it->getY().getVal() << "$};" << endl;
 
-					f << "\\draw [gray!40, opacity=0.3] (" << lastX / maxX * length + x << "," << (it->getY().getVal()/maxY * length) - y << ") -- (0," << (it->getY().getVal() / maxY) * length - y << ");" << endl;
+					//f << "\\draw [gray!40, opacity=0.3] (" << lastX / maxX * length + x << "," << (it->getY().getVal()/maxY * length) - y << ") -- (0," << (it->getY().getVal() / maxY) * length - y << ");" << endl;
 
 				}
 				else if(it->getY().isInfinity()){
@@ -409,7 +409,7 @@ void PTGSolver::visualize(){
 					f << "\\draw (" << it->getX().getVal() / maxX * length + x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$" << it->getX().getVal() << "$};" << endl;
 					f << "\\draw (0,"  << Fraction(length + 1) - y << ") node[left] {\\footnotesize$inf$};" << endl;
 
-					f << "\\draw [gray!20, opacity=0.3] (" << lastX / maxX * length + x<< "," << Fraction(length + 1) - y << ") -- (0," << Fraction(length + 1) - y << ");" << endl;
+					//f << "\\draw [gray!20, opacity=0.3] (" << lastX / maxX * length + x<< "," << Fraction(length + 1) - y << ") -- (0," << Fraction(length + 1) - y << ");" << endl;
 				}
 				else{
 					f << "\\draw (0,"  << (it->getY().getVal()/ maxY * length) - y << ") node[left] {\\footnotesize$" << it->getY().getVal() << "$};" << endl;
@@ -430,7 +430,7 @@ void PTGSolver::visualize(){
 
 			if(!it->getY().isInfinity()){
 				//Horizontal at the end of the line
-				f << "\\draw [gray!20, opacity=0.3] (" << it->getX().getVal() / maxX * length + x<< "," << (it->getY().getVal()/maxY * length) - y<< ") -- (0," << it->getY().getVal() / maxY * length  - y<< ");" << endl;
+				//f << "\\draw [gray!20, opacity=0.3] (" << it->getX().getVal() / maxX * length + x<< "," << (it->getY().getVal()/maxY * length) - y<< ") -- (0," << it->getY().getVal() / maxY * length  - y<< ");" << endl;
 				//Vertical at the start of the line
 				if(it->getX().getVal() != 0 || x > 0)
 					f << "\\draw [gray!20, opacity=0.3] (" << it->getX().getVal()/ maxX * length + x<< "," << (it->getY().getVal()/maxY * length) - y << ") -- (" << it->getX().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
@@ -471,52 +471,42 @@ void PTGSolver::visualize(){
 
 	y = 0;
 	for(unsigned int i = 1; i < size; ++i){
+		cout << "State " << i << endl;
 		Fraction x = 0;
-		Value lastX = strategies.front().getTime();
-		unsigned int lastY = strategies.front().getDest(i);
 		Fraction maxX = strategies.back().getTime().getVal();
-		cout << "max: " << maxX << endl;
+		list<Strategy>::iterator itLast = strategies.begin();
 		unsigned int maxY = size;
-		for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end(); ++it){
+		for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end() ; ++it){
 
 			if(it->getTime().getVal() == 0 && it->getInclusion() && it != strategies.begin()){
 				x = x + length + 1;
 			}
-			//Draw the line
-			if(it->getTime().getVal() != lastX.getVal() && it->getTime().getVal() != 0)
-			{
-				//cout << "(" << it->getTime().getVal() << "," << it->getDest(i) << ") -- (" << lastX.getVal() << "," << lastY << ")" << endl;
 
-				f << "\\draw (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length))  - y + 1<< ") -- (" << lastX.getVal()/maxX  * Fraction(length) + x<< "," << Fraction(it->getDest(i)) / Fraction(maxY) * Fraction(length) - y + 1<< ");" << endl;
+			list<Strategy>::iterator itNext = it;
+			++itNext;
+			//Draw the line
+			if(itNext != strategies.end() && itNext->getTime().getVal() != 0){
+				f << "\\draw (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length))  - y + 1<< ") -- (" << itNext->getTime().getVal()/maxX  * Fraction(length) + x<< "," << Fraction(it->getDest(i)) / Fraction(maxY) * Fraction(length) - y + 1<< ");" << endl;
 				f << "\\draw (" << it->getTime().getVal() / maxX * Fraction(length) + x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$" << it->getTime().getVal() << "$};" << endl;
 				f << "\\draw (0,"  << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << it->getDest(i) << "$};" << endl;
 
 
 			}
-			else if(it->getTime().getVal() == 0){
-				f << "\\draw (" <<  x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$0$};" << endl;
-
-			}
-			list<Strategy>::iterator itNext = it;
-			++itNext;
-			cout << "before: " << it->getTime().getVal() << " " << it->getDest(i) << " " << it->getInclusion() << " " << (itNext != strategies.end() && itNext->getDest(i) != it->getDest(i)) << endl;
-			if((it->getInclusion() && (it->getTime().getVal() == 0 || it->getTime().getVal() == maxX || lastY != it->getDest(i) || (itNext != strategies.end() && itNext->getDest(i) != it->getDest(i))))){
-				cout << "dot" << endl;
+			if(it->getInclusion() && ((itNext != strategies.end() && itNext->getDest(i) != it->getDest(i)) || it->getTime().getVal() == 0 || it->getTime().getVal() == maxX)){
 				f << "\\draw (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") node {$\\bullet$};" << endl;
 				if(it->getTime().getVal() != 0 || x > 0)
 					f << "\\draw [gray!20, opacity=0.3] (" << it->getTime().getVal()/ maxX * length + x<< "," << (Fraction(it->getDest(i))/maxY * length) - y + 1 << ") -- (" << it->getTime().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
-			}
-			else if(!it->getInclusion() && (itNext != strategies.end() && itNext->getDest(i) != it->getDest(i))){
+				if(itNext != strategies.end() && itNext->getDest(i) != it->getDest(i)  && it->getTime().getVal() != 0 && itNext->getTime().getVal() != 0)
+					f << "\\node[circle,draw,fill=white,scale=0.4] at (" << itNext->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
 
-				f << "\\node[circle,draw,fill=white,scale=0.4] at (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
+
+			}
+			else if(!it->getInclusion() && itNext != strategies.end() && itNext->getDest(i) != it->getDest(i)){
+				f << "\\node[circle,draw,fill=white,scale=0.4] at (" << itNext->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
 				if(it->getTime().getVal() != 0 || x > 0)
 					f << "\\draw [gray!20, opacity=0.3] (" << it->getTime().getVal()/ maxX * length + x<< "," << (Fraction(it->getDest(i))/maxY * length) - y + 1 << ") -- (" << it->getTime().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
-
 			}
 
-
-			lastX = it->getTime();
-			lastY = it->getDest(i);
 
 		}
 

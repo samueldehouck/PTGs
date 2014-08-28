@@ -102,7 +102,7 @@ PTG* PTGFactory::hardBuild(unsigned int build){
 		ptg->setState(4,3);
 
 		ptg->setTransition(1,2,2);
-		ptg->setTransition(1,3,1);
+		ptg->setTransition(1,3,2);
 		ptg->setTransition(2,0,5);
 		ptg->setTransition(2,3,0);
 		ptg->setTransition(3,0,1);

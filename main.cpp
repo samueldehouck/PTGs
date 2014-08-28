@@ -26,7 +26,7 @@ int main(int argc, char *argv[]){
 	      solver.solveSPTG();*/
 
 	for (unsigned int i = 0; i < 1; ++i){
-		//freopen("output.txt","w",stdout);
+		freopen("output.txt","w",stdout);
 		PTGFactory factory;
 		PTG* ptg = factory.hardBuild(2);
 		ptg->show();
