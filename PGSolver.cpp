@@ -3,7 +3,7 @@
 
 using namespace std;
 
-PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, list<Strategy>* s, vector<vector<Value> >* r){
+PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, list<Strategy>* s, vector<vector<CompositeValue> >* r){
 	pg = p;
 	pathsLengths = pl;
 	vals = v;
@@ -36,7 +36,7 @@ PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, list<Str
 
 				if((*resets)[i][j] != -1){
 					ensResets[i].push_back(true);
-					ensTransitions[i][j] = false;
+					//ensTransitions[i][j] = false;
 					++nbTransitions;
 				}
 				else
@@ -48,9 +48,15 @@ PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, list<Str
 			}
 		}
 	}
+
+for (unsigned int i = 0; i < size; ++i){
+	for (unsigned int j = 0; j < size; ++j)
+		cout << ensTransitions[i][j];
+	cout << endl;
+}
 }
 
-PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, list<Strategy>* s, vector<Value>* b, vector<vector<Value> >* r){
+PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, list<Strategy>* s, vector<Value>* b, vector<vector<CompositeValue> >* r){
 	pg = p;
 	pathsLengths = pl;
 	vals = v;
@@ -107,7 +113,6 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 	cout << "====Extended Dijkstra====" << endl;
 	//Compute the values in a Priced Game
 	unsigned int cnt = nbTransitions;
-	cout << ensResets[4][1] << endl;
 	while (remainsStates() && cnt > 0){
 		Value min;
 		min.setInf(true);
@@ -124,7 +129,8 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 				//Check the lambda transition if needed due to "withLambas"
 
 				if(solvePTG && ensBottoms[state]){
-					if( min >= (*bottoms)[state]){
+					cout << min << " " << ((*bottoms)[state]) << " " << min.isInfinity() << endl;
+					if( min >= (*bottoms)[state] || min.isInfinity()){
 						cout << "minisBottom: " << (*bottoms)[state] << endl;
 						finalState = state;
 						finalTrans = 0;
@@ -153,7 +159,7 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 						cout << state << " to " << nextState << endl;
 						cout << "min: " << min << endl;
 						cout << "new val:" << (*vals)[nextState] + pg->getTransition(state, nextState) << endl;
-						if( (*resets)[state][nextState] == -1 && min > ((*vals)[nextState] + pg->getTransition(state, nextState))){
+						if( ((*resets)[state][nextState] == -1 && min > ((*vals)[nextState] + pg->getTransition(state, nextState))) || (!minIsBottom && ! minIsReset && min.isInfinity())){
 							cout << "New min to " << nextState << " with cost " << (*vals)[nextState] + pg->getTransition(state, nextState) << endl;
 							finalState = state;
 							finalTrans = nextState;
@@ -240,7 +246,7 @@ bool PGSolver::remainsStates(){
 
 bool PGSolver::isLastTransition(unsigned int state, unsigned int nextState, bool isBottom, bool isReset, bool solvePTG){
 	//Check if the transition going from state to nextState is the last one
-	//cout << "is? ";
+	cout << "is? " << endl;
 	bool isLast = true;
 
 	//cout << isBottom << " " << ensBottoms[state] << endl;
@@ -253,13 +259,13 @@ bool PGSolver::isLastTransition(unsigned int state, unsigned int nextState, bool
 	for(unsigned int i = 0; solvePTG && resets != NULL && isLast && !isReset && i < ensResets[state].size(); ++i)
 		if(ensResets[state][i])
 			isLast = false;
-
+	cout << ensResets[3][2] << endl;
 	for (unsigned int i = 0; isLast && i < ensTransitions[state].size(); ++i){
 		if((i != nextState || (i == 0 && (isBottom || isReset))) && ensTransitions[state][i])
 			isLast = false;
 
 	}
-	//cout << "IsLast: " << isLast <<isBottom <<isReset << endl;
+	cout << "IsLast: " << isLast <<isBottom <<isReset << endl;
 	return isLast;
 }
 

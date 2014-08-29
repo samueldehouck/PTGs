@@ -23,7 +23,7 @@ private:
 	vector<list<Point> >* valueFcts;//We need a list of points for every state
 	list<Strategy>* strategies;
 	vector<Value>* bottoms;
-	vector<vector<Value> >* resets;
+	vector<vector<CompositeValue> >* resets;
 	Value time;
 
 	void init();
@@ -40,7 +40,7 @@ private:
 
 public:
 	SPTGSolver(SPTG*);
-	SPTGSolver(SPTG*, vector<Value>*,  vector<Value>*, vector<CompositeValue>*, list<Strategy>*, vector<list<Point> >*, vector<vector<Value> >*);
+	SPTGSolver(SPTG*, vector<Value>*,  vector<Value>*, vector<CompositeValue>*, list<Strategy>*, vector<list<Point> >*, vector<vector<CompositeValue> >*);
 	~SPTGSolver();
 	void show();
 	void solveSPTG();

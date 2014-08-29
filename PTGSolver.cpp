@@ -27,15 +27,28 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 
 			createEndPoints();
+			cout << "endpoints: ";
+			for (list<Value>::iterator it = endPoints.begin(); it != endPoints.end(); ++it)
+				cout << it->getVal();
+			cout << endl;
 			Value endM = endPoints.back();
 			endPoints.pop_back();
 			time = endM;
 			if(vals.size() == 0)
 				init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
+
+			//We need to reset everything
 			strategies.push_front(Strategy(size, time, true));
 			strategies.front().insert(0,0,false);
-			for (unsigned int i = 1; i < size; ++i)
+			for (unsigned int i = 1; i < size; ++i){
+				vals[i].setInf(true);
+
+				pathsLengths.push_back(Value());
+				//To force taking the first transitions available.
+				if(ptg->getOwner(i))
+					pathsLengths[i].setInf(true);
 				strategies.front().insert(i, -1, false);
+			}
 			//Update the transitions that can be taken between the two given parameters
 			keepTransAvailable(time, time);
 
@@ -118,29 +131,13 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 void PTGSolver::init(){
 	vals.push_back(CompositeValue());
-
-
-
 	pathsLengths.push_back(0);
-
 	bottoms.push_back(0);
-
 	valueFcts.push_back(list<Point>());
 
-
-	// Fill the initial valors, strategies and the ensemble of states
 	for (unsigned int i = 1; i < size; ++i){
 		vals.push_back(CompositeValue());
-		vals[i].setInf(true);
-
-		pathsLengths.push_back(Value());
-		//To force taking the first transitions available.
-		if(ptg->getOwner(i))
-			pathsLengths[i].setInf(true);
-
-
 		bottoms.push_back(0);
-
 		valueFcts.push_back(list<Point>());
 	}
 }
@@ -307,10 +304,10 @@ void PTGSolver::cleanStrats(){
 
 void PTGSolver::createResets(){
 	for (unsigned int i = 0; i < ptg->getSize(); ++i){
-		resets.push_back(vector<Value>());
+		resets.push_back(vector<CompositeValue>());
 		for (unsigned int j = 0; j < ptg->getSize(); ++j){
 			if(ptg->getReset(i,j)){
-				resets[i].push_back(Value());
+				resets[i].push_back(CompositeValue());
 				resets[i][j].setInf(true);
 			}
 			else{
@@ -387,6 +384,7 @@ void PTGSolver::visualize(){
 		Fraction lastX = valueFcts[i].front().getX().getVal();
 		Fraction maxY = 0;
 		Fraction maxX = valueFcts[i].back().getX().getVal();
+
 		for (list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
 			if (!it->getY().isInfinity() && it->getY().getVal() > maxY){
 				maxY = it->getY().getVal();
@@ -430,7 +428,7 @@ void PTGSolver::visualize(){
 
 			if(!it->getY().isInfinity()){
 				//Horizontal at the end of the line
-				//f << "\\draw [gray!20, opacity=0.3] (" << it->getX().getVal() / maxX * length + x<< "," << (it->getY().getVal()/maxY * length) - y<< ") -- (0," << it->getY().getVal() / maxY * length  - y<< ");" << endl;
+				f << "\\draw [gray!20, opacity=0.3] (" << it->getX().getVal() / maxX * length + x<< "," << (it->getY().getVal()/maxY * length) - y<< ") -- (0," << it->getY().getVal() / maxY * length  - y<< ");" << endl;
 				//Vertical at the start of the line
 				if(it->getX().getVal() != 0 || x > 0)
 					f << "\\draw [gray!20, opacity=0.3] (" << it->getX().getVal()/ maxX * length + x<< "," << (it->getY().getVal()/maxY * length) - y << ") -- (" << it->getX().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
@@ -474,37 +472,63 @@ void PTGSolver::visualize(){
 		cout << "State " << i << endl;
 		Fraction x = 0;
 		Fraction maxX = strategies.back().getTime().getVal();
-		list<Strategy>::iterator itLast = strategies.begin();
 		unsigned int maxY = size;
 		for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end() ; ++it){
 
 			if(it->getTime().getVal() == 0 && it->getInclusion() && it != strategies.begin()){
 				x = x + length + 1;
 			}
+			string color;
+			if(it->getType(i) == 0)
+				color = "black";
+			else if(it->getType(i) == 1)
+				color = "blue";
+			else if(it->getType(i) == 2)
+				color = "green";
+			else if(it->getType(i) == 3)
+				color = "red";
 
 			list<Strategy>::iterator itNext = it;
 			++itNext;
+
+			string colorNext;
+			if(itNext != strategies.end() && itNext->getType(i) == 0)
+				colorNext = "black";
+			else if(itNext != strategies.end() && itNext->getType(i) == 1)
+				colorNext = "blue";
+			else if(itNext != strategies.end() && itNext->getType(i) == 2)
+				colorNext = "green";
+			else if(itNext != strategies.end() && itNext->getType(i) == 3)
+				colorNext = "red";
+
+
 			//Draw the line
 			if(itNext != strategies.end() && itNext->getTime().getVal() != 0){
-				f << "\\draw (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length))  - y + 1<< ") -- (" << itNext->getTime().getVal()/maxX  * Fraction(length) + x<< "," << Fraction(it->getDest(i)) / Fraction(maxY) * Fraction(length) - y + 1<< ");" << endl;
+				f << "\\draw [" << color << "] (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length))  - y + 1<< ") -- (" << itNext->getTime().getVal()/maxX  * Fraction(length) + x<< "," << Fraction(it->getDest(i)) / Fraction(maxY) * Fraction(length) - y + 1<< ");" << endl;
 				f << "\\draw (" << it->getTime().getVal() / maxX * Fraction(length) + x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$" << it->getTime().getVal() << "$};" << endl;
 				f << "\\draw (0,"  << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << it->getDest(i) << "$};" << endl;
 
 
 			}
 			if(it->getInclusion() && ((itNext != strategies.end() && itNext->getDest(i) != it->getDest(i)) || it->getTime().getVal() == 0 || it->getTime().getVal() == maxX)){
-				f << "\\draw (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") node {$\\bullet$};" << endl;
-				if(it->getTime().getVal() != 0 || x > 0)
-					f << "\\draw [gray!20, opacity=0.3] (" << it->getTime().getVal()/ maxX * length + x<< "," << (Fraction(it->getDest(i))/maxY * length) - y + 1 << ") -- (" << it->getTime().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
-				if(itNext != strategies.end() && itNext->getDest(i) != it->getDest(i)  && it->getTime().getVal() != 0 && itNext->getTime().getVal() != 0)
-					f << "\\node[circle,draw,fill=white,scale=0.4] at (" << itNext->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
-
+				f << "\\node [circle,draw,fill= " << color <<",scale=0.4] at (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
+			//	if(it->getTime().getVal() != 0 || x > 0)
+				//	f << "\\draw [gray!20, opacity=0.3] (" << it->getTime().getVal()/ maxX * length + x<< "," << (Fraction(it->getDest(i))/maxY * length) - y + 1 << ") -- (" << it->getTime().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
+				if(!itNext->getInclusion() && itNext != strategies.end() && itNext->getDest(i) != it->getDest(i))
+					f << "\\draw[" << colorNext << ",fill=white] (" << itNext->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
+			//	if(itNext != strategies.end() && (itNext->getTime().getVal() != 0 || x > 0))
+				//	f << "\\draw [gray!20, opacity=0.3] (" << itNext->getTime().getVal()/ maxX * length + x<< "," << (Fraction(itNext->getDest(i))/maxY * length) - y + 1 << ") -- (" << itNext->getTime().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
 
 			}
 			else if(!it->getInclusion() && itNext != strategies.end() && itNext->getDest(i) != it->getDest(i)){
-				f << "\\node[circle,draw,fill=white,scale=0.4] at (" << itNext->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
-				if(it->getTime().getVal() != 0 || x > 0)
-					f << "\\draw [gray!20, opacity=0.3] (" << it->getTime().getVal()/ maxX * length + x<< "," << (Fraction(it->getDest(i))/maxY * length) - y + 1 << ") -- (" << it->getTime().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
+				f << "\\draw[" << color << ",fill=white] (" << itNext->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
+				cout << "time: " << itNext->getTime().getVal() << endl;
+				//if(itNext != strategies.end() && (itNext->getTime().getVal() != 0 || x > 0))
+				//	f << "\\draw [gray!20, opacity=0.3] (" << itNext->getTime().getVal()/ maxX * length + x<< "," << (Fraction(itNext->getDest(i))/maxY * length) - y + 1 << ") -- (" << itNext->getTime().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
+				if(itNext != strategies.end() && itNext->getDest(i) != it->getDest(i))
+					f << "\\draw[fill=" << colorNext << "] (" << itNext->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
+				//if(itNext != strategies.end() && (itNext->getTime().getVal() != 0 || x > 0))
+				//	f << "\\draw [gray!20, opacity=0.3] (" << itNext->getTime().getVal()/ maxX * length + x<< "," << (Fraction(itNext->getDest(i))/maxY * length) - y + 1 << ") -- (" << itNext->getTime().getVal() / maxX * length + x << "," << Fraction(0) - y << ");" << endl;
 			}
 
 

@@ -10,7 +10,7 @@ SPTGSolver::SPTGSolver(SPTG* s){
 	init();
 }
 
-SPTGSolver::SPTGSolver(SPTG* s, vector<Value>* b,  vector<Value>* pl, vector<CompositeValue>* v, list<Strategy>* st, vector<list<Point> >* vF, vector<vector<Value> >* r){
+SPTGSolver::SPTGSolver(SPTG* s, vector<Value>* b,  vector<Value>* pl, vector<CompositeValue>* v, list<Strategy>* st, vector<list<Point> >* vF, vector<vector<CompositeValue> >* r){
 	sptg = s;
 	solvePTG = true;
 	bottoms = b;
@@ -181,6 +181,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 	cout << "==>Imp1" << endl;
 	bool allDone = false;
 	bool changed = false;
+	bool oneChange = false;
 	while (!allDone){
 		//For all states
 		allDone = true;
@@ -188,48 +189,65 @@ bool SPTGSolver::makeImpSwitchesP1(){
 			//Owned by P1 because we are checking the improving switches for the P1
 			changed = false;
 			if(sptg->getOwner(state)){
-				//cout << "State: " << state << endl;
-				//cout << "Actual value: " << (*vals)[state] << endl;
+				cout << "State: " << state << endl;
+				cout << "Actual value: " << (*vals)[state] << endl;
 
 				//We don't need to look at the bottom transitions for the player 1 because it goes to MAX and will never be taken
 
 				//Check the lambda transition
 				if(lambdas[state] < (*vals)[state]){
-					//cout << "lambda is better" << endl;
+					cout << "lambda is better" << endl;
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
-					//cout << (*vals)[state]<< endl;
+					cout << (*vals)[state]<< endl;
 					strategies->front().insert(state, 0, 1);
 					(*pathsLengths)[state] = 1;
 					allDone = false;
 					changed = true;
+					oneChange = true;
 				}
 
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					//We need to check all transitions for every states except the lambda transition because it is taken by default and the ones that go to "MAX" (fictive state)
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 						CompositeValue tempVal = (*vals)[nextState] + sptg->getTransition(state, nextState);
-						//cout << "tmp: " << tempVal << endl;
+						cout << "tmp: " << tempVal << endl;
 						Value tempLength = (*pathsLengths)[nextState] + 1;
 
-						//We don't need to check the resets because it is always worse
+						if((*resets)[state][nextState] != -1){
+							cout << (*resets)[state][nextState] << endl;
+						}
+						if(solvePTG && ((*resets)[state][nextState] != -1) &&  ((*resets)[state][nextState] < (*vals)[state])){//If we have an improvement, we update the values found
 
-						if((tempVal < (*vals)[state])//If we have an improvement, we update the values found
-								||((tempVal == (*vals)[state]) && (tempLength < (*pathsLengths)[state]))){
+							cout << "reset ("<< (*resets)[state][nextState] << ") to " << nextState << " is better" << endl;
+							(*vals)[state] = (*resets)[state][nextState];
+							(*vals)[state].setEps(0);
+							cout << (*vals)[state] << endl;
+
+							strategies->front().insert(state, nextState, 3);
+							allDone = false;
+							changed = true;
+							oneChange = true;
+						}
+
+						else if(((*resets)[state][nextState] == -1) && ((tempVal < (*vals)[state])//If we have an improvement, we update the values found
+								||((tempVal == (*vals)[state]) && (tempLength < (*pathsLengths)[state])))){
 							if(!(*vals)[nextState].isInfinity()){
 								(*vals)[state].setVal(tempVal.getVal());
 								(*vals)[state].setEps((*vals)[nextState].getEps());
 							}
 							else
 								(*vals)[state].setInf(true);
-							//cout << "to " << nextState << " is better" << endl;
+							cout << "to " << nextState << " is better" << endl;
 
-							//cout << "val: " << (*vals)[state]<< endl;
+							cout << "val: " << (*vals)[state]<< endl;
 
 							(*pathsLengths)[state] = tempLength;
 							strategies->front().insert(state, nextState, 0);
 							allDone = false;
 							changed = true;
+							oneChange = true;
+
 						}
 					}
 				}
@@ -239,14 +257,15 @@ bool SPTGSolver::makeImpSwitchesP1(){
 		}
 
 	}
-
-	return changed;
+	cout << "changed: " << changed << endl;
+	return oneChange;
 }
 
 bool SPTGSolver::makeImpSwitchesP2(){
 	cout << "==>Imp2" << endl;
 	bool allDone = false;
 	bool changed = false;
+	bool oneChange = false;
 	while (!allDone){
 		//For all states
 		allDone = true;
@@ -254,48 +273,48 @@ bool SPTGSolver::makeImpSwitchesP2(){
 			//Owned by P2 because we are checking the improving switches for the P2
 			changed = false;
 			if(!sptg->getOwner(state)){
-				//cout << "State: " << state << endl;
-				//cout << "Actual value: " << (*vals)[state]<< endl;
+				cout << "State: " << state << endl;
+				cout << "Actual value: " << (*vals)[state]<< endl;
 				//We don't need to take a look at the bottom transitions because the lambda transitions will always be better for P2
 
-				//cout << lambdas[state] << endl;
+				cout << lambdas[state] << endl;
 				//Check the lambda transition
-				if(lambdas[state] > (*vals)[state]){
-					//cout << "lambda is better" << endl;
+				if(lambdas[state] > (*vals)[state] || (lambdas[state].isInfinity() && (*vals)[state].isInfinity() && strategies->front().getDest(state) == 0 && strategies->front().getType(state) != 1)){
+					cout << "lambda is better" << endl;
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
-					//cout << (*vals)[state]<< endl;
+					cout << (*vals)[state]<< endl;
 					strategies->front().insert(state, 0, 1);
 					(*pathsLengths)[state] = 1;
 					allDone = false;
 					changed = true;
+					oneChange = true;
 				}
 
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 						CompositeValue tempVal = (*vals)[nextState] + sptg->getTransition(state, nextState);
 						Value tempLength = (*pathsLengths)[nextState] + 1;
-						//cout << "temp: " << tempLength << endl;
+						cout << "temp: " << tempLength << endl;
 
 						if(!tempLength.isInfinity()){
 							//Check if the reset exists and is better
 							if(solvePTG && ((*resets)[state][nextState] != -1) &&  ((*resets)[state][nextState] > (*vals)[state])){//If we have an improvement, we update the values found
-								//cout << "reset to " << nextState << " is better" << endl;
+								cout << "reset to " << nextState << " is better" << endl;
 								(*vals)[state] = (*resets)[state][nextState];
 								(*vals)[state].setEps(0);
-								//cout << (*vals)[state] << endl;
+								cout << (*vals)[state] << endl;
 
 								strategies->front().insert(state, nextState, 3);
 								allDone = false;
 								changed = true;
+								oneChange = true;
 							}
 
-							//cout << state << ": " << (*vals)[state][0] << " " << (*vals)[state][1] << endl;
-							//cout << "to: " << nextState << ": " << tempVal <<  " " << (*vals)[nextState][1] << endl;
-							if((strategies->front().getDest(nextState) != state) &&
+							else if((strategies->front().getDest(nextState) != state) && ((*resets)[state][nextState] == -1) &&
 									((tempVal > (*vals)[state])
 											||((tempVal == (*vals)[state]) && (tempLength > (*pathsLengths)[state])))){
-								//cout << "to " << nextState << " is better" << endl;
+								cout << "to " << nextState << " is better" << endl;
 								//If we have an improvement, we update the values found
 								if(!(*vals)[nextState].isInfinity()){
 									(*vals)[state].setVal(tempVal.getVal());
@@ -310,6 +329,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 								strategies->front().insert(state, nextState, 0);
 								allDone = false;
 								changed = true;
+								oneChange = true;
 							}
 						}
 					}
@@ -320,7 +340,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 		}
 	}
 
-	return changed;
+	return oneChange;
 }
 
 void SPTGSolver::propagate(unsigned int state){
@@ -335,7 +355,7 @@ void SPTGSolver::propagate(unsigned int state){
 	while (!q.empty() ){
 		unsigned int tmpState = q.front();
 		for(unsigned int i = 1; i < size; ++i){
-			if(strategies->front().getDest(i) == tmpState && !checked[i]){
+			if(strategies->front().getDest(i) == tmpState && !checked[i] && strategies->front().getType(i) != 3){
 				//cout  << "Not checked yet" << endl;
 				//cout << "tmpstate: " << (*vals)[tmpState] << endl;
 				if(!(*vals)[i].isInfinity()){

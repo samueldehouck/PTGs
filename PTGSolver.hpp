@@ -22,7 +22,7 @@ private:
 	vector<list<Point> > valueFcts;
 	list<Transition> storage;
 	vector<Value> bottoms;
-	vector<vector<Value> > resets;
+	vector<vector<CompositeValue> > resets;
 
 	void init();
 	void createEndPoints();

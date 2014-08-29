@@ -209,10 +209,10 @@ PTG* PTGFactory::hardBuild(unsigned int build){
 		ptg->setOwner(4,1);
 
 
-		//ptg->setReset(1,4,true);
-		//ptg->setNbResets(1);
+		ptg->setReset(1,4,true);
+		ptg->setNbResets(1);
 
-		ptg->setNbResets(0);
+		//ptg->setNbResets(0);
 
 		ptg->setStartCst(1,3,1);
 		ptg->setEndCst(1,3,3);
@@ -265,5 +265,50 @@ PTG* PTGFactory::hardBuild(unsigned int build){
 		ptg->setEndCst(3,2,2);
 
 	}
+	else if(build == 6){
+
+		ptg = new PTG(5);
+		ptg->setState(0,0);
+		ptg->setState(1,2);
+		ptg->setState(2,1);
+		ptg->setState(3,2);
+		ptg->setState(4,1);
+
+		ptg->setOwner(0,1);
+		ptg->setOwner(1,1);
+		ptg->setOwner(2,1);
+		ptg->setOwner(3,0);
+		ptg->setOwner(3,0);
+
+		ptg->setTransition(1,3,1);
+		ptg->setTransition(1,2,1);
+		ptg->setTransition(2,3,0);
+		ptg->setTransition(2,4,2);
+		ptg->setTransition(3,2,2);
+		ptg->setTransition(3,0,1);
+		ptg->setTransition(4,0,2);
+
+		ptg->setStartCst(1,3,0);
+		ptg->setStartCst(1,2,0);
+		ptg->setStartCst(2,3,0);
+		ptg->setStartCst(2,4,0);
+		ptg->setStartCst(3,2,1);
+		ptg->setStartCst(3,0,0);
+		ptg->setStartCst(4,0,0);
+
+		ptg->setEndCst(1,3,2);
+		ptg->setEndCst(1,2,2);
+		ptg->setEndCst(2,3,2);
+		ptg->setEndCst(2,4,1);
+		ptg->setEndCst(3,2,2);
+		ptg->setEndCst(3,0,2);
+		ptg->setEndCst(4,0,2);
+
+		ptg->setNbResets(2);
+		ptg->setReset(1,2,true);
+		ptg->setReset(3,2,true);
+	}
+
+
 	return ptg;
 }

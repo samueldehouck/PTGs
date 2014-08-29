@@ -95,7 +95,7 @@ bool Value::operator>(Value v){
 }
 bool Value::operator>=(Value v){
 	if((inf && v.isInfinity()) ||
-			(!inf && !v.isInfinity() && val <= v.getVal()) ||
+			(!inf && !v.isInfinity() && val >= v.getVal()) ||
 			(inf && !v.isInfinity()))
 		return true;
 
