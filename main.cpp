@@ -12,27 +12,20 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
-	//    struct timeval start, end;
-	//
-	//     long seconds, milliseconds, allsecs = 0, allmillisecs = 0;
-	//      ofstream file;
-	//      file.open ("results.txt");
+	struct timeval start, end;
 
-	//    double nbr = 1000;
-	//    for (int i = 0; i < nbr; ++i){
-	//    gettimeofday(&start, NULL);
-	/* SPTG sptg;
-	       sptg.show();
-	      SPTGSolver solver(&sptg);
-	      solver.solveSPTG();*/
+	ofstream file;
+	file.open ("results.txt");
 
 
 	for (unsigned int i = 0; i < 1; ++i){
-		freopen("output.txt","w",stdout);
+		//freopen("output.txt","w",stdout);
 		PTGFactory factory;
-		PTG* ptg = factory.hardBuild(6);
+		PTG* ptg = factory.hardBuild(2);
 		ptg->show();
 		PTGSolver solver;
+		gettimeofday(&start, NULL);
+
 		if(argc > 1 && strcmp(argv[1], "-v") == 0){
 			solver.solvePTG(ptg,true);
 		}
@@ -40,18 +33,12 @@ int main(int argc, char *argv[]){
 			solver.solvePTG(ptg, false);
 
 		}
-		cerr << ".";
+		gettimeofday(&end, NULL);
+
+		cerr << i << ":" << 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000 << "ms" << endl;
 	}
 	cerr << endl;
-	//     gettimeofday(&end, NULL);
-	//
-	//     seconds  = end.tv_sec  - start.tv_sec;
-	//     milliseconds = (end.tv_usec - start.tv_usec)/1000;
-	//     allsecs += seconds;
-	//     allmillisecs += milliseconds;
-	//     cout << seconds <<"s" << milliseconds << "ms" << endl;
-	//    }
-	//    file << "Average: " << allsecs/nbr <<"s" << allmillisecs/nbr << "ms" << endl;
+
 
 	return 1;
 }
