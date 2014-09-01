@@ -19,9 +19,9 @@ int main(int argc, char *argv[]){
 
 
 	for (unsigned int i = 0; i < 1; ++i){
-		//freopen("output.txt","w",stdout);
+		freopen("output.txt","w",stdout);
 		PTGFactory factory;
-		PTG* ptg = factory.hardBuild(2);
+		PTG* ptg = factory.build();
 		ptg->show();
 		PTGSolver solver;
 		gettimeofday(&start, NULL);
@@ -33,6 +33,7 @@ int main(int argc, char *argv[]){
 			solver.solvePTG(ptg, false);
 
 		}
+		delete ptg;
 		gettimeofday(&end, NULL);
 
 		cerr << i << ":" << 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000 << "ms" << endl;

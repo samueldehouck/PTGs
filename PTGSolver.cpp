@@ -22,7 +22,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 		int copyNb = ptg->getNbResets();
 		createResets();
 		while (copyNb >= 0){
-			cout << "====Solving copy nb: " << copyNb << " ====" << endl;
+			cerr << "====Solving copy nb: " << copyNb << " ====" << endl;
 
 
 
@@ -102,6 +102,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 					valueFcts[i].push_front(Point(time,vals[i]));
 				}
 
+				delete pgSolver;
 				endM = time;
 				//show();
 				//cleanValueFcts();
@@ -116,7 +117,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 		}
 		correctStrats();
 
-		show();
+		//show();
 		if(visu){
 			visualize();
 		}
@@ -404,11 +405,11 @@ void PTGSolver::visualize(){
 		list<Point>::iterator itLast;
 		list<Strategy>::iterator itStrat = strategies.begin();
 
+
 		for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end() && itStrat != strategies.end(); ++it){
 			++itNext;
 
-
-			if(itStrat->getInclusion() && (it->getX().getVal() == 0 || it->getX().getVal() == maxX || (itLast->getY() != it->getY() || itNext->getY() != it->getY()))){
+			if(itStrat->getInclusion() && (it->getX().getVal() == 0 || it->getX().getVal() == maxX || (itLast->getY() != it->getY() && itLast->getX() == it->getX()) || (itNext->getY() != it->getY() && itNext->getX() == it->getX()))){
 
 				if(it->getY().isInfinity())
 					f << "\\node [circle,draw,fill=black,scale=0.4] at (" << it->getX().getVal()/Fraction(maxX) * length + x << "," << Fraction(length + 1)  - y  << ") {};" << endl;
@@ -422,13 +423,14 @@ void PTGSolver::visualize(){
 					f << "\\node [circle,draw,fill=white,scale=0.4] at (" << it->getX().getVal()/Fraction(maxX) * length + x << "," << it->getY().getVal()/ Fraction(maxY) * Fraction(length)  - y << ") {};" << endl;
 			}
 
-			if(itNext != valueFcts[i].end() && !itStrat->getInclusion() && itNext->getX() != it->getX()){
+			if(itNext != valueFcts[i].end() && it->getX().getVal() != maxX && (!itStrat->getInclusion() || (itStrat->getInclusion() && it->getX() != itNext->getX()))  && itNext->getX() != it->getX()){
 				if(it->getY().isInfinity())
 					f << "\\draw [color=gray!100](" << it->getX().getVal()/Fraction(maxX) * length + x << "," << Fraction(length + 1)  - y << ") -- (" << itNext->getX().getVal()/Fraction(maxX) * length + x << "," << Fraction(length + 1)  - y << ");" << endl;
 				else
 					f << "\\draw [color=gray!100](" << it->getX().getVal()/Fraction(maxX) * length + x << "," << it->getY().getVal()/ Fraction(maxY) * Fraction(length)  - y << ") -- (" << itNext->getX().getVal()/Fraction(maxX) * length + x << "," << itNext->getY().getVal()/ Fraction(maxY) * Fraction(length)  - y << ");" << endl;
 
 			}
+
 			if(it->getY().isInfinity())
 				f << "\\draw (0,"  << Fraction(length + 1) - y << ") node[left] {\\footnotesize$inf$};" << endl;
 			else
@@ -441,6 +443,7 @@ void PTGSolver::visualize(){
 			}
 			itLast = it;
 			++itStrat;
+
 		}
 
 

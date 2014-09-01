@@ -134,6 +134,7 @@ void SPTGSolver::solveSPTG(){
 		actualizeVals(epsilon);
 		strategies->front().setTime(time);
 	}
+	delete ps;
 	sptg = NULL;
 }
 
