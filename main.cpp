@@ -22,18 +22,21 @@ int main(int argc, char *argv[]){
 		ptg->show();
 		PTGSolver solver;
 		solver.solvePTG(ptg, true);
+		delete ptg;
 	}
 	else if (argc > 1){
 		PTGFactory factory;
 		PTG* ptg = factory.buildFromFile(argv[1]);
 		PTGSolver solver;
 		solver.solvePTG(ptg, true);
+		delete ptg;
 	}
 	else if (argc == 1){
 		PTGFactory factory;
 		PTG* ptg = factory.hardBuild(1);
 		PTGSolver solver;
 		solver.solvePTG(ptg, false);
+		delete ptg;
 	}
 	fclose (stdout);
 

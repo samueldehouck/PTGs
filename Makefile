@@ -46,7 +46,7 @@ PerfEvaluator.o: PerfEvaluator.cpp PerfEvaluator.hpp
 main.o: main.cpp
 	g++ -c -W -Wextra -Wall -pedantic main.cpp
 
-debug: CompositeValue.cpp CompositeValue.hpp Value.cpp Value.hpp Point.cpp Point.hpp SPTG.cpp SPTG.hpp main.cpp SPTGSolver.cpp SPTGSolver.hpp Fraction.cpp Fraction.hpp Strategy.cpp Strategy.hpp Transition.cpp Transition.hpp PTGSolver.cpp PTG.cpp PTG.hpp PTGSolver.hpp PTGFactory.cpp PTGFactory.hpp PGSolver.cpp PGSolver.hpp PG.cpp PG.hpp
-	 g++ -W -Wextra -Wall -pedantic -g main.cpp CompositeValue.cpp Value.cpp Point.cpp SPTG.cpp SPTGSolver.cpp Fraction.cpp Strategy.cpp Transition.cpp PTGSolver.cpp PTG.cpp PTGFactory.cpp PGSolver.cpp PG.cpp
+debug: CompositeValue.cpp CompositeValue.hpp Value.cpp Value.hpp Point.cpp Point.hpp SPTG.cpp SPTG.hpp main.cpp SPTGSolver.cpp SPTGSolver.hpp Fraction.cpp Fraction.hpp Strategy.cpp Strategy.hpp Transition.cpp Transition.hpp PTGSolver.cpp PTG.cpp PTG.hpp PTGSolver.hpp PTGFactory.cpp PTGFactory.hpp PGSolver.cpp PGSolver.hpp PG.cpp PG.hpp PerfEvaluator.cpp PerfEvaluator.hpp
+	 g++ -W -Wextra -Wall -pedantic -g main.cpp CompositeValue.cpp Value.cpp Point.cpp SPTG.cpp SPTGSolver.cpp Fraction.cpp Strategy.cpp Transition.cpp PTGSolver.cpp PTG.cpp PTGFactory.cpp PGSolver.cpp PG.cpp PerfEvaluator.cpp
 clean:
 	rm *.o solver output.txt *.tex *.log *.aux *.pdf

@@ -178,7 +178,7 @@ void SPTGSolver::actualizeVals(Value epsilon){
 }
 
 bool SPTGSolver::makeImpSwitchesP1(){
-	cout << "==>Imp1" << endl;
+//	cout << "==>Imp1" << endl;
 	bool allDone = false;
 	bool changed = false;
 	bool oneChange = false;
@@ -189,17 +189,17 @@ bool SPTGSolver::makeImpSwitchesP1(){
 			//Owned by P1 because we are checking the improving switches for the P1
 			changed = false;
 			if(sptg->getOwner(state)){
-				cout << "State: " << state << endl;
-				cout << "Actual value: " << (*vals)[state] << endl;
+				//cout << "State: " << state << endl;
+				//cout << "Actual value: " << (*vals)[state] << endl;
 
 				//We don't need to look at the bottom transitions for the player 1 because it goes to MAX and will never be taken
 
 				//Check the lambda transition
 				if(lambdas[state] < (*vals)[state]){
-					cout << "lambda is better" << endl;
+					//cout << "lambda is better" << endl;
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
-					cout << (*vals)[state]<< endl;
+					//cout << (*vals)[state]<< endl;
 					strategies->front().insert(state, 0, 1);
 					(*pathsLengths)[state] = 1;
 					allDone = false;
@@ -211,15 +211,15 @@ bool SPTGSolver::makeImpSwitchesP1(){
 					//We need to check all transitions for every states except the lambda transition because it is taken by default and the ones that go to "MAX" (fictive state)
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 						CompositeValue tempVal = (*vals)[nextState] + sptg->getTransition(state, nextState);
-						cout << "tmp: " << tempVal << endl;
+						//cout << "tmp: " << tempVal << endl;
 						Value tempLength = (*pathsLengths)[nextState] + 1;
 
 						if((*resets)[state][nextState] != -1){
-							cout << (*resets)[state][nextState] << endl;
+							//cout << (*resets)[state][nextState] << endl;
 						}
 						if(solvePTG && ((*resets)[state][nextState] != -1) &&  ((*resets)[state][nextState] < (*vals)[state])){//If we have an improvement, we update the values found
 
-							cout << "reset ("<< (*resets)[state][nextState] << ") to " << nextState << " is better" << endl;
+							//cout << "reset ("<< (*resets)[state][nextState] << ") to " << nextState << " is better" << endl;
 							(*vals)[state] = (*resets)[state][nextState];
 							(*vals)[state].setEps(0);
 							cout << (*vals)[state] << endl;
@@ -238,9 +238,9 @@ bool SPTGSolver::makeImpSwitchesP1(){
 							}
 							else
 								(*vals)[state].setInf(true);
-							cout << "to " << nextState << " is better" << endl;
+							//cout << "to " << nextState << " is better" << endl;
 
-							cout << "val: " << (*vals)[state]<< endl;
+							//cout << "val: " << (*vals)[state]<< endl;
 
 							(*pathsLengths)[state] = tempLength;
 							strategies->front().insert(state, nextState, 0);
@@ -257,12 +257,12 @@ bool SPTGSolver::makeImpSwitchesP1(){
 		}
 
 	}
-	cout << "changed: " << changed << endl;
+	//cout << "changed: " << changed << endl;
 	return oneChange;
 }
 
 bool SPTGSolver::makeImpSwitchesP2(){
-	cout << "==>Imp2" << endl;
+	//cout << "==>Imp2" << endl;
 	bool allDone = false;
 	bool changed = false;
 	bool oneChange = false;
@@ -280,10 +280,10 @@ bool SPTGSolver::makeImpSwitchesP2(){
 				//cout << lambdas[state] << endl;
 				//Check the lambda transition
 				if(lambdas[state] >= (*vals)[state] && (*strategies).front().getType(state) != 1 && (*pathsLengths)[state] == 1){
-					cout << "lambda is better" << endl;
+					//cout << "lambda is better" << endl;
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
-					cout << (*vals)[state]<< endl;
+					//cout << (*vals)[state]<< endl;
 					strategies->front().insert(state, 0, 1);
 					(*pathsLengths)[state] = 1;
 					allDone = false;
@@ -295,7 +295,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 						CompositeValue tempVal = (*vals)[nextState] + sptg->getTransition(state, nextState);
 						Value tempLength = (*pathsLengths)[nextState] + 1;
-						cout << "temp: " << tempLength << endl;
+						//cout << "temp: " << tempLength << endl;
 
 						if(!tempLength.isInfinity()){
 							//Check if the reset exists and is better
@@ -303,7 +303,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 								cout << "reset to " << nextState << " is better" << endl;
 								(*vals)[state] = (*resets)[state][nextState];
 								(*vals)[state].setEps(0);
-								cout << (*vals)[state] << endl;
+								//cout << (*vals)[state] << endl;
 
 								strategies->front().insert(state, nextState, 3);
 								allDone = false;
@@ -314,7 +314,7 @@ bool SPTGSolver::makeImpSwitchesP2(){
 							if(!(*vals)[state].isInfinity() && (strategies->front().getDest(nextState) != state) && ((*resets)[state][nextState] == -1) &&
 									((tempVal > (*vals)[state])
 											||((tempVal == (*vals)[state]) && (tempLength > (*pathsLengths)[state])))){
-								cout << "to " << nextState << " is better" << endl;
+								//cout << "to " << nextState << " is better" << endl;
 								//If we have an improvement, we update the values found
 								if(!(*vals)[nextState].isInfinity()){
 									(*vals)[state].setVal(tempVal.getVal());
