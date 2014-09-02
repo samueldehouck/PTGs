@@ -78,7 +78,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 				pgSolver->extendedDijkstra(true);
 				delete pgSolver;
 
-				//show();
+				show();
 
 				SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
 				sptgSolver->solveSPTG();
@@ -86,7 +86,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 				//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
 				rescale(time, endM);
-				//show();
+				show();
 
 				//The last step is to do an extendedDijkstra on the game in the "time" instant
 				keepTransAvailable(time, time);
@@ -104,7 +104,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 				delete pgSolver;
 				endM = time;
-				//show();
+				show();
 				//cleanValueFcts();
 				//cleanStrats();
 			}
@@ -119,6 +119,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 		//show();
 		if(visu){
+			cerr << "Drawing..." << endl;
 			visualize();
 		}
 		cleanValueFcts();

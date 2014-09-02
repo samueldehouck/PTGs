@@ -1,5 +1,5 @@
-#ifndef COMPOSITEVALUE_HPP
-#define COMPOSITEVALUE_HPP
+#ifndef COMPOSITEVALUE_HPP_
+#define COMPOSITEVALUE_HPP_
 
 #include "Value.hpp"
 #include "Fraction.hpp"

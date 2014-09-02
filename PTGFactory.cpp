@@ -1,31 +1,41 @@
 #include "PTGFactory.hpp"
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 PTGFactory::PTGFactory(){
 
 }
 
-PTG* PTGFactory::build(){
+PTG* PTGFactory::build(int nbStates, int nbTrans, int nbResets, int maxRate, int maxCost, int maxCst){
+	cerr << "====Building the PTG====" << endl;
 	PTG* ptg = new PTG(nbStates);
 	srand (time(NULL));
 	ptg->setNbResets(nbResets);
 	//Generates everything
 	ptg->setOwner(0,1);
-	for(unsigned int i = 1; i < ptg->getSize(); ++i){
-		int r = rand() % maxNbTrans + minNbTrans;
-		while(r != 0){
-			int index = rand() % nbStates;
-			if(((unsigned int)index != i) && ptg->getTransition(i,index) == -1){
-				ptg->setTransition(i,index, rand() % (maxCost + 1));
-				int endCst = rand() % (maxCst + 1);
-				ptg->setEndCst(i, index, endCst);
-				ptg->setStartCst(i, index, rand() % (endCst + 1));
-				--r;
-			}
-		}
-		ptg->setState(i, rand() % (maxRate + 1) + minRate);
-		ptg->setOwner(i, rand() % 2);
+	ptg->setState(0,0);
+	for (unsigned int i = 1; i < ptg->getSize(); ++i){
+		ptg->setState(i, rand() % (maxRate + 1));
+		ptg->setOwner(i, rand()%2);
 	}
-	int tmp = nbResets;
+	cerr << "States created" << endl;
+	int tmp = nbTrans;
+	while (tmp != 0){
+		int i = rand() % (nbStates - 1) + 1;
+		int j = rand() % nbStates;
+		if(ptg->getTransition(i,j) == -1 && i != j){
+			ptg->setTransition(i,j,rand() % (maxCost + 1));
+			int endCst = rand() % (maxCst + 1);
+			ptg->setEndCst(i, j, endCst);
+			ptg->setStartCst(i, j, rand() % (endCst + 1));
+			--tmp;
+		}
+	}
+
+	cerr << "Transitions created" << endl;
+	tmp = nbResets;
 	while(tmp != 0){
 		int i = rand() % nbStates;
 		int j = rand() % nbStates;
@@ -34,7 +44,84 @@ PTG* PTGFactory::build(){
 			--tmp;
 		}
 	}
+	ptg->show();
+	return ptg;
+}
 
+
+PTG* PTGFactory::buildFromFile(char* f){
+	ifstream file(f);
+	string line = "";
+	getline(file,line);//====PTG====
+	getline(file,line);//Rates:
+	getline(file,line);
+	istringstream* stream = new istringstream(line);
+	int n;
+	vector<int> v;
+
+	while (*stream >> n)
+	{
+		v.push_back(n);
+	}
+	PTG* ptg = new PTG(v.size());
+	for (unsigned int i = 0; i < v.size(); ++i)
+		ptg->setState(i,v[i]);
+
+	delete stream;
+	getline(file,line);//Transitions:
+	for (unsigned int i = 0; i < ptg->getSize(); ++i){
+		getline(file, line);
+		stream = new istringstream(line);
+		for (unsigned int j = 0; *stream >> n && j < ptg->getSize(); ++j){
+			ptg->setTransition(i,j,n);
+		}
+		delete stream;
+	}
+	getline(file,line);//Owners
+	getline(file, line);
+	stream = new istringstream(line);
+	for (unsigned i = 0; *stream >> n && i < ptg->getSize(); ++i){
+		ptg->setOwner(i,n);
+	}
+	getline(file,line);//Constraints
+	for (unsigned int i = 0; i < ptg->getSize(); ++i){
+		getline(file, line);
+		int index = 0;
+		for (unsigned int j = 0; j < ptg->getSize(); ++j){
+			string next = "";
+			while (line[index] != '[')
+				++index;
+			++index;
+			while(line[index] != ','){
+				next.push_back(line[index]);
+				++index;
+			}
+			n = atoi(next.c_str());
+			ptg->setStartCst(i,j,n);
+			++index;
+			next = "";
+			while(line[index] != ']'){
+				next.push_back(line[index]);
+				++index;
+			}
+			n = atoi(next.c_str());
+			ptg->setEndCst(i,j,n);
+		}
+	}
+	getline(file,line);//Resets:
+	unsigned int cnt = 0;
+	for (unsigned int i = 0; i < ptg->getSize(); ++i){
+		getline(file, line);
+		stream = new istringstream(line);
+		for (unsigned int j = 0; *stream >> n && j < ptg->getSize(); ++j){
+			ptg->setReset(i,j,(bool)n);
+			if(n == 1)
+				++cnt;
+		}
+		delete stream;
+	}
+	ptg->setNbResets(cnt);
+	ptg->show();
 	return ptg;
 }
 

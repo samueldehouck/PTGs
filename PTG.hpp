@@ -1,5 +1,5 @@
-#ifndef PTG_HPP
-#define PTG_HPP
+#ifndef PTG_HPP_
+#define PTG_HPP_
 
 #include "SPTG.hpp"
 #include <vector>

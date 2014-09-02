@@ -1,5 +1,5 @@
-#ifndef POINT_HPP
-#define POINT_HPP
+#ifndef POINT_HPP_
+#define POINT_HPP_
 
 #include "Value.hpp"
 

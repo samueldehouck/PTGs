@@ -1,5 +1,5 @@
-#ifndef SPTGSOLVER_HPP
-#define SPTGSOLVER_HPP
+#ifndef SPTGSOLVER_HPP_
+#define SPTGSOLVER_HPP_
 
 #include "SPTG.hpp"
 #include "Point.hpp"

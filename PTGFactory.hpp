@@ -1,17 +1,17 @@
-#ifndef PTGFACTORY_HPP
-#define PTGFACTORY_HPP
+#ifndef PTGFACTORY_HPP_
+#define PTGFACTORY_HPP_
 
 #include "PTG.hpp"
-#include "constants.hpp"
-#include <cstdlib>
 
 class PTGFactory{
 private:
 
 public:
 	PTGFactory();
-	PTG* build();
+	PTG* build(int, int, int, int, int, int);
+	PTG* buildFromFile(char*);
 	PTG* hardBuild(unsigned int);
+
 };
 
 #endif

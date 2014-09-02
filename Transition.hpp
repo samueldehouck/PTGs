@@ -1,5 +1,5 @@
-#ifndef TRANSITION_HPP
-#define TRANSITION_HPP
+#ifndef TRANSITION_HPP_
+#define TRANSITION_HPP_
 
 #include "Value.hpp"
 

@@ -8,7 +8,6 @@
 #include "Value.hpp"
 #include "CompositeValue.hpp"
 #include "Strategy.hpp"
-#include "constants.hpp"
 
 class PGSolver{
 private:

@@ -49,11 +49,6 @@ PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, list<Str
 		}
 	}
 
-for (unsigned int i = 0; i < size; ++i){
-	for (unsigned int j = 0; j < size; ++j)
-		cout << ensTransitions[i][j];
-	cout << endl;
-}
 }
 
 PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, list<Strategy>* s, vector<Value>* b, vector<vector<CompositeValue> >* r){

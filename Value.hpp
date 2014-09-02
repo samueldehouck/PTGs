@@ -1,5 +1,5 @@
-#ifndef VALUE_HPP
-#define VALUE_HPP
+#ifndef VALUE_HPP_
+#define VALUE_HPP_
 
 #include "Fraction.hpp"
 

@@ -1,5 +1,5 @@
-#ifndef FRACTION_HPP
-#define FRACTION_HPP
+#ifndef FRACTION_HPP_
+#define FRACTION_HPP_
 
 #include <iostream>
 

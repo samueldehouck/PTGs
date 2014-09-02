@@ -1,5 +1,5 @@
-#ifndef PTGSOLVER_HPP
-#define PTGSOLVER_HPP
+#ifndef PTGSOLVER_HPP_
+#define PTGSOLVER_HPP_
 
 #include "SPTGSolver.hpp"
 #include "PGSolver.hpp"

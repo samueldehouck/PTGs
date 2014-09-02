@@ -1,5 +1,5 @@
-#ifndef PG_HPP
-#define PG_HPP
+#ifndef PG_HPP_
+#define PG_HPP_
 
 #include <vector>
 #include "Value.hpp"

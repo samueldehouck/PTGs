@@ -1,45 +1,41 @@
 #include <iostream>
-#include "SPTG.hpp"
-#include "SPTGSolver.hpp"
+#include "PerfEvaluator.hpp"
 #include "PTG.hpp"
-#include "PTGSolver.hpp"
-#include "PG.hpp"
 #include "PTGFactory.hpp"
-#include <sys/time.h>
-#include <fstream>
+#include "PTGSolver.hpp"
 #include <cstring>
+#include <stdio.h>
 
 using namespace std;
 
 int main(int argc, char *argv[]){
-	struct timeval start, end;
+	freopen("output.txt","w",stdout);
 
-	ofstream file;
-	file.open ("results.txt");
+	if(argc > 1 && strcmp(argv[1], "-perf") == 0){
 
-
-	for (unsigned int i = 0; i < 1; ++i){
-		freopen("output.txt","w",stdout);
+		PerfEvaluator perf;
+		perf.eval();
+}
+	else if(argc > 1 && strcmp(argv[1], "-v") == 0){
 		PTGFactory factory;
-		PTG* ptg = factory.build();
+		PTG* ptg = factory.hardBuild(1);
 		ptg->show();
 		PTGSolver solver;
-		gettimeofday(&start, NULL);
-
-		if(argc > 1 && strcmp(argv[1], "-v") == 0){
-			solver.solvePTG(ptg,true);
-		}
-		else{
-			solver.solvePTG(ptg, false);
-
-		}
-		delete ptg;
-		gettimeofday(&end, NULL);
-
-		cerr << i << ":" << 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000 << "ms" << endl;
+		solver.solvePTG(ptg, true);
 	}
-	cerr << endl;
+	else if (argc > 1){
+		PTGFactory factory;
+		PTG* ptg = factory.buildFromFile(argv[1]);
+		PTGSolver solver;
+		solver.solvePTG(ptg, true);
+	}
+	else if (argc == 1){
+		PTGFactory factory;
+		PTG* ptg = factory.hardBuild(1);
+		PTGSolver solver;
+		solver.solvePTG(ptg, false);
+	}
+	fclose (stdout);
 
-
-	return 1;
+return 1;
 }

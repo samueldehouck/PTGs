@@ -1,5 +1,5 @@
-#ifndef STRATEGY_HPP
-#define STRATEGY_HPP
+#ifndef STRATEGY_HPP_
+#define STRATEGY_HPP_
 
 #include <vector>
 #include "Value.hpp"

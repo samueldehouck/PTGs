@@ -1,5 +1,5 @@
-#ifndef SPTG_HPP
-#define SPTG_HPP
+#ifndef SPTG_HPP_
+#define SPTG_HPP_
 
 #include <vector>
 
