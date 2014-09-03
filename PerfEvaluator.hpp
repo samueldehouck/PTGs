@@ -7,6 +7,8 @@ class PerfEvaluator{
 
 public:
 	void eval();
+	void evalStatesTrans();
+	void evalResets();
 };
 
 

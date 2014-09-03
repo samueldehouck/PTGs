@@ -9,7 +9,7 @@ PTGFactory::PTGFactory(){
 }
 
 PTG* PTGFactory::build(int nbStates, int nbTrans, int nbResets, int maxRate, int maxCost, int maxCst){
-	cerr << "====Building the PTG====" << endl;
+	//cerr << "====Building the PTG====" << endl;
 	PTG* ptg = new PTG(nbStates);
 	srand (time(NULL));
 	ptg->setNbResets(nbResets);
@@ -20,7 +20,6 @@ PTG* PTGFactory::build(int nbStates, int nbTrans, int nbResets, int maxRate, int
 		ptg->setState(i, rand() % (maxRate + 1));
 		ptg->setOwner(i, rand()%2);
 	}
-	cerr << "States created" << endl;
 	int tmp = nbTrans;
 	while (tmp != 0){
 		int i = rand() % (nbStates - 1) + 1;
@@ -34,7 +33,6 @@ PTG* PTGFactory::build(int nbStates, int nbTrans, int nbResets, int maxRate, int
 		}
 	}
 
-	cerr << "Transitions created" << endl;
 	tmp = nbResets;
 	while(tmp != 0){
 		int i = rand() % nbStates;

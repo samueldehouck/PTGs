@@ -40,6 +40,7 @@ private:
 public:
 	PTGSolver();
 	void solvePTG(PTG*, bool);
+	vector<list<Point> >* getValueFcts();
 	void show();
 };
 

@@ -24,8 +24,6 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 		while (copyNb >= 0){
 			cerr << "====Solving copy nb: " << copyNb << " ====" << endl;
 
-
-
 			createEndPoints();
 
 			Value endM = endPoints.back();
@@ -558,3 +556,6 @@ void PTGSolver::visualize(){
 }
 
 
+vector<list<Point> >* PTGSolver::getValueFcts(){
+	return &valueFcts;
+}
