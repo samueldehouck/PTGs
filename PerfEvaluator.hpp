@@ -9,6 +9,9 @@ public:
 	void eval();
 	void evalStatesTrans();
 	void evalResets();
+	void evalStates();
+	void evalTrans();
+	void evalInterval();
 };
 
 

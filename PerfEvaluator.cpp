@@ -5,6 +5,7 @@
 #include <sys/time.h>
 #include <iostream>
 #include <fstream>
+#include "stdlib.h"
 #include <unistd.h>
 
 using namespace std;
@@ -13,11 +14,14 @@ void PerfEvaluator::eval(){
 	cerr << "====Starting computing data===" << endl;
 	//evalStatesTrans();
 	evalResets();
+	//evalStates();
+	//evalTrans();
+	//evalInterval();
 }
 
 void PerfEvaluator::evalStatesTrans(){
 	unsigned int minState = 5;
-	unsigned int maxState = 15;
+	unsigned int maxState = 25;
 	unsigned int nbTests = 20;
 	struct timeval start, end;
 	ofstream f, o;
@@ -26,11 +30,19 @@ void PerfEvaluator::evalStatesTrans(){
 	f.open("tabStateTrans.tex");
 	f << "\\documentclass{standalone}" << endl;
 	f << "\\begin{document}" << endl;
+	f << "Intervals: [0,3]" << endl;
+	f << "Resets: 0" << endl;
+	f << "Max cost: 5" << endl;
+	f << "Max rate: 5" << endl;
 	f << "\\begin{tabular}{|c|";
 
 	o.open("tabStateTransInf.tex");
 	o << "\\documentclass{standalone}" << endl;
 	o << "\\begin{document}" << endl;
+	o << "Intervals: [0,3]" << endl;
+	o << "Resets: 0" << endl;
+	o << "Max cost: 5" << endl;
+	o << "Max rate: 5" << endl;
 	o << "\\begin{tabular}{|c|";
 
 	for (unsigned int i = minState - 1; i <= (maxState - 1)*(maxState - 1); ++i){
@@ -78,17 +90,17 @@ void PerfEvaluator::evalStatesTrans(){
 
 					solver.solvePTG(ptg, false);
 
-					delete ptg;
 					gettimeofday(&end, NULL);
 					average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
 					double tmp = 0;
-					for(unsigned int state = 0; i < ptg->getSize(); ++i){
-						if(solver.getValueFcts()->at(i).front().getY().isInfinity())
+					for(unsigned int state = 0; state < ptg->getSize(); ++state){
+						if(solver.getValueFcts()->at(state).front().getY().isInfinity())
 							++tmp;
 					}
 					tmp = tmp/double(nbStates);
 					averageInf += tmp;
 					//usleep(300000);
+					delete ptg;
 
 				}
 				cerr << average << endl;
@@ -116,20 +128,20 @@ void PerfEvaluator::evalStatesTrans(){
 	o << "\\hline" << endl;
 	o << "\\end{tabular}" << endl;
 	o << "\\end{document}" << endl;
-	//system("pdflatex tabstatetrans.tex");
+	system("pdflatex tabstatetrans.tex");
 	f.close();
 }
 
 void PerfEvaluator::evalResets(){
 	struct timeval start, end;
 
-	unsigned int maxNbResets = 20;
+	unsigned int maxNbResets = 25;
 	unsigned int step = 2;
 	unsigned int nbStates = 20;
-	unsigned int nbTrans = 100;
+	unsigned int nbTrans = (nbStates - 1)*(nbStates - 1)/2;
 	unsigned int nbTests = 20;
-	Fraction scaleX = 4;
-	Fraction scaleY = 80;
+	double scaleX = 2;
+	double scaleY = 200;
 
 	ofstream f;
 	f.open("resetsGraph.tex");
@@ -139,11 +151,13 @@ void PerfEvaluator::evalResets(){
 	f << "\\begin{tikzpicture}" << endl;
 
 	//Draw the x axis
-		f << "\\draw [->][thick] (0,0) -- ( " << Fraction(maxNbResets)/scaleX << ",0);" << endl;
-		f << "\\draw ( " << Fraction(maxNbResets)/scaleX << ",0) node[right] {$r$};" << endl;
-		//Draw the y axis
-		f << "\\draw [->][thick] (0,0) -- (0," << Fraction(400)/ scaleY  << ");" << endl;
-		f<< "\\draw (0," << Fraction(400)/ scaleY   <<") node[above] {$ms$}; " << endl;
+	f << "\\draw [->][thick] (0,0) -- (" << double(maxNbResets)/scaleX << ",0);" << endl;
+	f << "\\draw ( " << double(maxNbResets)/scaleX << ",0) node [right] {$r$};" << endl;
+	//Draw the y axis
+	f << "\\draw [->][thick] (0,0) -- (0," << double(1200)/ scaleY  << ");" << endl;
+	f<< "\\draw (0," << double(1200)/ scaleY   <<") node [above] {$ms$}; " << endl;
+	for (unsigned int i = 0; i <= 1200; i += 100)
+		f<< "\\draw (0," << double(i)/ scaleY   <<") node [left] {$"<< i <<"$}; " << endl;
 
 
 	for (unsigned int nbResets = 0; nbResets <= maxNbResets; nbResets = nbResets + step){
@@ -160,18 +174,192 @@ void PerfEvaluator::evalResets(){
 			gettimeofday(&end, NULL);
 			average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
 			//usleep(300000);
-			cerr << average << endl;
 		}
 		average /= nbTests;
+		cerr << average << endl;
 
-		f << "\\draw ("<< Fraction(nbResets)/scaleX <<"," << Fraction(average)/scaleY << ") node {} node{$\bullet$};" << endl;
-		f << "\\draw (0," << Fraction(average)/scaleY << "node [left] {$" << average << "$};" << endl;
-		f << "\\draw (" << Fraction(nbResets)/scaleX << ",0) node[below] {$" << nbResets << "$}" << endl;
+		f << "\\draw ("<< double(nbResets)/scaleX <<"," << double(average)/scaleY << ") node {$\\bullet$};" << endl;
+		//f << "\\draw (0," << double(average)/scaleY << ") node [left] {$" << average << "$};" << endl;
+		f << "\\draw (" << double(nbResets)/scaleX << ",0) node [below] {$" << nbResets << "$};" << endl;
 
 	}
 
 	f << "\\end{tikzpicture}" << endl;
 	f << "\\end{document}" << endl;
 	f.close();
-	//system("pdflatex resetsGraph.tex");
+	system("pdflatex resetsGraph.tex");
+}
+
+
+void PerfEvaluator::evalStates(){
+	struct timeval start, end;
+
+	unsigned int step = 10;
+	unsigned int maxNbStates = 100;
+	unsigned int nbTests = 20;
+	double scaleX = 2;
+	double scaleY = 200;
+
+	ofstream f;
+	f.open("states.tex");
+	f << "\\documentclass{standalone}" << endl;
+	f << "\\usepackage{tikz}" << endl;
+	f << "\\begin{document}" << endl;
+	f << "Transitions: (nbStates - 1)(nbStates -1)*0.5 " << endl;
+	f << "Resets: 0" << endl;
+	f << "Max cost: 5" << endl;
+	f << "Max rate: 5" << endl;
+	f << "Interval: [0,3]" << endl;
+
+	f << "\\begin{tikzpicture}" << endl;
+
+	//Draw the x axis
+		f << "\\draw [->][thick] (0,0) -- (" << double(maxNbStates)/scaleX << ",0);" << endl;
+		f << "\\draw ( " << double(maxNbStates)/scaleX << ",0) node [right] {$states$};" << endl;
+		//Draw the y axis
+		f << "\\draw [->][thick] (0,0) -- (0," << double(12000)/ scaleY  << ");" << endl;
+		f<< "\\draw (0," << double(12000)/ scaleY   <<") node [above] {$ms$}; " << endl;
+
+
+	for (unsigned int states = 10; states <= maxNbStates; states += step){
+		cerr << "Nb of States: " << states << endl;
+		unsigned int average = 0;
+		for (unsigned int i = 0; i < nbTests; ++i){
+			PTGFactory factory;
+			PTG* ptg = factory.build(states,((states - 1)/2)*(states -1),0,5,5,3);
+			PTGSolver solver;
+			gettimeofday(&start, NULL);
+
+			solver.solvePTG(ptg, false);
+
+			delete ptg;
+			gettimeofday(&end, NULL);
+			average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
+			//usleep(300000);
+		}
+		average /= nbTests;
+		cerr << average << endl;
+
+		f << "\\draw ("<< double(states)/scaleX <<"," << double(average)/scaleY << ") node {$\\bullet$};" << endl;
+		f << "\\draw (0," << double(average)/scaleY << ") node [left] {$" << average << "$};" << endl;
+		f << "\\draw (" << double(states)/scaleX << ",0) node [below] {$" << states << "$};" << endl;
+	}
+
+
+	f << "\\end{tikzpicture}" << endl;
+	f << "\\end{document}" << endl;
+	f.close();
+	system("pdflatex states.tex");
+
+}
+
+void PerfEvaluator::evalTrans(){
+	struct timeval start, end;
+
+	unsigned int step = 20;
+	unsigned int nbStates = 30;
+	unsigned int nbTests = 20;
+	double scaleX = 20;
+	double scaleY = 10;
+
+	ofstream f;
+	f.open("transitions.tex");
+	f << "\\documentclass{standalone}" << endl;
+	f << "\\usepackage{tikz}" << endl;
+	f << "\\begin{document}" << endl;
+	f << "\\begin{tikzpicture}" << endl;
+
+	//Draw the x axis
+		f << "\\draw [->][thick] (0,0) -- (" << double((nbStates -1)*(nbStates -1))/scaleX << ",0);" << endl;
+		f << "\\draw ( " << double((nbStates -1)*(nbStates -1))/scaleX + 0.5 << ",0) node [right] {$transitions$};" << endl;
+		//Draw the y axis
+		f << "\\draw [->][thick] (0,0) -- (0," << double(400)/ scaleY  << ");" << endl;
+		f<< "\\draw (0," << double(400)/ scaleY   <<") node [above] {$ms$}; " << endl;
+		for (unsigned int i = 0; i <= 400; i += 50)
+			f << "\\draw (0," << double(i)/scaleY << ") node [left] {$" << i << "$};" << endl;
+
+
+	for (unsigned int  trans = nbStates ; trans <= (nbStates -1)*(nbStates -1); trans += step){
+		unsigned int average = 0;
+		for (unsigned int i = 0; i < nbTests; ++i){
+			PTGFactory factory;
+			PTG* ptg = factory.build(nbStates,trans,0,5,5,3);
+			PTGSolver solver;
+			gettimeofday(&start, NULL);
+
+			solver.solvePTG(ptg, false);
+
+			delete ptg;
+			gettimeofday(&end, NULL);
+			average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
+			//usleep(300000);
+		}
+		average /= nbTests;
+		cerr << trans << ": " << average << endl;
+
+		f << "\\draw ("<< double(trans)/scaleX <<"," << double(average)/scaleY << ") node {$\\bullet$};" << endl;
+		//f << "\\draw (0," << double(average)/scaleY << ") node [left] {$" << average << "$};" << endl;
+		f << "\\draw (" << double(trans)/scaleX << ",0) node [below] {$" << trans << "$};" << endl;
+	}
+
+
+	f << "\\end{tikzpicture}" << endl;
+	f << "\\end{document}" << endl;
+	f.close();
+	system("pdflatex transitions.tex");
+}
+
+void PerfEvaluator::evalInterval(){
+	struct timeval start, end;
+
+	unsigned int step = 5;
+	unsigned int nbStates = 15;
+	unsigned int nbTrans = (nbStates - 1)*(nbStates - 1)/2;
+	unsigned int nbTests = 20;
+	unsigned int maxEndCst = 50;
+	double scaleX = 2;
+	double scaleY = 10;
+
+	ofstream f;
+	f.open("intervals.tex");
+	f << "\\documentclass{standalone}" << endl;
+	f << "\\usepackage{tikz}" << endl;
+	f << "\\begin{document}" << endl;
+	f << "\\begin{tikzpicture}" << endl;
+
+	//Draw the x axis
+		f << "\\draw [->][thick] (0,0) -- (" << double((nbStates -1)*(nbStates -1))/scaleX << ",0);" << endl;
+		f << "\\draw ( " << double(maxEndCst)/scaleX << ",0) node [right] {$transitions$};" << endl;
+		//Draw the y axis
+		f << "\\draw [->][thick] (0,0) -- (0," << double(250)/ scaleY  << ");" << endl;
+		f<< "\\draw (0," << double(250)/ scaleY   <<") node [above] {$ms$}; " << endl;
+
+
+	for (unsigned int  endCst = 1 ; endCst <= maxEndCst; endCst += step){
+		unsigned int average = 0;
+		for (unsigned int i = 0; i < nbTests; ++i){
+			PTGFactory factory;
+			PTG* ptg = factory.build(nbStates,nbTrans,0,5,5,endCst);
+			PTGSolver solver;
+			gettimeofday(&start, NULL);
+
+			solver.solvePTG(ptg, false);
+
+			delete ptg;
+			gettimeofday(&end, NULL);
+			average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
+			//usleep(300000);
+		}
+		average /= nbTests;
+		cerr << average << endl;
+		f << "\\draw ("<< double(endCst)/scaleX <<"," << double(average)/scaleY << ") node {$\\bullet$};" << endl;
+		f << "\\draw (0," << double(average)/scaleY << ") node [left] {$" << average << "$};" << endl;
+		f << "\\draw (" << double(endCst)/scaleX << ",0) node [below] {$" << endCst << "$};" << endl;
+	}
+
+
+	f << "\\end{tikzpicture}" << endl;
+	f << "\\end{document}" << endl;
+	f.close();
+	system("pdflatex intervals.tex");
 }

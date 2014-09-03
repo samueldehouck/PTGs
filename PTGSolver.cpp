@@ -22,7 +22,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 		int copyNb = ptg->getNbResets();
 		createResets();
 		while (copyNb >= 0){
-			cerr << "====Solving copy nb: " << copyNb << " ====" << endl;
+			cout << "====Solving copy nb: " << copyNb << " ====" << endl;
 
 			createEndPoints();
 
@@ -57,7 +57,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 			for (unsigned int i = 0; i < size; ++i){
 				valueFcts[i].push_front(Point(time,vals[i]));
 			}
-			show();
+			//show();
 
 			while(!endPoints.empty()){
 
@@ -76,7 +76,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 				pgSolver->extendedDijkstra(true);
 				delete pgSolver;
 
-				show();
+				//show();
 
 				SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
 				sptgSolver->solveSPTG();
@@ -84,7 +84,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 				//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
 				rescale(time, endM);
-				show();
+				//show();
 
 				//The last step is to do an extendedDijkstra on the game in the "time" instant
 				keepTransAvailable(time, time);
@@ -102,7 +102,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 				delete pgSolver;
 				endM = time;
-				show();
+				//show();
 				//cleanValueFcts();
 				//cleanStrats();
 			}

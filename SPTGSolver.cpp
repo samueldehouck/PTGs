@@ -273,8 +273,8 @@ bool SPTGSolver::makeImpSwitchesP2(){
 			//Owned by P2 because we are checking the improving switches for the P2
 			changed = false;
 			if(!sptg->getOwner(state)){
-				cout << "State: " << state << endl;
-				cout << "Actual value: " << (*vals)[state]<< endl;
+				//cout << "State: " << state << endl;
+				//cout << "Actual value: " << (*vals)[state]<< endl;
 				//We don't need to take a look at the bottom transitions because the lambda transitions will always be better for P2
 
 				//cout << lambdas[state] << endl;
