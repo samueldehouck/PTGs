@@ -9,7 +9,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
-	freopen("output.txt","w",stdout);
+	//freopen("output.txt","w",stdout);
 
 	if(argc > 1 && strcmp(argv[1], "-perf") == 0){
 
@@ -28,8 +28,8 @@ int main(int argc, char *argv[]){
 		PTGFactory factory;
 		PTG* ptg = factory.buildFromFile(argv[1]);
 		PTGSolver solver;
-		solver.solvePTG(ptg, true);
-		delete ptg;
+		//solver.solvePTG(ptg, true);
+		//delete ptg;
 	}
 	else if (argc == 1){
 		PTGFactory factory;

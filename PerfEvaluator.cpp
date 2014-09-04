@@ -13,8 +13,8 @@ using namespace std;
 void PerfEvaluator::eval(){
 	cerr << "====Starting computing data===" << endl;
 	//evalStatesTrans();
-	evalResets();
-	//evalStates();
+	//evalResets();
+	evalStates();
 	//evalTrans();
 	//evalInterval();
 }
@@ -195,7 +195,7 @@ void PerfEvaluator::evalStates(){
 	struct timeval start, end;
 
 	unsigned int step = 10;
-	unsigned int maxNbStates = 100;
+	unsigned int maxNbStates = 200;
 	unsigned int nbTests = 20;
 	double scaleX = 2;
 	double scaleY = 200;
@@ -205,11 +205,11 @@ void PerfEvaluator::evalStates(){
 	f << "\\documentclass{standalone}" << endl;
 	f << "\\usepackage{tikz}" << endl;
 	f << "\\begin{document}" << endl;
-	f << "Transitions: (nbStates - 1)(nbStates -1)*0.5 " << endl;
-	f << "Resets: 0" << endl;
-	f << "Max cost: 5" << endl;
-	f << "Max rate: 5" << endl;
-	f << "Interval: [0,3]" << endl;
+	//f << "Transitions: (nbStates - 1)(nbStates -1)*0.5 " << endl;
+	//f << "Resets: 0" << endl;
+	//f << "Max cost: 5" << endl;
+	//f << "Max rate: 5" << endl;
+	//f << "Interval: [0,3]" << endl;
 
 	f << "\\begin{tikzpicture}" << endl;
 
@@ -226,7 +226,7 @@ void PerfEvaluator::evalStates(){
 		unsigned int average = 0;
 		for (unsigned int i = 0; i < nbTests; ++i){
 			PTGFactory factory;
-			PTG* ptg = factory.build(states,((states - 1)/2)*(states -1),0,5,5,3);
+			PTG* ptg = factory.build(states,80,0,5,5,3);
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 

@@ -10,6 +10,8 @@ public:
 	PTGFactory();
 	PTG* build(int, int, int, int, int, int);
 	PTG* buildFromFile(char*);
+	PTG* buildFromFlatFile(char*);
+	PTG* buildFromXmlFile(char*);
 	PTG* hardBuild(unsigned int);
 
 };

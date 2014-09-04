@@ -1,8 +1,13 @@
 #include "PTGFactory.hpp"
+#include "pugixml/pugixml.hpp"
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
 #include <string>
+
+using namespace std;
+using namespace pugi;
+
 
 PTGFactory::PTGFactory(){
 
@@ -48,6 +53,15 @@ PTG* PTGFactory::build(int nbStates, int nbTrans, int nbResets, int maxRate, int
 
 
 PTG* PTGFactory::buildFromFile(char* f){
+	string fstr(f);
+	if(fstr.find(".xml") != string::npos)
+		return buildFromXmlFile(f);
+	else
+		return buildFromFlatFile(f);
+}
+
+
+PTG* PTGFactory::buildFromFlatFile(char* f){
 	ifstream file(f);
 	string line = "";
 	getline(file,line);//====PTG====
@@ -119,6 +133,126 @@ PTG* PTGFactory::buildFromFile(char* f){
 		delete stream;
 	}
 	ptg->setNbResets(cnt);
+	return ptg;
+}
+
+PTG* PTGFactory::buildFromXmlFile(char* f){
+	cerr << "Construction" << endl;
+	PTG* ptg;
+	vector<Fraction> states;
+	vector<string> ids;
+	unsigned int nbResets = 0;
+	xml_document doc;
+	xml_parse_result result = doc.load_file(f);
+	if(result){
+		xml_node nta = doc.first_child();
+		xml_node node = nta.child("template");
+		for(xml_node_iterator it = node.begin(); it != node.end(); ++it){
+
+			if(string(it->name()).compare("location") == 0){
+				states.push_back(it->child("label").text().as_int());
+				ids.push_back(it->attribute("id").as_string());
+			}
+			else if(string(it->name()).compare("init") == 0){
+				ptg = new PTG(states.size());
+				unsigned int i = 0;
+				unsigned int j = 1;
+				while (i < states.size()){
+					if(ids[i].compare(it->attribute("ref").as_string()) == 0){
+						ptg->setState(0,states[i]);
+						Fraction tmp = states[0];
+						states[0] = states[i];
+						states[i] = tmp;
+
+						string id = ids[0];
+						ids[0] = ids[i];
+						ids[i] = id;
+					}
+					else{
+						ptg->setState(j,states[i]);
+						++j;
+					}
+					++i;
+				}
+
+			}
+			else if(string(it->name()).compare("transition") == 0){
+				cout << "transition" << endl;
+				unsigned int src = 0;
+				unsigned int dest = 0;
+				unsigned int cost = 0;
+				unsigned int startCst = 0;
+				unsigned int endCst = 0;
+				bool reset = false;
+				bool owner = false;
+				cout << "Control" << endl;
+
+				if(string(it->attribute("controllable").as_string()).compare("false") == 0)
+					owner = false;
+				else
+					owner = true;
+
+				for(xml_node_iterator itT = it->begin(); itT != it->end(); ++itT){
+					if(string(itT->name()).compare("source") == 0){
+						cout << "Src" << endl;
+						unsigned int i = 0;
+						for (; i < ids.size() && ids[i].compare(it->attribute("ref").as_string()); ++i);
+						if(i != ids.size()){
+							src = i;
+						}
+					}
+					else if(string(itT->name()).compare("target") == 0){
+						cout << "Target" << endl;
+						unsigned int i = 0;
+						for (; i < ids.size() && ids[i].compare(it->attribute("ref").as_string()); ++i);
+						if(i != ids.size()){
+							dest = i;
+						}
+					}
+					else if(string(itT->name()).compare("label") == 0){
+						if(string(itT->attribute("kind").as_string()).compare("guard") == 0){
+							cout << "guard" << endl;
+							string guard = string(it->text().as_string());
+							unsigned int i = 1;
+							string nb = "";
+							while (guard[i] != ',' && i < guard.length()){
+								nb += guard[i];
+								++i;
+							}
+							startCst = atoi(nb.c_str());
+							nb = "";
+							while(guard[i] != ']' && i < guard.length()){
+								nb += guard[i];
+								++i;
+							}
+							endCst = atoi(nb.c_str());
+
+						}
+						else if(string(itT->attribute("kind").as_string()).compare("synchronisation") == 0){
+							cout << "sync" << endl;
+							cost = it->text().as_int();
+						}
+						else if(string(itT->attribute("kind").as_string()).compare("assignment") == 0){
+							cout << "assign" << endl;
+							if(string(it->text().as_string()).compare("r") == 0){
+								reset = true;
+								++nbResets;
+							}
+						}
+					}
+				}
+				ptg->setOwner(src,owner);
+				ptg->setTransition(src,dest,cost);
+				ptg->setStartCst(src,dest,startCst);
+				ptg->setEndCst(src,dest,endCst);
+				ptg->setReset(src,dest,reset);
+			}
+		}
+		ptg->setNbResets(nbResets);
+		ptg->setOwner(0,1);
+	}
+	else
+		cerr << "Error while loading the xml file" << endl;
 	ptg->show();
 	return ptg;
 }

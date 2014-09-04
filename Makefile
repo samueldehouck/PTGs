@@ -1,5 +1,5 @@
-all: Fraction.o Value.o CompositeValue.o Point.o Strategy.o Transition.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o PerfEvaluator.o main.o
-	g++ -W -Wextra -Wall -pedantic -o solver Fraction.o Value.o CompositeValue.o Point.o Transition.o Strategy.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o PerfEvaluator.o main.o 
+all: pugixml.o Fraction.o Value.o CompositeValue.o Point.o Strategy.o Transition.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o PerfEvaluator.o main.o
+	g++ -W -Wextra -Wall -pedantic -o solver pugixml.o Fraction.o Value.o CompositeValue.o Point.o Transition.o Strategy.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o PerfEvaluator.o main.o 
 
 Point.o: Point.cpp Point.hpp
 	g++ -c -W -Wextra -Wall -pedantic Point.cpp
@@ -42,6 +42,9 @@ CompositeValue.o: CompositeValue.cpp CompositeValue.hpp
 	
 PerfEvaluator.o: PerfEvaluator.cpp PerfEvaluator.hpp
 	g++ -c -W -Wextra -Wall -pedantic PerfEvaluator.cpp
+	
+pugixml.o: pugixml/pugixml.cpp pugixml/pugixml.hpp
+	g++ -c -W -Wextra -Wall -pedantic pugixml/pugixml.cpp	
 	
 main.o: main.cpp
 	g++ -c -W -Wextra -Wall -pedantic main.cpp
