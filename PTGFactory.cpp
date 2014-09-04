@@ -14,7 +14,7 @@ PTGFactory::PTGFactory(){
 }
 
 PTG* PTGFactory::build(int nbStates, int nbTrans, int nbResets, int maxRate, int maxCost, int maxCst){
-	//cerr << "====Building the PTG====" << endl;
+	//The PTG is randomly built
 	PTG* ptg = new PTG(nbStates);
 	srand (time(NULL));
 	ptg->setNbResets(nbResets);
@@ -137,27 +137,30 @@ PTG* PTGFactory::buildFromFlatFile(char* f){
 }
 
 PTG* PTGFactory::buildFromXmlFile(char* f){
-	cerr << "Construction" << endl;
+	//Build a PTG from an xml file of uppaal tiga
 	PTG* ptg;
 	vector<Fraction> states;
 	vector<string> ids;
+	vector<string> names;
 	unsigned int nbResets = 0;
 	xml_document doc;
 	xml_parse_result result = doc.load_file(f);
 	if(result){
 		xml_node nta = doc.first_child();
 		xml_node node = nta.child("template");
-		for(xml_node_iterator it = node.begin(); it != node.end(); ++it){
 
+		for(xml_node_iterator it = node.begin(); it != node.end(); ++it){
+			//If the following data is a location
 			if(string(it->name()).compare("location") == 0){
+				//Store it because in the PTG intern representation, the target is at index 0
 				states.push_back(it->child("label").text().as_int());
 				ids.push_back(it->attribute("id").as_string());
+				names.push_back(string(it->child("name").text().as_string()));
 			}
 			else if(string(it->name()).compare("init") == 0){
-				ptg = new PTG(states.size());
-				unsigned int i = 0;
-				unsigned int j = 1;
-				while (i < states.size()){
+				//All locations have been declared, the target can be swapped
+				ptg = new PTG(states.size(), true);
+				for( unsigned int i = 0; i < states.size(); ++i){
 					if(ids[i].compare(it->attribute("ref").as_string()) == 0){
 						ptg->setState(0,states[i]);
 						Fraction tmp = states[0];
@@ -167,17 +170,20 @@ PTG* PTGFactory::buildFromXmlFile(char* f){
 						string id = ids[0];
 						ids[0] = ids[i];
 						ids[i] = id;
+
+						string name = names[0];
+						names[0] = names[i];
+						names[i] = name;
 					}
-					else{
-						ptg->setState(j,states[i]);
-						++j;
-					}
-					++i;
+
+				}
+				for (unsigned int i = 0; i < ids.size(); ++i){
+					ptg->setLabel(i,names[i]);
+					ptg->setState(i, states[i]);
 				}
 
 			}
 			else if(string(it->name()).compare("transition") == 0){
-				cout << "transition" << endl;
 				unsigned int src = 0;
 				unsigned int dest = 0;
 				unsigned int cost = 0;
@@ -185,7 +191,6 @@ PTG* PTGFactory::buildFromXmlFile(char* f){
 				unsigned int endCst = 0;
 				bool reset = false;
 				bool owner = false;
-				cout << "Control" << endl;
 
 				if(string(it->attribute("controllable").as_string()).compare("false") == 0)
 					owner = false;
@@ -194,53 +199,53 @@ PTG* PTGFactory::buildFromXmlFile(char* f){
 
 				for(xml_node_iterator itT = it->begin(); itT != it->end(); ++itT){
 					if(string(itT->name()).compare("source") == 0){
-						cout << "Src" << endl;
 						unsigned int i = 0;
-						for (; i < ids.size() && ids[i].compare(it->attribute("ref").as_string()); ++i);
+						cout << itT->attribute("ref").as_string() << endl;
+						for (; i < ids.size() && ids[i].compare(itT->attribute("ref").as_string()); ++i);
 						if(i != ids.size()){
 							src = i;
 						}
 					}
 					else if(string(itT->name()).compare("target") == 0){
-						cout << "Target" << endl;
 						unsigned int i = 0;
-						for (; i < ids.size() && ids[i].compare(it->attribute("ref").as_string()); ++i);
+						for (; i < ids.size() && ids[i].compare(itT->attribute("ref").as_string()); ++i);
 						if(i != ids.size()){
 							dest = i;
 						}
 					}
 					else if(string(itT->name()).compare("label") == 0){
 						if(string(itT->attribute("kind").as_string()).compare("guard") == 0){
-							cout << "guard" << endl;
-							string guard = string(it->text().as_string());
-							unsigned int i = 1;
+							string guard = string(itT->text().as_string());
+							unsigned int i = 0;
 							string nb = "";
+							while (guard[i] != '[' && i < guard.length())
+								++i;
+							++i;
 							while (guard[i] != ',' && i < guard.length()){
 								nb += guard[i];
 								++i;
 							}
 							startCst = atoi(nb.c_str());
 							nb = "";
+							++i;
 							while(guard[i] != ']' && i < guard.length()){
 								nb += guard[i];
 								++i;
 							}
 							endCst = atoi(nb.c_str());
-
 						}
 						else if(string(itT->attribute("kind").as_string()).compare("synchronisation") == 0){
-							cout << "sync" << endl;
-							cost = it->text().as_int();
+							cost = itT->text().as_int();
 						}
 						else if(string(itT->attribute("kind").as_string()).compare("assignment") == 0){
-							cout << "assign" << endl;
-							if(string(it->text().as_string()).compare("r") == 0){
+							if(string(itT->text().as_string()).compare("r") == 0){
 								reset = true;
 								++nbResets;
 							}
 						}
 					}
 				}
+
 				ptg->setOwner(src,owner);
 				ptg->setTransition(src,dest,cost);
 				ptg->setStartCst(src,dest,startCst);
@@ -253,11 +258,11 @@ PTG* PTGFactory::buildFromXmlFile(char* f){
 	}
 	else
 		cerr << "Error while loading the xml file" << endl;
-	ptg->show();
 	return ptg;
 }
 
 PTG* PTGFactory::hardBuild(unsigned int build){
+	//Can build some examples of PTGs
 	PTG* ptg;
 	if(build == 1)
 	{

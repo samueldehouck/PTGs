@@ -14,6 +14,7 @@ PTGSolver::PTGSolver(){
 	time = 0;
 }
 
+
 void PTGSolver::solvePTG(PTG* p, bool visu){
 	cout << "====SolvePTG====" << endl;
 	ptg = p;
@@ -92,8 +93,6 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 				strategies.push_front(Strategy(size, time, true));
 
 
-
-
 				pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms, &resets);
 				pgSolver->extendedDijkstra(true);
 				for (unsigned int i = 0; i < size; ++i){
@@ -103,8 +102,6 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 				delete pgSolver;
 				endM = time;
 				//show();
-				//cleanValueFcts();
-				//cleanStrats();
 			}
 
 			restoreAllTrans();
@@ -121,6 +118,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 			visualize();
 		}
 		cleanValueFcts();
+		cleanStrats();
 		cout << endl << "====Results SolvePTG===" << endl;
 		show();
 	}
@@ -130,6 +128,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 }
 
 void PTGSolver::init(){
+	//Build all vectors and fill them with zeros
 	vals.push_back(CompositeValue());
 	pathsLengths.push_back(0);
 	bottoms.push_back(0);
@@ -143,7 +142,7 @@ void PTGSolver::init(){
 }
 
 void PTGSolver::createEndPoints(){
-	//   Create all endpoints where some calculation will be needed
+	//   Create all endpoints where calculations will be needed
 	for (unsigned int i = 0; i < size; ++i){
 		for (unsigned int j = 0; j < size; ++j){
 			if(ptg->getTransition(i,j) != -1){
@@ -161,7 +160,7 @@ void PTGSolver::createEndPoints(){
 void PTGSolver::keepTransAvailable(Value start, Value end){
 	cout << "===Updating Transitions (" << start << "," << end << ") ====" << endl;
 
-	//Restore the transitions stored
+	//Restore all transitions that can be taken but were stored
 	list<Transition>::iterator next = storage.begin();
 	for (list<Transition>::iterator it = storage.begin(); it != storage.end(); it = next){
 		++next;
@@ -186,6 +185,7 @@ void PTGSolver::keepTransAvailable(Value start, Value end){
 }
 
 void PTGSolver::restoreAllTrans(){
+	//Done when we have completely solver a copy of the game
 	while(!storage.empty()){
 		ptg->setTransition(storage.front().origin, storage.front().dest,storage.front().cost);
 		storage.pop_front();
@@ -194,15 +194,13 @@ void PTGSolver::restoreAllTrans(){
 
 void PTGSolver::updateBottoms(){
 	//Update the bottom transitions
-	//cout << "updatebottoms" << endl;
 	for (unsigned int i = 0; i < size; ++i){
 		bottoms[i] = vals[i];
-		//cout << bottoms[i] << " " << vals[i] << endl;
 	}
 }
 
 void PTGSolver::rescale(Value start, Value end){
-	//The result given by the solveSPTG
+	//The result given by the solveSPTG needs to be rescaled (from (0,1) to (start, end))
 	cout << "====Rescaling====" << endl;
 	for (vector<list<Point> >::iterator it = valueFcts.begin(); it != valueFcts.end(); ++it){
 		for (list<Point>::iterator itL = it->begin(); itL != it->end() && itL->getX() <= 1 ; ++itL){
@@ -252,7 +250,7 @@ void PTGSolver::cleanValueFcts(){
 }
 
 void PTGSolver::correctStrats(){
-	cout << "====Correction of the strategies====" << endl;
+	//Correct the strategies, when a lambda or a bottom transition is taken it means we wait until we make an action
 	for (list<Strategy>::reverse_iterator rit = strategies.rbegin(); rit != strategies.rend(); ++rit){
 		list<Strategy>::reverse_iterator ritPrev = rit;
 		++ritPrev;
@@ -303,6 +301,7 @@ void PTGSolver::cleanStrats(){
 }
 
 void PTGSolver::createResets(){
+	//Create the matrix of resets used by all the solver
 	for (unsigned int i = 0; i < ptg->getSize(); ++i){
 		resets.push_back(vector<CompositeValue>());
 		for (unsigned int j = 0; j < ptg->getSize(); ++j){
@@ -333,23 +332,11 @@ void PTGSolver::updateResets(){
 
 void PTGSolver::show(){
 
-	/*cout << "bottoms:" << endl;
-	for (unsigned int i = 0; i < bottoms.size(); ++i){
-		cout <<  bottoms[i]<< "	";
-	}
-	cout << endl;*/
-
-
 	cout << "Strategies: " << endl;
 	for (list<Strategy>::iterator it = strategies.begin(); it != strategies.end(); ++it){
 		it->show();
 	}
 	cout << endl;
-
-	/*cout << "Lengths: " << endl;
-	for (unsigned int i = 0; i < pathsLengths.size(); ++i)
-		cout << pathsLengths[i] << "	";
-	cout << endl;*/
 
 	cout << "Vals:" << endl;
 	for (unsigned int i = 0; i < vals.size(); ++i){
@@ -360,7 +347,10 @@ void PTGSolver::show(){
 
 	cout << "Value Functions" << endl;
 	for (unsigned int i = 1; i < valueFcts.size(); ++i){
-		cout << " State " << i <<": ";
+		if(ptg->hasLabels())
+			cout << "State " << ptg->getLabel(i) << ": ";
+		else
+			cout << " State " << i <<": ";
 		for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
 			cout << "(" << it->getX() << "," << it->getY() << ") ";
 		}
@@ -397,7 +387,11 @@ void PTGSolver::visualize(){
 		f << "\\draw ( " << (ptg->getNbResets() + 2)* length << "," << Fraction(0) - y << ") node[right] {$t$};" << endl;
 		//Draw the y axis
 		f << "\\draw [->][thick] (0," << Fraction(0) - y << ") -- (0," << Fraction(length + 2) - y  << ");" << endl;
-		f<< "\\draw (0," << Fraction(length + 2) - y<<") node[above] {$v_" <<  i << "(t)$}; " << endl;
+		if(ptg->hasLabels())
+			f<< "\\draw (0," << Fraction(length + 2) - y<<") node[above] {$v_" <<  ptg->getLabel(i) << "(t)$}; " << endl;
+		else
+			f<< "\\draw (0," << Fraction(length + 2) - y<<") node[above] {$v_" <<  i << "(t)$}; " << endl;
+
 
 
 		list<Point>::iterator itNext = valueFcts[i].begin();
@@ -499,14 +493,20 @@ void PTGSolver::visualize(){
 			if(itNext != strategies.end() && itNext->getTime().getVal() != 0){
 				f << "\\draw [" << color << "] (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length))  - y + 1<< ") -- (" << itNext->getTime().getVal()/maxX  * Fraction(length) + x<< "," << Fraction(it->getDest(i)) / Fraction(maxY) * Fraction(length) - y + 1<< ");" << endl;
 				f << "\\draw (" << it->getTime().getVal() / maxX * Fraction(length) + x<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$" << it->getTime().getVal() << "$};" << endl;
-				f << "\\draw (0,"  << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << it->getDest(i) << "$};" << endl;
+				if(ptg->hasLabels())
+					f << "\\draw (0,"  << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << ptg->getLabel(it->getDest(i)) << "$};" << endl;
+				else
+					f << "\\draw (0,"  << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << it->getDest(i) << "$};" << endl;
 			}
 
 			if(it->getInclusion() && ((itNext != strategies.end() && itNext->getDest(i) != it->getDest(i)) || it->getTime().getVal() == 0 || it->getTime().getVal() == maxX)){
 				f << "\\node [circle,draw,fill= " << color <<",scale=0.4] at (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
 				if(!itNext->getInclusion() && itNext != strategies.end() && itNext->getDest(i) != it->getDest(i)){
 					f << "\\draw[" << colorNext << ",fill=white] (" << itNext->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
-					f << "\\draw (0,"  << (Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << itNext->getDest(i) << "$};" << endl;
+					if(ptg->hasLabels())
+						f << "\\draw (0,"  << (Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << ptg->getLabel(itNext->getDest(i)) << "$};" << endl;
+					else
+						f << "\\draw (0,"  << (Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << itNext->getDest(i) << "$};" << endl;
 
 				}
 
@@ -515,13 +515,19 @@ void PTGSolver::visualize(){
 				f << "\\draw[" << color << ",fill=white] (" << itNext->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
 				cout << "time: " << itNext->getTime().getVal() << endl;
 				if(itNext != strategies.end() && itNext->getDest(i) != it->getDest(i)){
-					f << "\\draw (0,"  << (Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << itNext->getDest(i) << "$};" << endl;
+					if(ptg->hasLabels())
+						f << "\\draw (0,"  << (Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << ptg->getLabel(itNext->getDest(i)) << "$};" << endl;
+					else
+						f << "\\draw (0,"  << (Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << itNext->getDest(i) << "$};" << endl;
 					f << "\\draw[fill=" << colorNext << "] (" << itNext->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(itNext->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
 				}
 			}
 			else if(it->getInclusion() && it->getTime().getVal() == 0){
 				f << "\\draw[fill=" << color << "] (" << it->getTime().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
-				f << "\\draw (0,"  << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << it->getDest(i) << "$};" << endl;
+				if(ptg->hasLabels())
+					f << "\\draw (0,"  << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << ptg->getLabel(it->getDest(i)) << "$};" << endl;
+				else
+					f << "\\draw (0,"  << (Fraction(it->getDest(i))/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << it->getDest(i) << "$};" << endl;
 
 			}
 
@@ -534,7 +540,10 @@ void PTGSolver::visualize(){
 		f << "\\draw (0," << Fraction(0) - y <<") node [below]{\\footnotesize$0$};" << endl;
 		//Draw the y axis
 		f << "\\draw [->][thick] (0," << Fraction(0) - y << ") -- (0," << Fraction(length + 1) - y  << ");" << endl;
-		f<< "\\draw (0," << Fraction(length + 1) - y<<") node[above] {$\\sigma_" <<  i << "(t)$}; " << endl;
+		if(ptg->hasLabels())
+			f<< "\\draw (0," << Fraction(length + 1) - y<<") node[above] {$\\sigma_" <<  ptg->getLabel(i) << "(t)$}; " << endl;
+		else
+			f<< "\\draw (0," << Fraction(length + 1) - y<<") node[above] {$\\sigma_" <<  i << "(t)$}; " << endl;
 
 		y = y + 5;
 	}

@@ -2,8 +2,9 @@
 #define PTG_HPP_
 
 #include "SPTG.hpp"
-#include <vector>
 #include "Fraction.hpp"
+#include <vector>
+#include <string>
 
 
 class PTG: public SPTG{
@@ -12,10 +13,12 @@ protected:
 	vector<vector<Fraction> >* startsCstraints;
 	vector<vector<Fraction> >* endsCstraints;
 	unsigned int nbResets;
+	vector<string> labels;
 
 public:
 	PTG();
 	PTG(unsigned int);
+	PTG(unsigned int, bool);
 	~PTG();
 	Fraction getStartCst(unsigned int, unsigned int) const;
 	void setStartCst(unsigned int, unsigned int, Fraction);
@@ -25,6 +28,9 @@ public:
 	void setReset(unsigned int, unsigned int, bool);
 	unsigned int getNbResets() const;
 	void setNbResets(unsigned int);
+	string getLabel(unsigned int) const;
+	void setLabel(unsigned int, string);
+	bool hasLabels();
 	void show();
 };
 

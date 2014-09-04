@@ -205,11 +205,7 @@ void PerfEvaluator::evalStates(){
 	f << "\\documentclass{standalone}" << endl;
 	f << "\\usepackage{tikz}" << endl;
 	f << "\\begin{document}" << endl;
-	//f << "Transitions: (nbStates - 1)(nbStates -1)*0.5 " << endl;
-	//f << "Resets: 0" << endl;
-	//f << "Max cost: 5" << endl;
-	//f << "Max rate: 5" << endl;
-	//f << "Interval: [0,3]" << endl;
+
 
 	f << "\\begin{tikzpicture}" << endl;
 
