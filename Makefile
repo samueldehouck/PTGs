@@ -1,5 +1,5 @@
-all: pugixml.o Fraction.o Value.o CompositeValue.o Point.o Strategy.o Transition.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o PerfEvaluator.o main.o
-	g++ -W -Wextra -Wall -pedantic -o solver pugixml.o Fraction.o Value.o CompositeValue.o Point.o Transition.o Strategy.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o PerfEvaluator.o main.o 
+all: pugixml.o Fraction.o Value.o CompositeValue.o Point.o Strategy.o Transition.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o PerfEvaluator.o SPTGSolverV2.o main.o
+	g++ -W -Wextra -Wall -pedantic -o solver pugixml.o Fraction.o Value.o CompositeValue.o Point.o Transition.o Strategy.o PG.o SPTG.o SPTGSolver.o PTG.o PTGSolver.o PGSolver.o PTGFactory.o PerfEvaluator.o SPTGSolverV2.o main.o 
 
 Point.o: Point.cpp Point.hpp
 	g++ -c -W -Wextra -Wall -pedantic Point.cpp
@@ -46,10 +46,12 @@ PerfEvaluator.o: PerfEvaluator.cpp PerfEvaluator.hpp
 pugixml.o: pugixml/pugixml.cpp pugixml/pugixml.hpp
 	g++ -c -W -Wextra -Wall -pedantic pugixml/pugixml.cpp	
 	
+SPTGSolverV2.o: SPTGSolverV2.cpp SPTGSolverV2.hpp
+	g++ -c -W -Wextra -Wall -pedantic SPTGSolverV2.cpp
 main.o: main.cpp
 	g++ -c -W -Wextra -Wall -pedantic main.cpp
 
-debug: CompositeValue.cpp CompositeValue.hpp Value.cpp Value.hpp Point.cpp Point.hpp SPTG.cpp SPTG.hpp main.cpp SPTGSolver.cpp SPTGSolver.hpp Fraction.cpp Fraction.hpp Strategy.cpp Strategy.hpp Transition.cpp Transition.hpp PTGSolver.cpp PTG.cpp PTG.hpp PTGSolver.hpp PTGFactory.cpp PTGFactory.hpp PGSolver.cpp PGSolver.hpp PG.cpp PG.hpp PerfEvaluator.cpp PerfEvaluator.hpp
-	 g++ -W -Wextra -Wall -pedantic -g main.cpp CompositeValue.cpp Value.cpp Point.cpp SPTG.cpp SPTGSolver.cpp Fraction.cpp Strategy.cpp Transition.cpp PTGSolver.cpp PTG.cpp PTGFactory.cpp PGSolver.cpp PG.cpp PerfEvaluator.cpp
+debug: CompositeValue.cpp CompositeValue.hpp pugixml/pugixml.cpp pugixml/pugixml.hpp Value.cpp Value.hpp Point.cpp Point.hpp SPTG.cpp SPTG.hpp main.cpp SPTGSolver.cpp SPTGSolver.hpp Fraction.cpp Fraction.hpp Strategy.cpp Strategy.hpp Transition.cpp Transition.hpp PTGSolver.cpp PTG.cpp PTG.hpp PTGSolver.hpp PTGFactory.cpp PTGFactory.hpp PGSolver.cpp PGSolver.hpp PG.cpp PG.hpp PerfEvaluator.cpp PerfEvaluator.hpp SPTGSolverV2.cpp SPTGSolverV2.hpp
+	 g++ -W -Wextra -Wall -pedantic -g main.cpp pugixml/pugixml.cpp CompositeValue.cpp Value.cpp Point.cpp SPTG.cpp SPTGSolver.cpp Fraction.cpp Strategy.cpp Transition.cpp PTGSolver.cpp PTG.cpp PTGFactory.cpp PGSolver.cpp PG.cpp PerfEvaluator.cpp SPTGSolverV2.cpp
 clean:
 	rm *.o solver output.txt *.tex *.log *.aux *.pdf

@@ -13,7 +13,7 @@ PTGFactory::PTGFactory(){
 
 }
 
-PTG* PTGFactory::build(int nbStates, int nbTrans, int nbResets, int maxRate, int maxCost, int maxCst){
+PTG* PTGFactory::buildPTG(int nbStates, int nbTrans, int nbResets, int maxRate, int maxCost, int maxCst){
 	//The PTG is randomly built
 	PTG* ptg = new PTG(nbStates);
 	srand (time(NULL));
@@ -51,6 +51,33 @@ PTG* PTGFactory::build(int nbStates, int nbTrans, int nbResets, int maxRate, int
 	return ptg;
 }
 
+PTG* PTGFactory::buildSPTG(int nbStates, int nbTrans, int maxRate, int maxCost){
+	//The PTG is randomly built
+		PTG* ptg = new PTG(nbStates);
+		srand (time(NULL));
+		ptg->setNbResets(0);
+		//Generates everything
+		ptg->setOwner(0,1);
+		ptg->setState(0,0);
+		for (unsigned int i = 1; i < ptg->getSize(); ++i){
+			ptg->setState(i, rand() % (maxRate + 1));
+			ptg->setOwner(i, rand()%2);
+		}
+		int tmp = nbTrans;
+		while (tmp != 0){
+			int i = rand() % (nbStates - 1) + 1;
+			int j = rand() % nbStates;
+			if(ptg->getTransition(i,j) == -1 && i != j){
+				ptg->setTransition(i,j,rand() % (maxCost + 1));
+				ptg->setEndCst(i, j, 1);
+				ptg->setStartCst(i, j, 0);
+				--tmp;
+			}
+		}
+
+		ptg->show();
+		return ptg;
+}
 
 PTG* PTGFactory::buildFromFile(char* f){
 	string fstr(f);
@@ -264,7 +291,55 @@ PTG* PTGFactory::buildFromXmlFile(char* f){
 PTG* PTGFactory::hardBuild(unsigned int build){
 	//Can build some examples of PTGs
 	PTG* ptg;
-	if(build == 1)
+	if(build == 0){
+		//Example of the paper
+		ptg = new PTG(6);
+		ptg->setState(0,0);
+		ptg->setState(1,9);
+		ptg->setState(2,3);
+		ptg->setState(3,6);
+		ptg->setState(4,9);
+		ptg->setState(5,0);
+
+		ptg->setOwner(0,1);
+		ptg->setOwner(1,0);
+		ptg->setOwner(2,0);
+		ptg->setOwner(3,1);
+		ptg->setOwner(4,1);
+		ptg->setOwner(5,1);
+
+
+		ptg->setTransition(1,0,0);
+		ptg->setTransition(2,1,0);
+		ptg->setTransition(2,4,0);
+		ptg->setTransition(3,1,3);
+		ptg->setTransition(3,2,0);
+		ptg->setTransition(4,3,0);
+		ptg->setTransition(4,5,0);
+		ptg->setTransition(5,0,5);
+
+		ptg->setStartCst(1,0,0);
+		ptg->setStartCst(2,1,0);
+		ptg->setStartCst(2,4,0);
+		ptg->setStartCst(3,1,0);
+		ptg->setStartCst(3,2,0);
+		ptg->setStartCst(4,3,0);
+		ptg->setStartCst(4,5,0);
+		ptg->setStartCst(5,0,0);
+		ptg->setEndCst(1,0,1);
+		ptg->setEndCst(2,1,1);
+		ptg->setEndCst(2,4,1);
+		ptg->setEndCst(3,1,1);
+		ptg->setEndCst(3,2,1);
+		ptg->setEndCst(4,3,1);
+		ptg->setEndCst(4,5,1);
+		ptg->setEndCst(5,0,1);
+
+		ptg->setNbResets(0);
+
+
+	}
+	else if(build == 1)
 	{
 		ptg = new PTG(6);
 

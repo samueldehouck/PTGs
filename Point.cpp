@@ -1,5 +1,6 @@
 #include "Point.hpp"
 
+
 Point::Point() : x() ,y()
 {}
 
@@ -18,3 +19,5 @@ Value Point::getY() const {
 void Point::setX(Value i){
 	x = i;
 }
+
+

@@ -4,14 +4,18 @@
 #include "PTG.hpp"
 #include "PTGFactory.hpp"
 class PerfEvaluator{
-
-public:
-	void eval();
+private:
+	unsigned int nbTests;
 	void evalStatesTrans();
 	void evalResets();
 	void evalStates();
 	void evalTrans();
 	void evalInterval();
+public:
+	PerfEvaluator();
+	PerfEvaluator(unsigned int);
+	void eval();
+
 };
 
 

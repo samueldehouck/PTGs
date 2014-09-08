@@ -79,7 +79,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 				//show();
 
-				SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
+				SPTGSolverV2* sptgSolver = new SPTGSolverV2(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
 				sptgSolver->solveSPTG();
 				delete sptgSolver;
 

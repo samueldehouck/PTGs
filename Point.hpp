@@ -15,4 +15,19 @@ public:
 	void setX(Value);
 };
 
+/*ostream& operator<<(ostream& out, const Point& p){
+	out << "(";
+	if(p.getX().isInfinity())
+		out << "inf";
+	else
+		out << p.getX().getVal();
+	out << ",";
+	if(p.getY().isInfinity())
+		out << "inf";
+	else
+		out << p.getY().getVal();
+	out << ")";
+	return out;
+}*/
+
 #endif

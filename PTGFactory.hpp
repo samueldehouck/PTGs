@@ -8,7 +8,8 @@ private:
 
 public:
 	PTGFactory();
-	PTG* build(int, int, int, int, int, int);
+	PTG* buildPTG(int, int, int, int, int, int);
+	PTG* buildSPTG(int, int, int, int);
 	PTG* buildFromFile(char*);
 	PTG* buildFromFlatFile(char*);
 	PTG* buildFromXmlFile(char*);

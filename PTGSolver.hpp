@@ -9,6 +9,7 @@
 #include "Point.hpp"
 #include "Transition.hpp"
 #include "Value.hpp"
+#include "SPTGSolverV2.hpp"
 
 class PTGSolver{
 private:

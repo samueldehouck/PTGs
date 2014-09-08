@@ -10,19 +10,31 @@
 
 using namespace std;
 
+PerfEvaluator::PerfEvaluator(){
+	nbTests = 50;
+}
+
+PerfEvaluator::PerfEvaluator(unsigned int nbT){
+	nbTests = nbT;
+}
+
 void PerfEvaluator::eval(){
 	cerr << "====Starting computing data===" << endl;
+	//cerr << "evalStatesTrans" << endl;
 	//evalStatesTrans();
+	cerr << "evalResets" << endl;
 	//evalResets();
-	evalStates();
-	//evalTrans();
+	cerr << "evalStates" << endl;
+	//evalStates();
+	cerr << "evalTrans" << endl;
+	evalTrans();
+	cerr << "evalInterval" << endl;
 	//evalInterval();
 }
 
 void PerfEvaluator::evalStatesTrans(){
 	unsigned int minState = 5;
 	unsigned int maxState = 25;
-	unsigned int nbTests = 20;
 	struct timeval start, end;
 	ofstream f, o;
 
@@ -84,7 +96,7 @@ void PerfEvaluator::evalStatesTrans(){
 				double averageInf = 0;
 				for (unsigned int i = 0; i < nbTests; ++i){
 					PTGFactory factory;
-					PTG* ptg = factory.build(nbStates,nbTrans,0,5,5,3);
+					PTG* ptg = factory.buildPTG(nbStates,nbTrans,0,5,5,3);
 					PTGSolver solver;
 					gettimeofday(&start, NULL);
 
@@ -128,7 +140,8 @@ void PerfEvaluator::evalStatesTrans(){
 	o << "\\hline" << endl;
 	o << "\\end{tabular}" << endl;
 	o << "\\end{document}" << endl;
-	system("pdflatex tabstatetrans.tex");
+	system("pdflatex tabStateTrans.tex");
+	system("pdflatex tabStateTransInf.tex");
 	f.close();
 }
 
@@ -139,7 +152,6 @@ void PerfEvaluator::evalResets(){
 	unsigned int step = 2;
 	unsigned int nbStates = 20;
 	unsigned int nbTrans = (nbStates - 1)*(nbStates - 1)/2;
-	unsigned int nbTests = 20;
 	double scaleX = 2;
 	double scaleY = 200;
 
@@ -164,7 +176,7 @@ void PerfEvaluator::evalResets(){
 		unsigned int average = 0;
 		for (unsigned int i = 0; i < nbTests; ++i){
 			PTGFactory factory;
-			PTG* ptg = factory.build(nbStates,nbTrans,nbResets,5,5,3);
+			PTG* ptg = factory.buildPTG(nbStates,nbTrans,nbResets,5,5,3);
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
@@ -195,8 +207,7 @@ void PerfEvaluator::evalStates(){
 	struct timeval start, end;
 
 	unsigned int step = 10;
-	unsigned int maxNbStates = 200;
-	unsigned int nbTests = 20;
+	unsigned int maxNbStates = 100;
 	double scaleX = 2;
 	double scaleY = 200;
 
@@ -221,15 +232,17 @@ void PerfEvaluator::evalStates(){
 		cerr << "Nb of States: " << states << endl;
 		unsigned int average = 0;
 		for (unsigned int i = 0; i < nbTests; ++i){
+			cout << "i: " << i << endl;
 			PTGFactory factory;
-			PTG* ptg = factory.build(states,80,0,5,5,3);
+			PTG* ptg = factory.buildPTG(states,(states - 1)*(states - 1)/2,0,5,5,3);
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
 			solver.solvePTG(ptg, false);
 
-			delete ptg;
 			gettimeofday(&end, NULL);
+			delete ptg;
+
 			average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
 			//usleep(300000);
 		}
@@ -247,6 +260,53 @@ void PerfEvaluator::evalStates(){
 	f.close();
 	system("pdflatex states.tex");
 
+
+	maxNbStates = 200;
+	f.open("statesfixed.tex");
+	f << "\\documentclass{standalone}" << endl;
+	f << "\\usepackage{tikz}" << endl;
+	f << "\\begin{document}" << endl;
+
+
+	f << "\\begin{tikzpicture}" << endl;
+
+	//Draw the x axis
+		f << "\\draw [->][thick] (0,0) -- (" << double(maxNbStates)/scaleX << ",0);" << endl;
+		f << "\\draw ( " << double(maxNbStates)/scaleX << ",0) node [right] {$states$};" << endl;
+		//Draw the y axis
+		f << "\\draw [->][thick] (0,0) -- (0," << double(12000)/ scaleY  << ");" << endl;
+		f<< "\\draw (0," << double(12000)/ scaleY   <<") node [above] {$ms$}; " << endl;
+	for (unsigned int states = 10; states <= maxNbStates; states += step){
+			cerr << "Nb of States: " << states << endl;
+			unsigned int average = 0;
+			for (unsigned int i = 0; i < nbTests; ++i){
+				cout << "i: " << i << endl;
+				PTGFactory factory;
+				PTG* ptg = factory.buildPTG(states,80,0,5,5,3);
+				PTGSolver solver;
+				gettimeofday(&start, NULL);
+
+				solver.solvePTG(ptg, false);
+
+				gettimeofday(&end, NULL);
+				delete ptg;
+
+				average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
+				//usleep(300000);
+			}
+			average /= nbTests;
+			cerr << average << endl;
+
+			f << "\\draw ("<< double(states)/scaleX <<"," << double(average)/scaleY << ") node {$\\bullet$};" << endl;
+			f << "\\draw (0," << double(average)/scaleY << ") node [left] {$" << average << "$};" << endl;
+			f << "\\draw (" << double(states)/scaleX << ",0) node [below] {$" << states << "$};" << endl;
+		}
+
+
+		f << "\\end{tikzpicture}" << endl;
+		f << "\\end{document}" << endl;
+		f.close();
+		system("pdflatex statesfixed.tex");
 }
 
 void PerfEvaluator::evalTrans(){
@@ -254,9 +314,8 @@ void PerfEvaluator::evalTrans(){
 
 	unsigned int step = 20;
 	unsigned int nbStates = 30;
-	unsigned int nbTests = 20;
 	double scaleX = 20;
-	double scaleY = 10;
+	double scaleY = 50;
 
 	ofstream f;
 	f.open("transitions.tex");
@@ -269,9 +328,9 @@ void PerfEvaluator::evalTrans(){
 		f << "\\draw [->][thick] (0,0) -- (" << double((nbStates -1)*(nbStates -1))/scaleX << ",0);" << endl;
 		f << "\\draw ( " << double((nbStates -1)*(nbStates -1))/scaleX + 0.5 << ",0) node [right] {$transitions$};" << endl;
 		//Draw the y axis
-		f << "\\draw [->][thick] (0,0) -- (0," << double(400)/ scaleY  << ");" << endl;
-		f<< "\\draw (0," << double(400)/ scaleY   <<") node [above] {$ms$}; " << endl;
-		for (unsigned int i = 0; i <= 400; i += 50)
+		f << "\\draw [->][thick] (0,0) -- (0," << double(600)/ scaleY  << ");" << endl;
+		f<< "\\draw (0," << double(600)/ scaleY   <<") node [above] {$ms$}; " << endl;
+		for (unsigned int i = 0; i <= 600; i += 50)
 			f << "\\draw (0," << double(i)/scaleY << ") node [left] {$" << i << "$};" << endl;
 
 
@@ -279,7 +338,7 @@ void PerfEvaluator::evalTrans(){
 		unsigned int average = 0;
 		for (unsigned int i = 0; i < nbTests; ++i){
 			PTGFactory factory;
-			PTG* ptg = factory.build(nbStates,trans,0,5,5,3);
+			PTG* ptg = factory.buildPTG(nbStates,trans,0,5,5,3);
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
@@ -311,7 +370,6 @@ void PerfEvaluator::evalInterval(){
 	unsigned int step = 5;
 	unsigned int nbStates = 15;
 	unsigned int nbTrans = (nbStates - 1)*(nbStates - 1)/2;
-	unsigned int nbTests = 20;
 	unsigned int maxEndCst = 50;
 	double scaleX = 2;
 	double scaleY = 10;
@@ -335,7 +393,7 @@ void PerfEvaluator::evalInterval(){
 		unsigned int average = 0;
 		for (unsigned int i = 0; i < nbTests; ++i){
 			PTGFactory factory;
-			PTG* ptg = factory.build(nbStates,nbTrans,0,5,5,endCst);
+			PTG* ptg = factory.buildPTG(nbStates,nbTrans,0,5,5,endCst);
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
