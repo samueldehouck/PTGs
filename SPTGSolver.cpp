@@ -9,7 +9,7 @@ SPTGSolver::SPTGSolver(SPTG* s){
 	init();
 }
 
-SPTGSolver::SPTGSolver(SPTG* s, vector<Value>* b,  vector<Value>* pl, vector<CompositeValue>* v, list<Strategy>* st, vector<list<Point> >* vF, vector<vector<CompositeValue> >* r){
+SPTGSolver::SPTGSolver(SPTG* s, vector<Value>* b,  vector<Value>* pl, vector<CompositeValue>* v, vector<list<Strategy> >* st, vector<list<Point> >* vF, vector<vector<CompositeValue> >* r){
 	sptg = s;
 	solvePTG = true;
 	bottoms = b;
@@ -45,8 +45,10 @@ void SPTGSolver::show(){
 
 
 	cout << "Strategies: " << endl;
-	for (list<Strategy>::iterator it = strategies->begin(); it != strategies->end(); ++it){
-		it->show();
+	for (unsigned int i = 0; i < size; ++i){
+		for (list<Strategy>::iterator it = (*strategies)[i].begin(); it != (*strategies)[i].end(); ++it)
+			it->show();
+
 	}
 	cout << endl;
 
@@ -78,9 +80,7 @@ void SPTGSolver::init(){
 		vals = new vector<CompositeValue>();
 		vals->push_back(CompositeValue());
 
-		strategies = new list<Strategy> ();
-		(*strategies).push_front(Strategy(size, time, false));
-		(*strategies).front().insert(0,0,0);
+		strategies = new vector<list<Strategy> >();
 
 		pathsLengths = new vector<Value>();
 		pathsLengths->push_back(0);
@@ -95,11 +95,12 @@ void SPTGSolver::init(){
 			vals->push_back(CompositeValue());
 			vals->back().setInf(true);
 
-			strategies->front().insert(i, -1, 0);
 			pathsLengths->push_back(0);
 
 			lambdas.push_back(CompositeValue());
 
+			(*strategies).push_back(list<Strategy>());
+			(*strategies)[i].push_back(Strategy(time,0,0,false));
 			valueFcts->push_back(list<Point>());
 		}
 	}
@@ -121,7 +122,8 @@ void SPTGSolver::solveSPTG(){
 
 	while (time > 0){
 
-		strategies->push_front(Strategy(size));
+		for(unsigned int i = 0; i < size; ++i)
+			(*strategies)[i].push_front(Strategy(0,0,0,false));
 		actualizeLambdas();
 		if(time == 1)//If it's the first turn, we have to "initialize" the value functions
 			buildValueFcts(0);
@@ -131,7 +133,9 @@ void SPTGSolver::solveSPTG(){
 			epsilon = time;
 		buildValueFcts(epsilon);
 		actualizeVals(epsilon);
-		strategies->front().setTime(time);
+		for(unsigned int i = 0; i < size; ++i){
+			(*strategies)[i].front().setTime(time);
+		}
 	}
 	delete ps;
 	sptg = NULL;
@@ -161,7 +165,9 @@ void SPTGSolver::actualizeLambdas(){
 		//The P1 will always take the lambda transitions at first
 		if(sptg->getOwner(i)){
 			(*vals)[i] = lambdas[i];
-			strategies->front().insert(i,0,1);
+			(*strategies)[i].front().setType(1);
+			(*strategies)[i].front().setDest(1);
+
 			(*pathsLengths)[i] = 1;
 		}
 	}
@@ -200,7 +206,8 @@ bool SPTGSolver::makeImpSwitchesP1(){
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
 					//cout << (*vals)[state]<< endl;
-					strategies->front().insert(state, 0, 1);
+					(*strategies)[state].front().setDest(0);
+					(*strategies)[state].front().setType(1);
 					(*pathsLengths)[state] = 1;
 					allDone = false;
 					changed = true;
@@ -224,7 +231,8 @@ bool SPTGSolver::makeImpSwitchesP1(){
 							(*vals)[state].setEps(0);
 							cout << (*vals)[state] << endl;
 
-							strategies->front().insert(state, nextState, 3);
+							(*strategies)[state].front().setDest(nextState);
+							(*strategies)[state].front().setType(3);
 							allDone = false;
 							changed = true;
 							oneChange = true;
@@ -243,7 +251,8 @@ bool SPTGSolver::makeImpSwitchesP1(){
 							//cout << "val: " << (*vals)[state]<< endl;
 
 							(*pathsLengths)[state] = tempLength;
-							strategies->front().insert(state, nextState, 0);
+							(*strategies)[state].front().setDest(nextState);
+							(*strategies)[state].front().setType(0);
 							allDone = false;
 							changed = true;
 							oneChange = true;
@@ -284,7 +293,8 @@ bool SPTGSolver::makeImpSwitchesP2(){
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
 					cout << (*vals)[state]<< endl;
-					strategies->front().insert(state, 0, 1);
+					(*strategies)[state].front().setDest(0);
+					(*strategies)[state].front().setType(1);
 					(*pathsLengths)[state] = 1;
 					allDone = false;
 					changed = true;
@@ -305,14 +315,15 @@ bool SPTGSolver::makeImpSwitchesP2(){
 								(*vals)[state].setEps(0);
 								cout << (*vals)[state] << endl;
 
-								strategies->front().insert(state, nextState, 3);
+								(*strategies)[state].front().setDest(nextState);
+								(*strategies)[state].front().setType(3);
 								allDone = false;
 								changed = true;
 								oneChange = true;
 							}
 							cout << "tempVal: " << tempVal << endl;
 							cout << "val: " << (*vals)[state] << endl;
-							if(!(*vals)[state].isInfinity() && (strategies->front().getDest(nextState) != state) && ((*resets)[state][nextState] == -1) &&
+							if(!(*vals)[state].isInfinity() && ((*strategies)[nextState].front().getDest() != state) && ((*resets)[state][nextState] == -1) &&
 									((tempVal > (*vals)[state])
 											||((tempVal == (*vals)[state]) && (tempLength > (*pathsLengths)[state])))){
 								cout << "to " << nextState << " is better" << endl;
@@ -327,7 +338,8 @@ bool SPTGSolver::makeImpSwitchesP2(){
 								cout << tempLength << endl;
 
 								(*pathsLengths)[state] = tempLength;
-								strategies->front().insert(state, nextState, 0);
+								(*strategies)[state].front().setDest(nextState);
+								(*strategies)[state].front().setType(0);
 								allDone = false;
 								changed = true;
 								oneChange = true;
@@ -356,7 +368,7 @@ void SPTGSolver::propagate(unsigned int state){
 	while (!q.empty() ){
 		unsigned int tmpState = q.front();
 		for(unsigned int i = 1; i < size; ++i){
-			if(strategies->front().getDest(i) == tmpState && !checked[i] && strategies->front().getType(i) != 3){
+			if((*strategies)[i].front().getDest() == tmpState && !checked[i] && (*strategies)[i].front().getType() != 3){
 				//cout  << "Not checked yet" << endl;
 				//cout << "tmpstate: " << (*vals)[tmpState] << endl;
 				if(!(*vals)[i].isInfinity()){
@@ -367,13 +379,13 @@ void SPTGSolver::propagate(unsigned int state){
 				q.push(i);
 				checked[i] = true;
 			}
-			else if(strategies->front().getDest(i) == tmpState && checked[i] && !(*vals)[i].isInfinity()){
+			else if((*strategies)[i].front().getDest() == tmpState && checked[i] && !(*vals)[i].isInfinity()){
 				//cout << "Cycle!!" << endl;
 				(*vals)[i].setInf(true);
 				(*pathsLengths)[i].setInf(true);
 				q.push(i);
 			}
-			else if(strategies->front().getDest(i) == tmpState && checked[i] && (*vals)[i].isInfinity()){
+			else if((*strategies)[i].front().getDest() == tmpState && checked[i] && (*vals)[i].isInfinity()){
 				(*pathsLengths)[i].setInf(true);
 			}
 		}
@@ -389,7 +401,8 @@ void SPTGSolver::buildValueFcts(Value epsilon){
 	//   Add a point for every state
 	time = time - epsilon;
 	if(time != 0 && time != 1){
-		(strategies->front().setInclusion(true));
+		for (unsigned int i = 0; i < size; ++i)
+			(*strategies)[i].front().setInclusion(true);
 	}
 	for (unsigned int i = 1; i < size; ++i){
 		Value tmpVal = (*vals)[i] + (epsilon * (*vals)[i].getEps());
@@ -464,6 +477,6 @@ Value SPTGSolver::nextEventPoint(){
 	return min;
 }
 
-list<Strategy>* SPTGSolver::getStrategies(){
+vector<list<Strategy> >* SPTGSolver::getStrategies(){
 	return strategies;
 }

@@ -16,6 +16,10 @@ Value Point::getY() const {
 	return y;
 }
 
+void Point::setY(Value i){
+	y = i;
+}
+
 void Point::setX(Value i){
 	x = i;
 }

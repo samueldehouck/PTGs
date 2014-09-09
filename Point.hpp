@@ -12,6 +12,7 @@ public:
 	Point(Value, Value);
 	Value getX() const;
 	Value getY() const ;
+	void setY(Value);
 	void setX(Value);
 };
 

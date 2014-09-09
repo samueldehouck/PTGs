@@ -18,7 +18,7 @@ private:
 	vector<bool> ensBottoms;
 	vector<Value>* pathsLengths;
 	vector<CompositeValue>* vals;
-	list<Strategy>* strategies;
+	vector<list<Strategy> >* strategies;
 	vector<Value>* bottoms; //Equivalent of the "bottom" transitions in the paper
 	vector<vector<CompositeValue> >* resets;
 	vector<vector<bool> > ensResets;
@@ -26,8 +26,8 @@ private:
 	bool remainsStates();
 	bool isLastTransition(unsigned int, unsigned int, bool, bool, bool);
 public:
-	PGSolver(PG* , vector<Value>*, vector<CompositeValue>*, list<Strategy>* , vector<vector<CompositeValue> >*);
-	PGSolver(PG* , vector<Value>*, vector<CompositeValue>*, list<Strategy>* , vector<Value>*, vector<vector<CompositeValue> >*);
+	PGSolver(PG* , vector<Value>*, vector<CompositeValue>*, vector<list<Strategy> >* , vector<vector<CompositeValue> >*);
+	PGSolver(PG* , vector<Value>*, vector<CompositeValue>*, vector<list<Strategy> >* , vector<Value>*, vector<vector<CompositeValue> >*);
 
 	void extendedDijkstra(bool);
 };

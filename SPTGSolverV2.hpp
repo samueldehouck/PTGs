@@ -31,7 +31,9 @@ private:
 	bool getMaxFct(unsigned int, unsigned int, Value);
 	bool getMinFct(unsigned int, unsigned int, Value);
 	void cleanValueFct(list<Point>*);
-	void propagate(queue<unsigned int> &, unsigned int);
+	void propagate(list<unsigned int> &, unsigned int);
+	void updateStrategies(list<Point> &, list<bool> &, unsigned int, unsigned int);
+
 public:
 	SPTGSolverV2(SPTG*);
 	SPTGSolverV2(SPTG*, vector<Value>*,  vector<Value>*, vector<CompositeValue>*, list<Strategy>*, vector<list<Point> >*, vector<vector<CompositeValue> >*);

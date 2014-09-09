@@ -34,8 +34,10 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 				init();//Init is after createEndPoints because the time needs to be updated before creating the Strategy object
 
 			//We need to reset everything
-			strategies.push_front(Strategy(size, time, true));
-			strategies.front().insert(0,0,false);
+			for(unsigned int i = 0; i < size; ++i)
+				strategies[i].push_front(Strategy(time,0,0,true));
+
+			strategies[0].front().setType(false);
 			for (unsigned int i = 1; i < size; ++i){
 				vals[i].setInf(true);
 
@@ -43,7 +45,8 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 				//To force taking the first transitions available.
 				if(ptg->getOwner(i))
 					pathsLengths[i].setInf(true);
-				strategies.front().insert(i, -1, false);
+				strategies[i].front().setDest(-1);
+				strategies[i].front().setType(false);
 			}
 			//Update the transitions that can be taken between the two given parameters
 			keepTransAvailable(time, time);
@@ -68,7 +71,8 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 				endPoints.pop_back();
 				//First ExtendedDijkstra done at the last "M"
-				strategies.push_front(Strategy(size, endM, false));
+				for(unsigned int i = 0; i < size; ++i)
+					strategies[i].push_front(Strategy(endM,0,0,false));
 				keepTransAvailable(time, endM);
 				updateBottoms();
 
@@ -79,7 +83,8 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 				//show();
 
-				SPTGSolverV2* sptgSolver = new SPTGSolverV2(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
+				//SPTGSolverV2* sptgSolver = new SPTGSolverV2(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
+				SPTGSolver sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &strategies, &valueFcts, &resets);
 				sptgSolver->solveSPTG();
 				delete sptgSolver;
 
@@ -90,7 +95,8 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 				//The last step is to do an extendedDijkstra on the game in the "time" instant
 				keepTransAvailable(time, time);
 				updateBottoms();
-				strategies.push_front(Strategy(size, time, true));
+				for(unsigned int i = 0; i < size; ++i)
+					strategies[i].push_front(Strategy(time,0,0,true));
 
 
 				pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &strategies, &bottoms, &resets);
