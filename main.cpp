@@ -11,7 +11,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
-	//freopen("output.txt","w",stdout);
+	freopen("output.txt","w",stdout);
 
 	if(argc > 1 && strcmp(argv[1], "-perf") == 0){
 		PerfEvaluator perf;
@@ -41,6 +41,6 @@ int main(int argc, char *argv[]){
 		solver.solvePTG(ptg, false);
 		delete ptg;
 	}
-	//fclose (stdout);
+	fclose (stdout);
 	return 1;
 }
