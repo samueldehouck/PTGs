@@ -58,8 +58,8 @@ void Strategy::setInclusion(bool in){
 
 void Strategy::show(){
 	if(included)
-		cout << "Time: " << time << " (included) -> ";
+		cout << "Time: " << time << " (in) -> ";
 	else
 		cout << "Time: " << time << " -> ";
-	cout << dest << " " << type  << " ";
+	cout << dest << " (" << type  << ") ";
 }
