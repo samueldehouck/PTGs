@@ -19,7 +19,6 @@ private:
 	list<Value> endPoints;
 	vector<Value> pathsLengths;
 	vector<CompositeValue> vals;
-	vector<list<Strategy> > strategies;
 	vector<list<Point> > valueFcts;
 	list<Transition> storage;
 	vector<Value> bottoms;

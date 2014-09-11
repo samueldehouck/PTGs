@@ -3,21 +3,18 @@
 using namespace std;
 
 Strategy::Strategy(){
-	time.setInf(true);
 	included = false;
 	dest = 0;
 	type = 0;
 }
 
-Strategy::Strategy(Value t, unsigned int d, unsigned int ty, bool i){
-	time = t;
+Strategy::Strategy(unsigned int d, unsigned int ty, bool i){
 	included = i;
 	dest = d;
 	type = ty;
 }
 
 Strategy::Strategy(const Strategy& s){
-	time = s.getTime();
 	dest = s.getDest();
 	type = s.getType();
 	included = s.getInclusion();
@@ -40,14 +37,6 @@ void Strategy::setType(unsigned int t){
 	type = t;
 }
 
-Value Strategy::getTime() const{
-	return time;
-}
-
-void Strategy::setTime(Value t){
-	time = t;
-}
-
 bool Strategy::getInclusion() const{
 	return included;
 }
@@ -57,9 +46,8 @@ void Strategy::setInclusion(bool in){
 }
 
 void Strategy::show(){
+	cout << dest << " (" << type << ")";
 	if(included)
-		cout << "Time: " << time << " (in) -> ";
-	else
-		cout << "Time: " << time << " -> ";
-	cout << dest << " (" << type  << ") ";
+		cout << "(in)";
+	cout << endl;
 }

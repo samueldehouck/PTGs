@@ -11,7 +11,6 @@ SPTGSolverV2::SPTGSolverV2(SPTG* s){
 	if(size != 0){
 		vals = new vector<CompositeValue>();
 		vals->push_back(CompositeValue());
-		strategies = new vector<list<Strategy> >();
 		pathsLengths = new vector<Value>();
 		pathsLengths->push_back(0);
 		valueFcts = new vector<list<Point> >();
@@ -36,13 +35,12 @@ SPTGSolverV2::SPTGSolverV2(SPTG* s){
 	}
 }
 
-SPTGSolverV2::SPTGSolverV2(SPTG* s, vector<Value>* b,  vector<Value>* pl, vector<CompositeValue>* v, vector<list<Strategy> >* st, vector<list<Point> >* vF, vector<vector<CompositeValue> >* r){
+SPTGSolverV2::SPTGSolverV2(SPTG* s, vector<Value>* b,  vector<Value>* pl, vector<CompositeValue>* v, vector<list<Point> >* vF, vector<vector<CompositeValue> >* r){
 	sptg = s;
 	solvePTG = true;
 	bottoms = b;
 	pathsLengths = pl;
 	vals = v;
-	strategies = st;
 	valueFcts = vF;
 	resets = r;
 
@@ -71,11 +69,11 @@ void SPTGSolverV2::solveSPTG(){
 	PGSolver* ps;
 
 	if(solvePTG){
-		ps = new PGSolver(sptg, pathsLengths, vals, strategies, bottoms, resets);//PGSolver will consider sptg as a pg thanks to inheritance
+		ps = new PGSolver(sptg, pathsLengths, vals, valueFcts, bottoms, resets);//PGSolver will consider sptg as a pg thanks to inheritance
 		ps->extendedDijkstra(true);
 	}
 	else{
-		ps = new PGSolver(sptg, pathsLengths, vals, strategies, resets);//PGSolver will consider sptg as a pg thanks to inheritance
+		ps = new PGSolver(sptg, pathsLengths, vals, valueFcts, resets);//PGSolver will consider sptg as a pg thanks to inheritance
 		ps->extendedDijkstra(false); //If extendedDijkstra returns false, some states can't be treated and there is a cycle
 	}
 
@@ -118,17 +116,17 @@ void SPTGSolverV2::solveSPTG(){
 	}
 
 	show();
+
+	for(unsigned int i = 0; i < size; ++i)
+		(*vals)[i] = (*valueFcts)[i].front().getY();
 }
 
 void SPTGSolverV2::buildValueFcts(){
 	//The base function is to wait in the state then go to the target
 	for (unsigned int i = 0; i < size; ++i){
-		(*valueFcts)[i].push_front(Point(1,(*vals)[i]));
-		(*valueFcts)[i].push_front(Point(0,(*vals)[i] + sptg->getState(i)));
-
-		list<Strategy>::iterator itS = (*strategies)[i].begin();
-		(*strategies)[i].push_front(Strategy(0,itS->getDest(),1,false));
-
+		(*valueFcts)[i].front().setX(1);
+		(*valueFcts)[i].front().setY((*vals)[i]);
+		(*valueFcts)[i].push_front(Point(0,((*vals)[i] + sptg->getState(i)),Strategy((*valueFcts)[i].front().getDest(),1,false)));
 	}
 }
 
@@ -147,7 +145,7 @@ bool SPTGSolverV2::updateValueFct(unsigned int state){
 
 	for (unsigned int j = 0; j < size; ++j){
 		cout << "to: " << j << endl;
-		if(availableTrans[state][j]){
+		if(sptg->getTransition(state,j) != -1){
 			Value cost = sptg->getTransition(state,j);
 
 			if(sptg->getOwner(state)){
@@ -161,18 +159,14 @@ bool SPTGSolverV2::updateValueFct(unsigned int state){
 			for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it)
 				cout << "(" << it->getX() << "," << it->getY() << ") ";
 			cout << endl;
-			cout << "State " << state << ": ";
-			for (list<Strategy>::iterator it = (*strategies)[state].begin(); it != (*strategies)[state].end(); ++it){
-				it->show();
+			cout << "State " << state << ": " << endl;
+			for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it){
+				cout << "t: " << it->getX() << " -> ";
+				it->getStrategy().show();
 			}
-			cout << endl;
 
 			cout << treatedStates[j] << endl;
-			if(treatedStates[j]){
-				cout << "removetrans: " << state << " to " << j << endl;
-				//availableTrans[state][j] = false;
-			}
-			else
+			if(!treatedStates[j])
 				allDestsTreated = false;
 		}
 	}
@@ -190,32 +184,31 @@ void SPTGSolverV2::propagate(list<unsigned int> &q, unsigned int state){
 		cout << "update " << i << endl;
 		if(sptg->getTransition(i, state) != -1){
 			//Need to update all states that have state as a destination
-			list<Strategy>::iterator it = (*strategies)[i].begin();
 			list<Point>::iterator itI = (*valueFcts)[i].begin();
 			list<Point>::iterator itState = (*valueFcts)[state].begin();
 			list<Point>::iterator itStateLast = itState;
 
-			cout << "State " << i << ": ";
-			for (list<Strategy>::iterator it = (*strategies)[i].begin(); it != (*strategies)[i].end(); ++it){
-				it->show();
+			cout << "State " << i << ": " << endl;
+			for (list<Point>::iterator itI = (*valueFcts)[i].begin(); itI != (*valueFcts)[i].end(); ++itI){
+				cout << "t: " << itI->getX() << " -> ";
+				itI->getStrategy().show();
 			}
-			cout << endl;
 
 
 			//Every part of the value fct with strategy is going to state needs to be changed
-			while (it != (*strategies)[i].end() && itI != (*valueFcts)[i].end() && itState != (*valueFcts)[state].end() && it->getTime() != 1 && itI->getX() != 1 && itState->getX() != 1){
-				if(it->getDest() == state && it->getType() == 0){
-					cout << itStateLast->getX() << " <? " << itI->getX() << " =? " << it->getTime() << " <? " << itState->getX() << endl;
-					if(itState->getX() == itI->getX() && itI->getX() == it->getTime()){
+			while (itI != (*valueFcts)[i].end() && itState != (*valueFcts)[state].end() && itI->getX() != 1 && itState->getX() != 1){
+				if(itI->getDest() == state && itI->getType() == 0){
+					//If the transition to state is taken
+					cout << itStateLast->getX() << " <? " << itI->getX()<< " <? " << itState->getX() << endl;
+					if(itState->getX() == itI->getX()){
 						//Easy case, we juste need to update the value fct
 						cout << "A" << endl;
 						itI->setY(itState->getY() + sptg->getTransition(i, state));
-						++it;
 						++itI;
 						itStateLast = itState;
 						++itState;
 					}
-					else if(itI->getX() == it->getTime() && itState->getX() > itI->getX() && itStateLast->getX() < itI->getX()){
+					else if(itState->getX() > itI->getX() && itStateLast->getX() < itI->getX()){
 						//There is a breakpoint that is in value fct of i but isn't in state's.
 						//We have to modify it (in case where it was the first one otherwise it will be cleaned).
 						cout << "B" << endl;
@@ -223,20 +216,15 @@ void SPTGSolverV2::propagate(list<unsigned int> &q, unsigned int state){
 						Value diff = itI->getX() - itStateLast->getX();
 						itI->setY(itStateLast->getY() + sptg->getTransition(i,state) - diff*coef);
 					}
-					else if(itI->getX() == it->getTime() && itState->getX() < itI->getX()){
+					else if(itState->getX() < itI->getX()){
 						cout << "C" << endl;
 						//There is a missing break point (that is in the state value fct but not in i's)
-						(*valueFcts)[i].insert(itI,Point(itState->getX(), itState->getY() + sptg->getTransition(i,state)));
-						(*strategies)[i].insert(it,Strategy(itState->getX(),state,0,true));
+						(*valueFcts)[i].insert(itI,Point(itState->getX(), itState->getY() + sptg->getTransition(i,state), Strategy(state,0,true)));
 						++itState;
-
-					}
-					else if(itI->getX() != it->getTime()){
-						cerr << "Error, valueFct and strat not synchronized!" << endl;
 					}
 				}
 				else{
-					++it;
+					//otherwise, the iterators are incremented
 					++itI;
 					while (itState->getX() < itI->getX()){
 						itStateLast = itState;
@@ -244,11 +232,11 @@ void SPTGSolverV2::propagate(list<unsigned int> &q, unsigned int state){
 					}
 				}
 			}
-			list<Strategy>::iterator tmpIt = it;
+			list<Point>::iterator tmpIt = itI;
 			--tmpIt;
 			while(itState->getX() != 1 && tmpIt->getDest() == state && tmpIt->getType() == 0){
-				(*strategies)[i].insert(it,Strategy(itState->getX(),state, 0, true));
-				(*valueFcts)[i].insert(itI, Point(itState->getX(), itState->getY() + sptg->getTransition(i,state)));
+				//In the case where the state has some breakpoints that i hasn't
+				(*valueFcts)[i].insert(itI, Point(itState->getX(), itState->getY() + sptg->getTransition(i,state), Strategy(state, 0, true)));
 				++itState;
 			}
 
@@ -256,61 +244,14 @@ void SPTGSolverV2::propagate(list<unsigned int> &q, unsigned int state){
 			for (list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it)
 				cout << "(" << it->getX() << "," << it->getY() << ") ";
 			cout << endl;
-			for (list<Strategy>::iterator it = (*strategies)[i].begin(); it != (*strategies)[i].end(); ++it){
-				it->show();
+			cout << "State " << state << ": " << endl;
+			for (list<Point>::iterator itI = (*valueFcts)[state].begin(); itI != (*valueFcts)[state].end(); ++itI){
+				cout << "t: " << itI->getX() << " -> ";
+				itI->getStrategy().show();
 			}
-			cout << endl;
 		}
 
 	}
-}
-
-void SPTGSolverV2::updateStrategies(list<Point> &res, list<bool> &correct, unsigned int state, unsigned int i){
-	cout << "====UpdateStrategies====" << endl;
-
-	list<Point>::iterator itR = res.begin();
-	list<bool>::iterator itC = correct.begin();
-	list<Strategy>::iterator itS = (*strategies)[state].begin();
-	list<Strategy>::iterator itSLast = itS;
-
-
-	while(itR != res.end() && itC != correct.end() && itS != (*strategies)[i].end()){
-		cout << itR->getX() << " " << itS->getTime() << endl;
-		if(itR->getX() == itS->getTime()){
-			if(*itC){
-				itS->setDest(i);
-				itS->setType(0);
-			}
-			++itR;
-			++itC;
-			itSLast = itS;
-			++itS;
-		}
-		else if(itR->getX() < itS->getTime()){
-			(*strategies)[state].insert(itS, Strategy(itR->getX(),0,0,true));
-			list<Strategy>::iterator it = itSLast;
-			++itSLast;
-			if(*itC){
-				itS->setDest(i);
-				itS->setType(0);
-			}
-			else{
-				itSLast->setDest(itS->getDest());
-				itSLast->setType(0);
-			}
-
-			++itR;
-			++itC;
-		}
-		else{
-
-			itS = (*strategies)[i].erase(itS);
-		}
-	}
-
-	for (list<Strategy>::iterator it = (*strategies)[i].begin(); it != (*strategies)[i].end(); ++it)
-		cout << it->getTime() << ": " << it->getDest() << " " << it->getType() << endl;
-
 }
 
 bool SPTGSolverV2::compareWaiting(unsigned int state){
@@ -319,14 +260,11 @@ bool SPTGSolverV2::compareWaiting(unsigned int state){
 	bool owner = sptg->getOwner(state);
 	Value coefWait = Value(0) - sptg->getState(state);
 	list<Point>::iterator it = (*valueFcts)[state].begin();
-	list<Strategy>::iterator itS = (*strategies)[state].begin();
 
 
 	while(it->getX() != 1 && it != (*valueFcts)[state].end())
 		++it;
-	while(itS->getTime() != 1 && itS != (*strategies)[state].end()){
-		++itS;
-	}
+
 
 	list<Point>::iterator itComp = it;
 	list<Point>::iterator itLastComp = itComp;
@@ -341,13 +279,15 @@ bool SPTGSolverV2::compareWaiting(unsigned int state){
 			coef = 0;
 		cout << "coefWait: " << coefWait << " " << "coef: " << coef << endl;
 		if((owner && coefWait > coef) || (!owner && coefWait < coef)){
+			cout << "here" << endl;
 			changed = true;
 			//Waiting is improving the value
-			list<Strategy>::iterator currentStrat = itS;
+			list<Point>::iterator currentStrat = it;
 			itComp = itLastComp;
 			--itLastComp;
 			bool intersect = false;
 			Value zero = it->getY() - it->getX()*coefWait;
+			cout << "itComp: " << itComp->getX() << " it:" << it->getX() << endl;
 			while(!intersect && itComp->getX() != 0 && itComp != (*valueFcts)[state].begin() && it != (*valueFcts)[state].begin()){
 				cout << "looking for inter" << endl;
 				//Waiting is optimal until we find an intersection
@@ -357,25 +297,24 @@ bool SPTGSolverV2::compareWaiting(unsigned int state){
 				if(inter > itLastComp->getX() && inter < itComp->getX()){
 					//We need to create a new breaking point
 					intersect = true;
-					itS->setTime(inter);
-					itS->setDest(currentStrat->getDest());
-					itS->setType(1);
+					it->setX(inter);
+					it->setDest(currentStrat->getDest());
+					it->setType(1);
 					//We can take the last breakpoint and change its position
 					itComp->setX(inter);
 					itComp->setY(zeroComp + inter*coef);
 					itComp = itLastComp;
 					--itLastComp;
-					--itS;
 					it = itComp;
 				}
 				else if(inter == itLastComp->getX()){
 					//The intersection is the next point, we can delete the current (itComp) and update the strategy
 					intersect = true;
-					list<Strategy>::iterator tmp = itS;
-					--itS;
-					(*strategies)[state].erase(tmp);
-					itS->setDest(currentStrat->getDest());
-					itS->setType(1);
+					list<Point>::iterator tmp = it;
+					--it;
+					(*valueFcts)[state].erase(tmp);
+					it->setDest(currentStrat->getDest());
+					it->setType(1);
 					itComp = (*valueFcts)[state].erase(itComp);
 					itComp = itLastComp;
 					--itLastComp;
@@ -383,9 +322,9 @@ bool SPTGSolverV2::compareWaiting(unsigned int state){
 				}
 				else{
 					//There is no acceptable intersection
-					list<Strategy>::iterator tmp = itS;
-					--itS;
-					(*strategies)[state].erase(tmp);
+					list<Point>::iterator tmp = it;
+					--it;
+					(*valueFcts)[state].erase(tmp);
 
 					itComp = (*valueFcts)[state].erase(itComp);
 					itComp = itLastComp;
@@ -394,18 +333,27 @@ bool SPTGSolverV2::compareWaiting(unsigned int state){
 
 			}
 			if(itComp->getX() == 0 && it->getX() != 0){
-				itS = (*strategies)[state].begin();
-				itS->setType(1);
-				itS->setDest(currentStrat->getDest());
+				cout << "Correction" << endl;
+				it = (*valueFcts)[state].begin();
+				it->setType(1);
+				it->setDest(currentStrat->getDest());
 				itComp->setY(zero);
 			}
 		}
 		else{
 			itComp = itLastComp;
 			--itLastComp;
-			--itS;
 			--it;
 		}
+	}
+
+	for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it)
+		cout << "(" << it->getX().getVal() << "," << it->getY().getVal() << ") ";
+	cout << endl;
+	cout << "State " << state << ": " << endl;
+	for (list<Point>::iterator itI = (*valueFcts)[state].begin(); itI != (*valueFcts)[state].end(); ++itI){
+		cout << "t: " << itI->getX() << " -> ";
+		itI->getStrategy().show();
 	}
 	cout << "changed " << changed << endl;
 	return changed;
@@ -414,7 +362,6 @@ bool SPTGSolverV2::compareWaiting(unsigned int state){
 
 bool SPTGSolverV2::getMaxFct(unsigned int state, unsigned int i, Value cost){
 	cout << "==>getMax from: " << state << " to " << i << endl;
-	list<bool> corrections;
 
 	list<Point>::iterator itState = (*valueFcts)[state].begin();
 	list<Point>::iterator itStateEnd = (*valueFcts)[state].begin();
@@ -435,52 +382,16 @@ bool SPTGSolverV2::getMaxFct(unsigned int state, unsigned int i, Value cost){
 	cout << endl;
 
 
-	//We have to first push the value at time 0
-	if((itI->getY() + cost) > itState->getY())
-		result.push_back(Point(0,itI->getY() + cost));
-	else
-		result.push_back(Point(0, itState->getY()));
-
-
-	while(itIEnd != (*valueFcts)[i].end() && itStateEnd != (*valueFcts)[state].end() && itIEnd->getX() != 0 && itStateEnd->getX() != 0 && itI->getX() != 1 && itState->getX() != 1){
+	while( itI->getX() != 1 && itState->getX() != 1 && itI != (*valueFcts)[i].end() && itState != (*valueFcts)[state].end()){
 		cout << itState->getX().getVal() << " " << itI->getX().getVal() << endl;
 		if(itState->getY() > (itI->getY() + cost) && itStateEnd->getY() > (itIEnd->getY() + cost)){
-			//If the valueFct is always better
-			if(itStateEnd->getX() <= itIEnd->getX()){
-				result.push_back(Point(itStateEnd->getX(),itStateEnd->getY()));
-			}
-			else{
-				Value coef = (itStateEnd->getY() - itState->getY())/(itStateEnd->getX() - itState->getX());
-				Value diff = itIEnd->getX() - itState->getX();
-				result.push_back(Point(itIEnd->getX(), itState->getY() + coef*diff));
-			}
-			corrections.push_back(false);
+
+			result.push_back(Point(itState->getX(),itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
 
 		}
 		else if(itState->getY() < (itI->getY() + cost) && itStateEnd->getY() < (itIEnd->getY() + cost)){
-			//If the valueFct is always worse, it needs to be changed
-			if(itStateEnd->getX() <= itIEnd->getX()){
-				Value coef = ((itIEnd->getY() + cost) - (itI->getY() + cost))/(itIEnd->getX() - itI->getX());
-				Value diff = itStateEnd->getX() - itI->getX();
-				result.push_back(Point(itStateEnd->getX(), (itI->getY() + cost) + coef*diff));
 
-			}
-			else{
-				result.push_back(Point(itIEnd->getX(),(itIEnd->getY() + cost)));
-			}
-			corrections.push_back(true);
-
-		}
-		else if(itState->getY() == (itI->getY() + cost) && itStateEnd->getY() == (itIEnd->getY() + cost)){
-			if(itStateEnd->getX() <= itIEnd->getX()){
-				result.push_back(Point(itStateEnd->getX(), itStateEnd->getY()));
-			}
-
-			else{
-				result.push_back(Point(itIEnd->getX(),(itIEnd->getY() + cost)));
-
-			}
-			corrections.push_back(false);
+			result.push_back(Point(itI->getX(),itI->getY(),Strategy(itI->getDest(),itI->getType(),itI->getInclusion())));
 
 		}
 		else{
@@ -490,81 +401,175 @@ bool SPTGSolverV2::getMaxFct(unsigned int state, unsigned int i, Value cost){
 			Value coefI = ((itIEnd->getY() + cost) - (itI->getY() + cost))/(itIEnd->getX() - itI->getX());
 			Value zeroI = (itI->getY() + cost) - itI->getX()*coefI;
 
-			Value inter = (zeroI - zeroState)/(coefState - coefI);
+			if(coefState == coefI && zeroState == zeroI){
+				//Both lines are equal but not of the same lengths
+				result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
 
-			if(inter >= itState->getX() && inter >= itI->getX() && inter <= itStateEnd->getX() && inter <= itIEnd->getX()){
-				cout << "intersection" << endl;
-				//The update of the strategy depends on where the intersection is
-
-				if(inter != itStateEnd->getX() && inter != itState->getX()){
-					result.push_back(Point(inter, zeroState + coefState*inter));
-
-					if(itState->getY() > itI->getY()){
-						corrections.push_back(false);
-						if(itIEnd->getX() != 1)
-							result.push_back(Point(itIEnd->getX(), itIEnd->getY()));
-
-						corrections.push_back(true);
+				if(itStateEnd->getX() < itIEnd->getX()){
+					itState = itStateEnd;
+					++itStateEnd;
+					Value coefState = (itStateEnd->getY() - itState->getY())/(itStateEnd->getX() - itState->getX());
+					if(coefState < coefI){
+						result.push_back(Point(itState->getX(), itState->getY(),Strategy(i,0,itI->getInclusion())));
+					}
+					else if(itStateEnd->getX() > itIEnd->getX()){
+						result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
 					}
 					else{
-						corrections.push_back(true);
-						if(itStateEnd->getX() != 1)
-							result.push_back(Point(itStateEnd->getX(), itStateEnd->getY()));
-
-						corrections.push_back(false);
+						//There is nothing to do because we reached the end of both segment and they were equal
 					}
 				}
-				else if(inter == itStateEnd->getX()){
-					if(coefState < coefI)
-						corrections.push_back(false);
+				else{
+					itI = itIEnd;
+					++itIEnd;
+					coefI = ((itIEnd->getY() + cost) - (itI->getY() + cost))/(itIEnd->getX() - itI->getX());
+					if(coefState < coefI){
+						result.push_back(Point(itState->getX(), itState->getY(),Strategy(i,0,itI->getInclusion())));
+					}
 					else{
-						corrections.push_back(true);
-						if(itI->getX() != 0)
-							result.push_back(Point(itI->getX(), itI->getY()));
+						result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
 					}
 				}
-				else if (inter == itState->getX()){
-					if(coefState > coefI)
-						corrections.push_back(false);
-					else{
-						if(itIEnd->getX() != 1)
-							result.push_back(Point(itIEnd->getX(), itIEnd->getY()));
-						corrections.push_back(true);
+			}
+			else{
+
+				Value inter = (zeroI - zeroState)/(coefState - coefI);
+
+				if(inter >= itState->getX() && inter >= itI->getX() && inter <= itStateEnd->getX() && inter <= itIEnd->getX()){
+					cout << "intersection" << endl;
+					//The update of the strategy depends on where the intersection is
+					if(inter != itState->getX() && inter != itI->getX() && inter != itStateEnd->getX() && inter != itIEnd->getX()){
+						if(coefState <= coefI){
+							//Before the intersection we can follow state then change
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+
+							result.push_back(Point(inter, zeroState + coefState*inter ,Strategy(i,0,true)));
+
+						}
+						else{
+							//Before the intersection we can follow i then change
+							result.push_back(Point(itI->getX(), itI->getY(),Strategy(i,0,itI->getInclusion())));
+
+							result.push_back(Point(inter, zeroState + coefState*inter,Strategy(itState->getDest(),itState->getType(),true)));
+						}
+					}
+					else if(inter == itState->getX() && inter == itI->getX()){
+						//If the intersection is at the start of both, we need to take a look at the coeffs
+						if(coefState <= coefI){
+							//If the coef is lesser, the next point will be lower (and we don't want to go there)
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+
+						}
+						else{
+
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+
+						}
+
+					}
+					else if(inter == itStateEnd->getX() && inter == itIEnd->getX()){
+						//If the intersection is at the end of both, we need to take a look at the coeffs
+						if(coefState <= coefI){
+							//If the coef is lesser, it means the last point was higher (and we want to come from there)
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+
+						}
+						else{
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+						}
+					}
+					else if(inter == itStateEnd->getX() && inter != itIEnd->getX()){
+
+						if(coefState <= coefI)
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+						else
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+
+
+						itState = itStateEnd;
+						++itStateEnd;
+						coefState = (itStateEnd->getY() - itState->getY())/(itStateEnd->getX() - itState->getX());
+
+						if(coefState <= coefI){
+							result.push_back(Point(inter, zeroState + coefState*inter, Strategy(i,0,true)));
+						}
+						else{
+							result.push_back(Point(inter, zeroState + coefState*inter, Strategy(itState->getDest(),itState->getType(),true)));
+
+						}
+
+					}
+					else if(inter == itIEnd->getX() && inter != itStateEnd->getX()){
+
+						if(coefState <= coefI)
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+						else
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+
+
+						itI = itIEnd;
+						++itIEnd;
+						coefI = ((itIEnd->getY() +cost) - (itI->getY() + cost))/(itIEnd->getX() - itI->getX());
+
+						if(coefState <= coefI){
+							result.push_back(Point(inter, zeroState + coefState*inter, Strategy(i,0,true)));
+						}
+						else{
+							result.push_back(Point(inter, zeroState + coefState*inter, Strategy(itState->getDest(),itState->getType(),true)));
+
+						}
+					}
+				}
+
+				else{
+					if(inter < itState->getX() || inter < itI->getX()){
+						//The intersection is before itState->getX()
+						if(coefState < coefI){
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+						}
+						else{
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+						}
+					}
+					else if(inter > itStateEnd->getX() || inter > itIEnd->getX()){
+						if(coefState < coefI){
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+						}
+						else{
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+						}
 					}
 				}
 			}
 		}
 
 
-		if(itStateEnd->getX().getVal() < itIEnd->getX().getVal()){
+		if(itStateEnd->getX() < itIEnd->getX()){
 			itState = itStateEnd;
 			++itStateEnd;
 		}
+		else if(itStateEnd->getX() > itIEnd->getX()){
+			itI = itIEnd;
+			++itIEnd;
+		}
 		else{
+			itState = itStateEnd;
+			++itStateEnd;
 			itI = itIEnd;
 			++itIEnd;
 		}
 	}
 
-	//Still need to push the value at time 1
-	itState = (*valueFcts)[state].begin();
-	while(itState->getX() != 1)
-		++itState;
-	itI = (*valueFcts)[state].begin();
-	while(itI->getX() != 1)
-		++itI;
+
 	if(itState->getY() > (itI->getY() + cost))
-		result.push_back(Point(1,itState->getY()));
+		result.push_back(Point(1,itState->getY(),Strategy(itState->getDest(),itState->getType(),false)));
 	else
-		result.push_back(Point(1, (itI->getY() + cost)));
+		result.push_back(Point(1, (itI->getY() + cost),Strategy(itState->getDest(),itState->getType(),false)));
 
 
 	//Show the result vector
 	itState = result.begin();
-	list<bool>::iterator itC = corrections.begin();
-	for (;itState != result.end() && itC != corrections.end(); ++itC, ++itState)
-		cout << "(" << itState->getX() << "," << itState->getY() << ") " << *itC << " ";
-	cout << endl;
+
 
 
 	bool changed = false;
@@ -578,9 +583,12 @@ bool SPTGSolverV2::getMaxFct(unsigned int state, unsigned int i, Value cost){
 			changed = true;
 	}
 
-	if(changed){
-		updateStrategies(result, corrections,state, i);
+	for(list<Point>::iterator it = result.begin(); it != result.end(); ++it)
+		cout << "t: " << it->getX() << " -> " << it->getDest() << endl;
 
+
+
+	if(changed){
 		//Copy the result into the valueFct
 		if(!(*valueFcts)[state].empty())
 			(*valueFcts)[state].pop_front();
@@ -590,7 +598,7 @@ bool SPTGSolverV2::getMaxFct(unsigned int state, unsigned int i, Value cost){
 		if(!(*valueFcts)[state].empty())
 			(*valueFcts)[state].pop_front();
 		for (list<Point>::reverse_iterator it = result.rbegin(); it != result.rend(); ++it){
-			(*valueFcts)[state].push_front(Point(it->getX(),it->getY()));
+			(*valueFcts)[state].push_front(Point(it->getX(),it->getY(),Strategy(it->getDest(),it->getType(),it->getInclusion())));
 		}
 	}
 	cout << "changed: " << changed << endl;
@@ -600,7 +608,6 @@ bool SPTGSolverV2::getMaxFct(unsigned int state, unsigned int i, Value cost){
 
 bool SPTGSolverV2::getMinFct(unsigned int state, unsigned int i, Value cost){
 	cout << "==>getMin from: " << state << " to " << i << endl;
-	list<bool> corrections;
 	list<Point>::iterator itState = (*valueFcts)[state].begin();
 	list<Point>::iterator itStateEnd = (*valueFcts)[state].begin();
 	++itStateEnd;
@@ -611,6 +618,7 @@ bool SPTGSolverV2::getMinFct(unsigned int state, unsigned int i, Value cost){
 
 	list<Point> result;
 
+	//Shows the two lists that are compared
 	for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it)
 		cout << "(" << it->getX().getVal() << "," << it->getY().getVal() << ") ";
 	cout << endl;
@@ -618,55 +626,17 @@ bool SPTGSolverV2::getMinFct(unsigned int state, unsigned int i, Value cost){
 		cout << "(" << it->getX().getVal() << "," << (it->getY() + cost) << ") ";
 	cout << endl;
 
-	//We first need to update the start point
-	if((itI->getY() + cost) < itState->getY())
-		result.push_back(Point(0,itI->getY() + cost));
-	else
-		result.push_back(Point(0, itState->getY()));
 
-	while(itIEnd != (*valueFcts)[i].end() && itStateEnd != (*valueFcts)[state].end()  && itIEnd->getX() != 0 && itStateEnd->getX() != 0  && itI->getX() != 1 && itState->getX() != 1){
+	while( itI->getX() != 1 && itState->getX() != 1 && itI != (*valueFcts)[i].end() && itState != (*valueFcts)[state].end()){
 		cout << itState->getX().getVal() << " " << itI->getX().getVal() << endl;
 		if(itState->getY() < (itI->getY() + cost) && itStateEnd->getY() < (itIEnd->getY() + cost)){
-			//Nothing needs to be changed
-			if(itStateEnd->getX() <= itIEnd->getX()){
-				result.push_back(Point(itStateEnd->getX(),itStateEnd->getY()));
-			}
-			else{
 
-				Value coef = (itStateEnd->getY() - itState->getY())/(itStateEnd->getX() - itState->getX());
-				Value diff = itIEnd->getX() - itState->getX();
-				result.push_back(Point(itIEnd->getX(), itState->getY() + coef*diff));
-			}
-			corrections.push_back(false);
+			result.push_back(Point(itState->getX(),itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
 
 		}
 		else if(itState->getY() > (itI->getY() + cost) && itStateEnd->getY() > (itIEnd->getY() + cost)){
-			//We need to change the value Fct
-			if(itStateEnd->getX() <= itIEnd->getX()){
-				//Build the value fct up to the the lesser point of the two lines
-				Value coef = ((itIEnd->getY() + cost) - (itI->getY() + cost))/(itIEnd->getX() - itI->getX());
-				Value diff = itStateEnd->getX() - itI->getX();
-				result.push_back(Point(itStateEnd->getX(), (itI->getY() + cost) + coef*diff));
-			}
 
-			else{
-				//The line can be drawn up to the itIEnd
-				result.push_back(Point(itIEnd->getX(),(itIEnd->getY() + cost)));
-
-			}
-			corrections.push_back(true);
-
-		}
-		else if(itState->getY() == (itI->getY() + cost) && itStateEnd->getY() == (itIEnd->getY() + cost)){
-			if(itStateEnd->getX() <= itIEnd->getX()){
-				result.push_back(Point(itStateEnd->getX(), itStateEnd->getY()));
-			}
-
-			else{
-				result.push_back(Point(itIEnd->getX(),(itIEnd->getY() + cost)));
-
-			}
-			corrections.push_back(false);
+			result.push_back(Point(itI->getX(),itI->getY(),Strategy(itI->getDest(),itI->getType(),itI->getInclusion())));
 
 		}
 		else{
@@ -676,85 +646,181 @@ bool SPTGSolverV2::getMinFct(unsigned int state, unsigned int i, Value cost){
 			Value coefI = ((itIEnd->getY() + cost) - (itI->getY() + cost))/(itIEnd->getX() - itI->getX());
 			Value zeroI = (itI->getY() + cost) - itI->getX()*coefI;
 
-			Value inter = (zeroI - zeroState)/(coefState - coefI);
+			if(coefState == coefI && zeroState == zeroI){
+				//Both lines are equal but not of the same lengths
+				result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
 
-			if(inter >= itState->getX() && inter >= itI->getX() && inter <= itStateEnd->getX() && inter <= itIEnd->getX()){
-				cout << "intersection" << endl;
+				if(itStateEnd->getX() < itIEnd->getX()){
 
-				//The update of the strategy depends on where the intersection is
-				if(inter != itStateEnd->getX() && inter != itState->getX()){
-					cout << "A" << endl;
-					result.push_back(Point(inter, zeroState + coefState*inter));
-
-					if(itState->getY() < itI->getY()){
-						corrections.push_back(false);
-						if(itIEnd->getX() != 1)
-							result.push_back(Point(itIEnd->getX(), itIEnd->getY()));
-						corrections.push_back(true);
-					}
-					else{
-						corrections.push_back(true);
-						if(itStateEnd->getX() != 1)
-							result.push_back(Point(itStateEnd->getX(), itStateEnd->getY()));
-
-						corrections.push_back(false);
-					}
-				}
-				else if(inter == itStateEnd->getX()){
-					//We need to check at the coefficients
-					cout << "B" << endl;
-					cout << "coefS: " <<  coefState << " " << "coefI: " << coefI << endl;
-					if(coefState > coefI){
-						corrections.push_back(false);
-					}
-					else{
-						corrections.push_back(true);
-						if(itI->getX() != 0)
-							result.push_back(Point(itI->getX(), itI->getY()));
-
-					}
-				}
-				else if (inter == itState->getX()){
-					cout << "C" << endl;
-					cout << "coefS: " <<  coefState << " " << "coefI: " << coefI << endl;
-
+					itState = itStateEnd;
+					++itStateEnd;
+					Value coefState = (itStateEnd->getY() - itState->getY())/(itStateEnd->getX() - itState->getX());
 					if(coefState < coefI){
-						corrections.push_back(false);
+						result.push_back(Point(itState->getX(), itState->getY(),Strategy(i,0,itI->getInclusion())));
 					}
 					else{
-						corrections.push_back(true);
-						if(itIEnd->getX() != 1)
-							result.push_back(Point(itIEnd->getX(), itIEnd->getY()));
+						result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+					}
+				}
+				else if(itStateEnd->getX() > itIEnd->getX()){
+					itI = itIEnd;
+					++itIEnd;
+					coefI = ((itIEnd->getY() + cost) - (itI->getY() + cost))/(itIEnd->getX() - itI->getX());
+					if(coefState < coefI){
+						result.push_back(Point(itState->getX(), itState->getY(),Strategy(i,0,itI->getInclusion())));
+					}
+					else{
+						result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+					}
+				}
+				else{
+					//There is nothing to do because we reached the end of both segments
+				}
+			}
+			else{
+				Value inter = (zeroI - zeroState)/(coefState - coefI);
+
+				if(inter >= itState->getX() && inter >= itI->getX() && inter <= itStateEnd->getX() && inter <= itIEnd->getX()){
+					cout << "intersection" << endl;
+					//The update of the strategy depends on where the intersection is
+					if(inter != itState->getX() && inter != itI->getX() && inter != itStateEnd->getX() && inter != itIEnd->getX()){
+						if(coefState >= coefI){
+							//Before the intersection we can follow state then change
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+
+							result.push_back(Point(inter, zeroState + coefState*inter ,Strategy(i,0,true)));
+
+						}
+						else{
+							//Before the intersection we can follow i then change
+							result.push_back(Point(itI->getX(), itI->getY(),Strategy(i,0,itI->getInclusion())));
+
+							result.push_back(Point(inter, zeroState + coefState*inter,Strategy(itState->getDest(),itState->getType(),true)));
+						}
+					}
+					else if(inter == itState->getX() && inter == itI->getX()){
+						//If the intersection is at the start of both, we need to take a look at the coeffs
+						if(coefState >= coefI){
+							//if the coef is bigger, it means the next point will be lower (and we don't want it)
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+
+						}
+						else{
+
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+
+						}
+
+					}
+					else if(inter == itStateEnd->getX() && inter == itIEnd->getX()){
+						//If the intersection is at the end of both, we need to take a look at the coeffs
+
+						if(coefState >= coefI){
+							//If the coef is bigger, it means the last point was lower (and that's what we want)
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+
+						}
+						else{
+
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+
+						}
+					}
+					else if(inter == itStateEnd->getX() && inter != itIEnd->getX()){
+
+						if(coefState >= coefI)
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+						else
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+
+
+						itState = itStateEnd;
+						++itStateEnd;
+						coefState = (itStateEnd->getY() - itState->getY())/(itStateEnd->getX() - itState->getX());
+
+						if(coefState >= coefI){
+							result.push_back(Point(inter, zeroState + coefState*inter, Strategy(i,0,true)));
+						}
+						else{
+							result.push_back(Point(inter, zeroState + coefState*inter, Strategy(itState->getDest(),itState->getType(),true)));
+
+						}
+
+					}
+					else if(inter == itIEnd->getX() && inter != itStateEnd->getX()){
+
+						if(coefState >= coefI)
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+						else
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+
+
+						itI = itIEnd;
+						++itIEnd;
+						coefI = ((itIEnd->getY() +cost) - (itI->getY() + cost))/(itIEnd->getX() - itI->getX());
+
+						if(coefState >= coefI){
+							result.push_back(Point(inter, zeroState + coefState*inter, Strategy(i,0,true)));
+						}
+						else{
+							result.push_back(Point(inter, zeroState + coefState*inter, Strategy(itState->getDest(),itState->getType(),true)));
+
+						}
+					}
+				}
+				else{
+					if(inter < itState->getX() || inter < itI->getX()){
+						//The intersection is before itState->getX()
+						if(coefState > coefI){
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+						}
+						else{
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+						}
+					}
+					else if(inter > itStateEnd->getX() || inter > itIEnd->getX()){
+						if(coefState > coefI){
+							result.push_back(Point(itState->getX(), itState->getY(),Strategy(itState->getDest(),itState->getType(),itState->getInclusion())));
+						}
+						else{
+							result.push_back(Point(itI->getX(), itI->getY() + cost,Strategy(i,0,itI->getInclusion())));
+						}
 					}
 				}
 			}
 		}
 
-		//Update the iterators
-		if(itStateEnd->getX().getVal() < itIEnd->getX().getVal()){
+
+		if(itStateEnd->getX() < itIEnd->getX()){
 			itState = itStateEnd;
 			++itStateEnd;
 		}
+		else if(itStateEnd->getX() > itIEnd->getX()){
+			itI = itIEnd;
+			++itIEnd;
+		}
 		else{
+			itState = itStateEnd;
+			++itStateEnd;
 			itI = itIEnd;
 			++itIEnd;
 		}
 	}
 
-	//Still need to push the last value (of time 1)
-	if((*valueFcts)[state].back().getY() < ((*valueFcts)[i].back().getY() + cost))
-		result.push_back(Point(1,(*valueFcts)[state].back().getY()));
+
+	if(itState->getY() < (itI->getY() + cost))
+		result.push_back(Point(1,itState->getY(),Strategy(itState->getDest(),itState->getType(),false)));
 	else
-		result.push_back(Point(1, (*valueFcts)[i].back().getY() + cost));
+		result.push_back(Point(1, (itI->getY() + cost),Strategy(itState->getDest(),itState->getType(),false)));
 
+
+	//Show the result vector
 	itState = result.begin();
-	list<bool>::iterator itC = corrections.begin();
-	for (;itState != result.end() && itC != corrections.end(); ++itC, ++itState)
-		cout << "(" << itState->getX() << "," << itState->getY() << ") " << *itC << " ";
-	cout << endl;
 
-	cleanValueFct(&result);
+
+
 	bool changed = false;
+	cleanValueFct(&result);
 
 	//Compare the results and the valueFct (knowing that there are points from earlier computation in valueFct)
 	list<Point>::iterator it = result.begin();
@@ -763,19 +829,19 @@ bool SPTGSolverV2::getMinFct(unsigned int state, unsigned int i, Value cost){
 		if(it->getX() != itVal->getX() || it->getY() != itVal->getY())
 			changed = true;
 	}
-	if(changed){
-		updateStrategies(result, corrections,state, i);
 
-		//Copy the into the valueFct
+	if(changed){
+
+		//Copy the result into the valueFct
 		if(!(*valueFcts)[state].empty())
 			(*valueFcts)[state].pop_front();
-		while(!(*valueFcts)[state].empty() && (*valueFcts)[state].front().getX() != 1){
+		while(!(*valueFcts)[state].empty() && ((*valueFcts)[state].front()).getX() != 1 ){
 			(*valueFcts)[state].pop_front();
 		}
 		if(!(*valueFcts)[state].empty())
 			(*valueFcts)[state].pop_front();
 		for (list<Point>::reverse_iterator it = result.rbegin(); it != result.rend(); ++it){
-			(*valueFcts)[state].push_front(Point(it->getX(),it->getY()));
+			(*valueFcts)[state].push_front(Point(it->getX(),it->getY(),Strategy(it->getDest(),it->getType(),it->getInclusion())));
 		}
 	}
 	cout << "changed: " << changed << endl;
@@ -816,15 +882,15 @@ void SPTGSolverV2::cleanValueFct(list<Point>* l){
 
 
 void SPTGSolverV2::show(){
-
-	cout << "Strategies: " << endl;
-	for (unsigned int i = 0; i < size; ++i){
-		for (list<Strategy>::iterator it = (*strategies)[i].begin(); it != (*strategies)[i].end(); ++it){
-			it->show();
+	cout << "Strategies:" << endl;
+	for(unsigned int i = 0; i < size; ++i){
+		cout << "State " << i << ": " << endl;
+		for (list<Point>::iterator itI = (*valueFcts)[i].begin(); itI != (*valueFcts)[i].end(); ++itI){
+			cout << "t: " << itI->getX() << " -> ";
+			itI->getStrategy().show();
 		}
+		cout << endl;
 	}
-
-	cout << endl;
 
 	cout << "Lengths: " << endl;
 	for (unsigned int i = 0; i < pathsLengths->size(); ++i)

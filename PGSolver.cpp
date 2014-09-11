@@ -3,11 +3,11 @@
 
 using namespace std;
 
-PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, vector<list<Strategy> >* s, vector<vector<CompositeValue> >* r){
+PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, vector<list<Point> >* vF, vector<vector<CompositeValue> >* r){
 	pg = p;
 	pathsLengths = pl;
 	vals = v;
-	strategies = s;
+	valueFcts = vF;
 	size = p->getSize();
 	nbTransitions = 0;
 	resets = r;
@@ -51,11 +51,11 @@ PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, vector<l
 
 }
 
-PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, vector<list<Strategy> >* s, vector<Value>* b, vector<vector<CompositeValue> >* r){
+PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, vector<list<Point> >* vF, vector<Value>* b, vector<vector<CompositeValue> >* r){
 	pg = p;
 	pathsLengths = pl;
 	vals = v;
-	strategies = s;
+	valueFcts = vF;
 	size = p->getSize();
 	nbTransitions = 0;
 	bottoms = b;
@@ -173,18 +173,18 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 				//cout << (*bottoms)[finalState] << endl;
 				(*vals)[finalState] = (*bottoms)[finalState];
 				(*pathsLengths)[finalState] = 1;
-				list<Strategy>::iterator it = (*strategies)[finalState].begin();
+				list<Point>::iterator it = (*valueFcts)[finalState].begin();
 				++it;
-				(*strategies)[finalState].front().setDest(it->getDest());
-				(*strategies)[finalState].front().setType(2);
+				(*valueFcts)[finalState].front().setDest(it->getDest());
+				(*valueFcts)[finalState].front().setType(2);
 
 			}
 			else if(minIsReset){
 				(*vals)[finalState] = (*resets)[finalState][finalTrans];
 			//	cout << (*resets)[finalState][finalTrans] << endl;
 				(*pathsLengths)[finalState] = 1;
-				(*strategies)[finalState].front().setDest(finalTrans);
-				(*strategies)[finalState].front().setType(3);
+				(*valueFcts)[finalState].front().setDest(finalTrans);
+				(*valueFcts)[finalState].front().setType(3);
 			}
 			else{
 				if((*vals)[finalTrans].isInfinity() || pg->getTransition(finalState, finalTrans).isInfinity())
@@ -195,8 +195,8 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 
 				(*vals)[finalState].getVal().upperSign();
 				(*pathsLengths)[finalState] = (*pathsLengths)[finalTrans] + 1;
-				(*strategies)[finalState].front().setDest(finalTrans);
-				(*strategies)[finalState].front().setType(0);
+				(*valueFcts)[finalState].front().setDest(finalTrans);
+				(*valueFcts)[finalState].front().setType(0);
 			}
 			ensStates[finalState] = false;
 		}
@@ -217,14 +217,14 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 			if(ensStates[i]){
 				(*vals)[i].setInf(true);
 				if(solvePTG){
-					(*strategies)[i].front().setDest(0);
-					(*strategies)[i].front().setType(1);
+					(*valueFcts)[i].front().setDest(0);
+					(*valueFcts)[i].front().setType(1);
 					(*pathsLengths)[i] = 1;
 
 				}
 				else{
-					(*strategies)[i].front().setDest(i);
-					(*strategies)[i].front().setType(1);
+					(*valueFcts)[i].front().setDest(i);
+					(*valueFcts)[i].front().setType(1);
 					(*pathsLengths)[i].setInf(true);
 				}
 

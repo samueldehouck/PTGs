@@ -4,7 +4,6 @@
 #include "CompositeValue.hpp"
 #include "Value.hpp"
 #include "Point.hpp"
-#include "Strategy.hpp"
 #include "SPTG.hpp"
 #include <list>
 #include <vector>
@@ -20,7 +19,6 @@ private:
 	vector<CompositeValue>* vals;
 	vector<Value>* pathsLengths;
 	vector<list<Point> >* valueFcts;//We need a list of points for every state
-	vector<list<Strategy> >* strategies;
 	vector<Value>* bottoms;
 	vector<vector<CompositeValue> >* resets;
 	vector<vector<bool> > availableTrans;
@@ -32,12 +30,11 @@ private:
 	bool getMinFct(unsigned int, unsigned int, Value);
 	void cleanValueFct(list<Point>*);
 	void propagate(list<unsigned int> &, unsigned int);
-	void updateStrategies(list<Point> &, list<bool> &, unsigned int, unsigned int);
 	bool compareWaiting(unsigned int);
 
 public:
 	SPTGSolverV2(SPTG*);
-	SPTGSolverV2(SPTG*, vector<Value>*,  vector<Value>*, vector<CompositeValue>*, vector<list<Strategy> >*, vector<list<Point> >*, vector<vector<CompositeValue> >*);
+	SPTGSolverV2(SPTG*, vector<Value>*,  vector<Value>*, vector<CompositeValue>*, vector<list<Point> >*, vector<vector<CompositeValue> >*);
 	~SPTGSolverV2();
 	void solveSPTG();
 	void show();
