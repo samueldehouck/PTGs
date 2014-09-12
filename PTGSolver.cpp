@@ -63,7 +63,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu, bool v2){
 				valueFcts[i].front().setX(time);
 				valueFcts[i].front().setY(vals[i]);
 			}
-			show();
+			//show();
 
 			while(!endPoints.empty()){
 
@@ -84,7 +84,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu, bool v2){
 				pgSolver->extendedDijkstra(true);
 				delete pgSolver;
 
-				show();
+				//show();
 
 				if(v2){
 					SPTGSolverV2* sptgSolver = new SPTGSolverV2(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
@@ -100,7 +100,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu, bool v2){
 
 				//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
 				rescale(time, endM);
-				show();
+				//show();
 
 				//The last step is to do an extendedDijkstra on the game in the "time" instant
 				keepTransAvailable(time, time);
@@ -117,7 +117,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu, bool v2){
 
 				delete pgSolver;
 				endM = time;
-				show();
+				//show();
 			}
 
 			restoreAllTrans();
@@ -350,6 +350,7 @@ void PTGSolver::show(){
 
 void PTGSolver::visualize(){
 	ofstream f;
+
 	f.open("valueFcts.tex");
 	f << "\\documentclass{standalone}" << endl;
 	f << "\\usepackage{tikz}" << endl;

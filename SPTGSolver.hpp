@@ -24,6 +24,8 @@ private:
 	vector<Value>* bottoms;
 	vector<vector<CompositeValue> >* resets;
 	Value time;
+	vector<bool> updated;
+
 
 	void init();
 	void strategyIteration();

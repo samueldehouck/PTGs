@@ -11,7 +11,7 @@
 using namespace std;
 
 PerfEvaluator::PerfEvaluator(){
-	nbTests = 50;
+	nbTests = 30;
 }
 
 PerfEvaluator::PerfEvaluator(unsigned int nbT){
