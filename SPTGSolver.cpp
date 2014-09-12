@@ -131,8 +131,8 @@ void SPTGSolver::solveSPTG(){
 
 	//Copy the vals obtained by extended dijkstra into the valueFcts
 	for (unsigned int i = 0; i < size; ++i){
-			(*valueFcts)[i].front().setY((*vals)[i]);
-		}
+		(*valueFcts)[i].front().setY((*vals)[i]);
+	}
 
 	while (time > 0){
 
@@ -213,6 +213,9 @@ void SPTGSolver::actualizeVals(Value epsilon){
 			(*vals)[i].setEps(0);
 		}
 		(*valueFcts)[i].front().setY((*vals)[i]);
+		if(time != 0)
+			(*valueFcts)[i].front().setInclusion(true);
+
 	}
 }
 
@@ -239,7 +242,9 @@ bool SPTGSolver::makeImpSwitchesP1(){
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
 					cout << (*vals)[state]<< endl;
-					(*valueFcts)[state].front().setDest(0);
+					list<Point>::iterator it = (*valueFcts)[state].begin();
+					++it;
+					(*valueFcts)[state].front().setDest(it->getDest());
 					(*valueFcts)[state].front().setType(1);
 					(*pathsLengths)[state] = 1;
 					allDone = false;
@@ -323,7 +328,9 @@ bool SPTGSolver::makeImpSwitchesP2(){
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
 					cout << (*vals)[state]<< endl;
-					(*valueFcts)[state].front().setDest(0);
+					list<Point>::iterator it = (*valueFcts)[state].begin();
+					++it;
+					(*valueFcts)[state].front().setDest(it->getDest());
 					(*valueFcts)[state].front().setType(1);
 					(*pathsLengths)[state] = 1;
 					allDone = false;
@@ -403,7 +410,7 @@ void SPTGSolver::propagate(unsigned int state){
 		unsigned int tmpState = q.front();
 		cout << "front: " << tmpState << endl;
 		for(unsigned int i = 1; i < size; ++i){
-			if((*valueFcts)[i].front().getDest() == tmpState && !checked[i] && (*valueFcts)[i].front().getType() != 3){
+			if((*valueFcts)[i].front().getDest() == tmpState && !checked[i] && (*valueFcts)[i].front().getType() == 0){
 				//cout  << "Not checked yet" << endl;
 				//cout << "tmpstate: " << (*vals)[tmpState] << endl;
 				if(!(*vals)[i].isInfinity()){

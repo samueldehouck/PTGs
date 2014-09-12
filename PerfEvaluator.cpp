@@ -18,23 +18,23 @@ PerfEvaluator::PerfEvaluator(unsigned int nbT){
 	nbTests = nbT;
 }
 
-void PerfEvaluator::eval(){
+void PerfEvaluator::eval(bool v2){
 	cerr << "====Starting computing data===" << endl;
 	//cerr << "evalStatesTrans" << endl;
-	//evalStatesTrans();
+	evalStatesTrans(v2);
 	cerr << "evalResets" << endl;
-	//evalResets();
+	//evalResets(v2);
 	cerr << "evalStates" << endl;
-	//evalStates();
+	//evalStates(v2);
 	cerr << "evalTrans" << endl;
-	evalTrans();
+	//evalTrans(v2);
 	cerr << "evalInterval" << endl;
-	//evalInterval();
+	//evalInterval(v2);
 }
 
-void PerfEvaluator::evalStatesTrans(){
+void PerfEvaluator::evalStatesTrans(bool v2){
 	unsigned int minState = 5;
-	unsigned int maxState = 25;
+	unsigned int maxState = 10;
 	struct timeval start, end;
 	ofstream f, o;
 
@@ -100,7 +100,8 @@ void PerfEvaluator::evalStatesTrans(){
 					PTGSolver solver;
 					gettimeofday(&start, NULL);
 
-					solver.solvePTG(ptg, false);
+
+					solver.solvePTG(ptg, false,v2);
 
 					gettimeofday(&end, NULL);
 					average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
@@ -145,7 +146,7 @@ void PerfEvaluator::evalStatesTrans(){
 	f.close();
 }
 
-void PerfEvaluator::evalResets(){
+void PerfEvaluator::evalResets(bool v2){
 	struct timeval start, end;
 
 	unsigned int maxNbResets = 25;
@@ -180,7 +181,7 @@ void PerfEvaluator::evalResets(){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false);
+			solver.solvePTG(ptg, false,v2);
 
 			delete ptg;
 			gettimeofday(&end, NULL);
@@ -203,7 +204,7 @@ void PerfEvaluator::evalResets(){
 }
 
 
-void PerfEvaluator::evalStates(){
+void PerfEvaluator::evalStates(bool v2){
 	struct timeval start, end;
 
 	unsigned int step = 10;
@@ -238,7 +239,7 @@ void PerfEvaluator::evalStates(){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false);
+			solver.solvePTG(ptg, false, v2);
 
 			gettimeofday(&end, NULL);
 			delete ptg;
@@ -286,7 +287,7 @@ void PerfEvaluator::evalStates(){
 				PTGSolver solver;
 				gettimeofday(&start, NULL);
 
-				solver.solvePTG(ptg, false);
+				solver.solvePTG(ptg, false, v2);
 
 				gettimeofday(&end, NULL);
 				delete ptg;
@@ -309,7 +310,7 @@ void PerfEvaluator::evalStates(){
 		system("pdflatex statesfixed.tex");
 }
 
-void PerfEvaluator::evalTrans(){
+void PerfEvaluator::evalTrans(bool v2){
 	struct timeval start, end;
 
 	unsigned int step = 20;
@@ -342,7 +343,7 @@ void PerfEvaluator::evalTrans(){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false);
+			solver.solvePTG(ptg, false, v2);
 
 			delete ptg;
 			gettimeofday(&end, NULL);
@@ -364,7 +365,7 @@ void PerfEvaluator::evalTrans(){
 	system("pdflatex transitions.tex");
 }
 
-void PerfEvaluator::evalInterval(){
+void PerfEvaluator::evalInterval(bool v2){
 	struct timeval start, end;
 
 	unsigned int step = 5;
@@ -397,7 +398,7 @@ void PerfEvaluator::evalInterval(){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false);
+			solver.solvePTG(ptg, false, v2);
 
 			delete ptg;
 			gettimeofday(&end, NULL);

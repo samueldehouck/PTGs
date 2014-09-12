@@ -15,7 +15,7 @@ PTGSolver::PTGSolver(){
 }
 
 
-void PTGSolver::solvePTG(PTG* p, bool visu){
+void PTGSolver::solvePTG(PTG* p, bool visu, bool v2){
 	cout << "====SolvePTG====" << endl;
 	ptg = p;
 	size = ptg->getSize();
@@ -86,10 +86,17 @@ void PTGSolver::solvePTG(PTG* p, bool visu){
 
 				show();
 
-				SPTGSolverV2* sptgSolver = new SPTGSolverV2(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
-				//SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
-				sptgSolver->solveSPTG();
-				delete sptgSolver;
+				if(v2){
+					SPTGSolverV2* sptgSolver = new SPTGSolverV2(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
+					sptgSolver->solveSPTG();
+					delete sptgSolver;
+				}
+				else{
+					SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
+					sptgSolver->solveSPTG();
+					delete sptgSolver;
+				}
+
 
 				//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
 				rescale(time, endM);
@@ -481,13 +488,29 @@ void PTGSolver::visualize(){
 			}
 
 			if(it->getInclusion() && ((itNext != valueFcts[i].end() && itNext->getDest() != it->getDest()) || it->getX().getVal() == 0 || it->getX().getVal() == maxX)){
-				f << "\\node [circle,draw,fill= " << color <<",scale=0.4] at (" << it->getX().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
-				if(!itNext->getInclusion() && itNext != valueFcts[i].end() && itNext->getDest() != it->getDest()){
+				if(!itNext->getInclusion() && itNext != valueFcts[i].end() && itNext->getDest() != it->getDest() && it->getX().getVal() != 0 && it->getX().getVal() != maxX){
+					f << "\\node [circle,draw,fill= " << color <<",scale=0.4] at (" << it->getX().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
+
 					f << "\\draw[" << colorNext << ",fill=white] (" << itNext->getX().getVal()/ maxX * Fraction(length) + x << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
 					if(ptg->hasLabels())
 						f << "\\draw (0,"  << (Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
 					else
 						f << "\\draw (0,"  << (Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << itNext->getDest() << "$};" << endl;
+
+				}
+				else if(itNext->getInclusion() && itNext != valueFcts[i].end() && itNext->getDest() != it->getDest() && it->getX().getVal() != 0 && it->getX().getVal() != maxX){
+					f << "\\draw[" << color << ",fill=white] (" << itNext->getX().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
+
+					f << "\\node [circle,draw,fill="<< colorNext <<",scale=0.4] at (" << itNext->getX().getVal()/ maxX * Fraction(length) + x << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
+
+					if(ptg->hasLabels())
+						f << "\\draw (0,"  << (Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
+					else
+						f << "\\draw (0,"  << (Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << itNext->getDest() << "$};" << endl;
+
+				}
+				else{
+					f << "\\node [circle,draw,fill= " << color <<",scale=0.4] at (" << it->getX().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
 
 				}
 

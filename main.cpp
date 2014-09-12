@@ -12,33 +12,65 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 	freopen("output.txt","w",stdout);
+	bool perf = false;
+	bool visu = false;
+	bool v2 = false;
+	char* file = NULL;
 
-	if(argc > 1 && strcmp(argv[1], "-perf") == 0){
+	for (int i = 1; i < argc; ++i){
+		if(strcmp(argv[i], "-perf") == 0)
+			perf = true;
+		else if(strcmp(argv[i],"-v") == 0)
+			visu = true;
+		else if(strcmp(argv[i],"-v2") == 0)
+			v2 = true;
+		else
+			file = argv[i];
+	}
+
+	if(perf){
 		PerfEvaluator perf;
-		perf.eval();
-}
-	else if(argc > 1 && strcmp(argv[1], "-v") == 0){
+		if(visu)
+			cerr << "Can't do visualization and perfomances!" << endl;
+		perf.eval(v2);
+
+	}
+	else if(visu){
 		PTGFactory factory;
 		PTG* ptg;
-		// ptg = factory.buildPTG(5,12,0,3,3,1);
-		//ptg = factory.buildSPTG(6,10,3,3);
-		ptg = factory.hardBuild(0);
+
+		if(file != NULL)
+			ptg = factory.buildFromFile(file);
+		else
+			ptg = factory.hardBuild(1);
 		PTGSolver solver;
-		solver.solvePTG(ptg, true);
+		solver.solvePTG(ptg, true,v2);
 		delete ptg;
 	}
-	else if (argc > 1){
+	else if(v2){
+		PTGFactory factory;
+		PTG* ptg;
+
+		if(file != NULL)
+			ptg = factory.buildFromFile(file);
+		else
+			ptg = factory.hardBuild(1);
+		PTGSolver solver;
+		solver.solvePTG(ptg, false,v2);
+		delete ptg;
+	}
+	else if (file != NULL){
 		PTGFactory factory;
 		PTG* ptg = factory.buildFromFile(argv[1]);
 		PTGSolver solver;
-		solver.solvePTG(ptg, true);
+		solver.solvePTG(ptg, true,v2);
 		delete ptg;
 	}
 	else if (argc == 1){
 		PTGFactory factory;
 		PTG* ptg = factory.hardBuild(1);
 		PTGSolver solver;
-		solver.solvePTG(ptg, false);
+		solver.solvePTG(ptg, false,v2);
 		delete ptg;
 	}
 	fclose (stdout);

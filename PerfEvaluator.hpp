@@ -6,15 +6,15 @@
 class PerfEvaluator{
 private:
 	unsigned int nbTests;
-	void evalStatesTrans();
-	void evalResets();
-	void evalStates();
-	void evalTrans();
-	void evalInterval();
+	void evalStatesTrans(bool);
+	void evalResets(bool);
+	void evalStates(bool);
+	void evalTrans(bool);
+	void evalInterval(bool);
 public:
 	PerfEvaluator();
 	PerfEvaluator(unsigned int);
-	void eval();
+	void eval(bool);
 
 };
 
