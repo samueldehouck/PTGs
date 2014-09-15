@@ -19,7 +19,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu, bool v2){
 	cout << "====SolvePTG====" << endl;
 	ptg = p;
 	size = ptg->getSize();
-	ptg->show();
+	//ptg->show();
 	if(size > 0){
 		int copyNb = ptg->getNbResets();
 		createResets();

@@ -16,6 +16,7 @@ public:
 	Strategy();
 	Strategy(unsigned int, unsigned int, bool);
 	Strategy(const Strategy&);
+	Strategy& operator=(const Strategy&);
 	unsigned int getDest() const;
 	void setDest(unsigned int);
 	bool getInclusion() const;

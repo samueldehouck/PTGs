@@ -65,7 +65,7 @@ SPTGSolverV2::~SPTGSolverV2(){
 void SPTGSolverV2::solveSPTG(){
 	cout << "====SolveSPTGV2====" << endl;
 	list<unsigned int> q;
-
+/*
 	for(unsigned int i = 0; i < size; ++i){
 		//cout << "results: ";
 		cout << "State " << i << ": " << endl;
@@ -73,7 +73,7 @@ void SPTGSolverV2::solveSPTG(){
 		for (list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it)
 			cout << "(" << it->getX() << "," << it->getY() << ") ";
 		cout << endl;
-	}
+	}*/
 
 
 
@@ -169,7 +169,7 @@ bool SPTGSolverV2::updateValueFct(unsigned int state){
 
 
 			//cout << "results: ";
-			for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it)
+			/*for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it)
 				cout << "(" << it->getX() << "," << it->getY() << ") ";
 			cout << endl;
 			cout << "State " << state << ": " << endl;
@@ -177,7 +177,7 @@ bool SPTGSolverV2::updateValueFct(unsigned int state){
 			for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it){
 				cout << "t: " << it->getX() << " -> ";
 				it->getStrategy().show();
-			}
+			}*/
 
 			//cout << treatedStates[j] << endl;
 			if(!treatedStates[j])
@@ -204,7 +204,7 @@ void SPTGSolverV2::propagate(list<unsigned int> &q, unsigned int state){
 	//Pushes all states that have "state" as a successor and propagates the changes
 
 	for (unsigned int i = 0; i < size; ++i){
-		cout << "update " << i << endl;
+		//cout << "update " << i << endl;
 		if(sptg->getTransition(i, state) != -1 && !(*vals)[i].isInfinity()){
 			//Need to update all states that have state as a destination
 			list<Point>::iterator itI = (*valueFcts)[i].begin();
@@ -361,15 +361,15 @@ bool SPTGSolverV2::compareWaiting(unsigned int state){
 					list<Point>::iterator tmp = it;
 					--it;
 					(*valueFcts)[state].erase(tmp);
-
-					itComp = (*valueFcts)[state].erase(itComp);
+					if(it != itComp)
+						itComp = (*valueFcts)[state].erase(itComp);
 					itComp = itLastComp;
 					--itLastComp;
 				}
 
 			}
 			if(itComp->getX() == 0 && it->getX() != 0){
-				cout << "Correction" << endl;
+				//cout << "Correction" << endl;
 				it = (*valueFcts)[state].begin();
 				it->setType(1);
 				it->setDest(currentStrat->getDest());
@@ -383,14 +383,6 @@ bool SPTGSolverV2::compareWaiting(unsigned int state){
 		}
 	}
 
-	/*for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it)
-		cout << "(" << it->getX().getVal() << "," << it->getY().getVal() << ") ";
-	cout << endl;
-	cout << "State " << state << ": " << endl;
-	for (list<Point>::iterator itI = (*valueFcts)[state].begin(); itI != (*valueFcts)[state].end(); ++itI){
-		cout << "t: " << itI->getX() << " -> ";
-		itI->getStrategy().show();
-	}*/
 	cout << "changed " << changed << endl;
 	return changed;
 }
@@ -411,16 +403,16 @@ bool SPTGSolverV2::getMaxFct(unsigned int state, unsigned int i, Value cost){
 	bool intersected = false;
 
 	//Shows the two lists that are compared
-	for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it)
+	/*for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it)
 		cout << "(" << it->getX().getVal() << "," << it->getY().getVal() << ") ";
 	cout << endl;
 	for (list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it)
 		cout << "(" << it->getX().getVal() << "," << (it->getY() + cost) << ") ";
 	cout << endl;
-
+*/
 
 	while( itI->getX() != 1 && itState->getX() != 1 && itI != (*valueFcts)[i].end() && itState != (*valueFcts)[state].end()){
-		cout << itState->getX().getVal() << " " << itI->getX().getVal() << " " << intersected << endl;
+		//cout << itState->getX().getVal() << " " << itI->getX().getVal() << " " << intersected << endl;
 
 		Value coefState = (itStateEnd->getY() - itState->getY())/(itStateEnd->getX() - itState->getX());
 		Value zeroState = itState->getY() - itState->getX()*coefState;
@@ -676,16 +668,16 @@ bool SPTGSolverV2::getMinFct(unsigned int state, unsigned int i, Value cost){
 	bool intersected = false;
 
 	//Shows the two lists that are compared
-		for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it)
+	/*	for (list<Point>::iterator it = (*valueFcts)[state].begin(); it != (*valueFcts)[state].end(); ++it)
 		cout << "(" << it->getX().getVal() << "," << it->getY().getVal() << ") ";
 	cout << endl;
 	for (list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it)
 		cout << "(" << it->getX().getVal() << "," << (it->getY() + cost) << ") ";
 	cout << endl;
-
+*/
 
 	while( itI->getX() != 1 && itState->getX() != 1 && itI != (*valueFcts)[i].end() && itState != (*valueFcts)[state].end()){
-		cout << itState->getX().getVal() << " " << itI->getX().getVal() << " " << intersected << endl;
+		//cout << itState->getX().getVal() << " " << itI->getX().getVal() << " " << intersected << endl;
 
 		Value coefState = (itStateEnd->getY() - itState->getY())/(itStateEnd->getX() - itState->getX());
 		Value zeroState = itState->getY() - itState->getX()*coefState;

@@ -21,6 +21,15 @@ Strategy::Strategy(const Strategy& s){
 
 }
 
+Strategy& Strategy::operator=(const Strategy& s){
+	if(&s != this){
+		dest = s.getDest();
+		type = s.getType();
+		included = s.getInclusion();
+	}
+	return *this;
+}
+
 unsigned int Strategy::getDest() const{
 	return dest;
 }

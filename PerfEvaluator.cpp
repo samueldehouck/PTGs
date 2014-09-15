@@ -11,7 +11,7 @@
 using namespace std;
 
 PerfEvaluator::PerfEvaluator(){
-	nbTests = 30;
+	nbTests = 15;
 }
 
 PerfEvaluator::PerfEvaluator(unsigned int nbT){
@@ -20,7 +20,7 @@ PerfEvaluator::PerfEvaluator(unsigned int nbT){
 
 void PerfEvaluator::eval(bool v2){
 	cerr << "====Starting computing data===" << endl;
-	//cerr << "evalStatesTrans" << endl;
+	cerr << "evalStatesTrans" << endl;
 	evalStatesTrans(v2);
 	cerr << "evalResets" << endl;
 	//evalResets(v2);
@@ -30,11 +30,13 @@ void PerfEvaluator::eval(bool v2){
 	//evalTrans(v2);
 	cerr << "evalInterval" << endl;
 	//evalInterval(v2);
+	cerr << "evalbigone" << endl;
+	//evalBig(v2);
 }
 
 void PerfEvaluator::evalStatesTrans(bool v2){
 	unsigned int minState = 5;
-	unsigned int maxState = 10;
+	unsigned int maxState = 30;
 	struct timeval start, end;
 	ofstream f, o;
 
@@ -112,7 +114,7 @@ void PerfEvaluator::evalStatesTrans(bool v2){
 					}
 					tmp = tmp/double(nbStates);
 					averageInf += tmp;
-					//usleep(300000);
+					usleep(10000);
 					delete ptg;
 
 				}
@@ -176,6 +178,8 @@ void PerfEvaluator::evalResets(bool v2){
 	for (unsigned int nbResets = 0; nbResets <= maxNbResets; nbResets = nbResets + step){
 		unsigned int average = 0;
 		for (unsigned int i = 0; i < nbTests; ++i){
+			cerr << ".";
+
 			PTGFactory factory;
 			PTG* ptg = factory.buildPTG(nbStates,nbTrans,nbResets,5,5,3);
 			PTGSolver solver;
@@ -186,10 +190,10 @@ void PerfEvaluator::evalResets(bool v2){
 			delete ptg;
 			gettimeofday(&end, NULL);
 			average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
-			//usleep(300000);
+			usleep(10000);
 		}
 		average /= nbTests;
-		cerr << average << endl;
+		cerr << endl << average << endl;
 
 		f << "\\draw ("<< double(nbResets)/scaleX <<"," << double(average)/scaleY << ") node {$\\bullet$};" << endl;
 		//f << "\\draw (0," << double(average)/scaleY << ") node [left] {$" << average << "$};" << endl;
@@ -230,10 +234,9 @@ void PerfEvaluator::evalStates(bool v2){
 
 
 	for (unsigned int states = 10; states <= maxNbStates; states += step){
-		cerr << "Nb of States: " << states << endl;
 		unsigned int average = 0;
 		for (unsigned int i = 0; i < nbTests; ++i){
-			cout << "i: " << i << endl;
+			cerr << ".";
 			PTGFactory factory;
 			PTG* ptg = factory.buildPTG(states,(states - 1)*(states - 1)/2,0,5,5,3);
 			PTGSolver solver;
@@ -245,7 +248,7 @@ void PerfEvaluator::evalStates(bool v2){
 			delete ptg;
 
 			average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
-			//usleep(300000);
+			usleep(10000);
 		}
 		average /= nbTests;
 		cerr << average << endl;
@@ -278,10 +281,9 @@ void PerfEvaluator::evalStates(bool v2){
 		f << "\\draw [->][thick] (0,0) -- (0," << double(12000)/ scaleY  << ");" << endl;
 		f<< "\\draw (0," << double(12000)/ scaleY   <<") node [above] {$ms$}; " << endl;
 	for (unsigned int states = 10; states <= maxNbStates; states += step){
-			cerr << "Nb of States: " << states << endl;
 			unsigned int average = 0;
 			for (unsigned int i = 0; i < nbTests; ++i){
-				cout << "i: " << i << endl;
+				cerr << ".";
 				PTGFactory factory;
 				PTG* ptg = factory.buildPTG(states,80,0,5,5,3);
 				PTGSolver solver;
@@ -293,7 +295,7 @@ void PerfEvaluator::evalStates(bool v2){
 				delete ptg;
 
 				average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
-				//usleep(300000);
+				usleep(100000);
 			}
 			average /= nbTests;
 			cerr << average << endl;
@@ -338,6 +340,8 @@ void PerfEvaluator::evalTrans(bool v2){
 	for (unsigned int  trans = nbStates ; trans <= (nbStates -1)*(nbStates -1); trans += step){
 		unsigned int average = 0;
 		for (unsigned int i = 0; i < nbTests; ++i){
+			cerr << ".";
+
 			PTGFactory factory;
 			PTG* ptg = factory.buildPTG(nbStates,trans,0,5,5,3);
 			PTGSolver solver;
@@ -348,7 +352,7 @@ void PerfEvaluator::evalTrans(bool v2){
 			delete ptg;
 			gettimeofday(&end, NULL);
 			average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
-			//usleep(300000);
+			usleep(100000);
 		}
 		average /= nbTests;
 		cerr << trans << ": " << average << endl;
@@ -393,6 +397,8 @@ void PerfEvaluator::evalInterval(bool v2){
 	for (unsigned int  endCst = 1 ; endCst <= maxEndCst; endCst += step){
 		unsigned int average = 0;
 		for (unsigned int i = 0; i < nbTests; ++i){
+			cerr << ".";
+
 			PTGFactory factory;
 			PTG* ptg = factory.buildPTG(nbStates,nbTrans,0,5,5,endCst);
 			PTGSolver solver;
@@ -403,10 +409,10 @@ void PerfEvaluator::evalInterval(bool v2){
 			delete ptg;
 			gettimeofday(&end, NULL);
 			average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
-			//usleep(300000);
+			usleep(10000);
 		}
 		average /= nbTests;
-		cerr << average << endl;
+		cerr << endl << average << endl;
 		f << "\\draw ("<< double(endCst)/scaleX <<"," << double(average)/scaleY << ") node {$\\bullet$};" << endl;
 		f << "\\draw (0," << double(average)/scaleY << ") node [left] {$" << average << "$};" << endl;
 		f << "\\draw (" << double(endCst)/scaleX << ",0) node [below] {$" << endCst << "$};" << endl;
@@ -417,4 +423,25 @@ void PerfEvaluator::evalInterval(bool v2){
 	f << "\\end{document}" << endl;
 	f.close();
 	system("pdflatex intervals.tex");
+}
+
+void PerfEvaluator::evalBig(bool v2){
+	struct timeval start, end;
+		unsigned int average = 0;
+		for (unsigned int i = 0; i < 20; ++i){
+			cerr << ".";
+			PTGFactory factory;
+			PTG* ptg = factory.buildPTG(5,15,0,5,5,3);
+			PTGSolver solver;
+			gettimeofday(&start, NULL);
+
+			solver.solvePTG(ptg, true, v2);
+
+			delete ptg;
+			gettimeofday(&end, NULL);
+			average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
+			usleep(200000);
+		}
+		average /= nbTests;
+		cerr << endl << "Average: " << average << "ms" << endl;
 }

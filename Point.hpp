@@ -12,6 +12,7 @@ private:
 public:
 	Point();
 	Point(Value, Value, Strategy);
+	Point& operator=(const Point&);
 	Value getX() const;
 	void setX(Value);
 	Value getY() const;
@@ -26,19 +27,5 @@ public:
 	void setInclusion(bool);
 };
 
-/*ostream& operator<<(ostream& out, const Point& p){
-	out << "(";
-	if(p.getX().isInfinity())
-		out << "inf";
-	else
-		out << p.getX().getVal();
-	out << ",";
-	if(p.getY().isInfinity())
-		out << "inf";
-	else
-		out << p.getY().getVal();
-	out << ")";
-	return out;
-}*/
 
 #endif

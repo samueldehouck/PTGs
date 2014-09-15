@@ -8,16 +8,21 @@ Point::Point() : x() ,y()
 Point::Point(Value i, Value j, Strategy st) : x(i), y(j), s(st)
 {}
 
+Point& Point::operator=(const Point &p){
+	if(&p != this){
+		x = p.getX();
+		y = p.getY();
+		s = p.getStrategy();
+	}
+	return *this;
+}
+
 Value Point::getX() const{
 	return x;
 
 }
 Value Point::getY() const {
 	return y;
-}
-
-Strategy Point::getStrategy() const{
-	return s;
 }
 
 void Point::setY(Value i){
@@ -30,6 +35,10 @@ void Point::setX(Value i){
 
 void Point::setStrategy(Strategy st){
 	s = st;
+}
+
+Strategy Point::getStrategy() const{
+	return s;
 }
 
 unsigned int Point::getType() const{
