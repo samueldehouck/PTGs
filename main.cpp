@@ -42,8 +42,8 @@ int main(int argc, char *argv[]){
 		if(file != NULL)
 			ptg = factory.buildFromFile(file);
 		else
-			//ptg = factory.buildPTG(5,10,0,2,2,3);
-			ptg = factory.hardBuild(0);
+			ptg = factory.buildPTG(5,10,1,2,2,3);
+			//ptg = factory.hardBuild(0);
 		PTGSolver solver;
 		solver.solvePTG(ptg, true, v2);
 		delete ptg;
