@@ -571,3 +571,14 @@ void PTGSolver::visualize(){
 vector<list<Point> >* PTGSolver::getValueFcts(){
 	return &valueFcts;
 }
+
+unsigned int PTGSolver::getBreakPoints(){
+	//Only works well on SPTG
+	unsigned int max = 0;
+	for (unsigned int i = 0; i < size; ++i){
+		if(valueFcts[i].size() - 2  > max )
+			max = valueFcts[i].size() - 2;
+	}
+	return max;
+}
+

@@ -32,6 +32,7 @@ public:
 	void setLabel(unsigned int, string);
 	bool hasLabels();
 	void show();
+	void write(string);
 };
 
 #endif

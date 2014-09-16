@@ -12,6 +12,7 @@ private:
 	void evalTrans(bool);
 	void evalInterval(bool);
 	void evalBig(bool);
+	void evalBreakPoints(bool);
 public:
 	PerfEvaluator();
 	PerfEvaluator(unsigned int);

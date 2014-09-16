@@ -16,7 +16,7 @@ PTGFactory::PTGFactory(){
 PTG* PTGFactory::buildPTG(int nbStates, int nbTrans, int nbResets, int maxRate, int maxCost, int maxCst){
 	//The PTG is randomly built
 	PTG* ptg = new PTG(nbStates);
-	srand (time(NULL));
+
 	ptg->setNbResets(nbResets);
 	//Generates everything
 	ptg->setOwner(0,1);
@@ -54,7 +54,6 @@ PTG* PTGFactory::buildPTG(int nbStates, int nbTrans, int nbResets, int maxRate, 
 PTG* PTGFactory::buildSPTG(int nbStates, int nbTrans, int maxRate, int maxCost){
 	//The PTG is randomly built
 		PTG* ptg = new PTG(nbStates);
-		srand (time(NULL));
 		ptg->setNbResets(0);
 		//Generates everything
 		ptg->setOwner(0,1);

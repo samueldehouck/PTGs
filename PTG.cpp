@@ -1,5 +1,7 @@
 #include "PTG.hpp"
 #include <iostream>
+#include <fstream>
+
 
 using namespace std;
 
@@ -146,4 +148,49 @@ void PTG::show(){
 	}
 
 	cout << endl;
+}
+
+void PTG::write(string s){
+	cerr << "write" << endl;
+	ofstream f;
+	string tmp = "samples/" + s;
+	f.open(tmp.c_str());
+
+	f << "====PTG===" << endl;
+	f << "Rates: " << endl;
+	for (unsigned int i =0; i < states->size(); ++i)
+		f << (*states)[i] << " ";
+	f << endl;
+
+	f << "Transitions: "<< endl;
+	for (unsigned int i = 0; i < transitions->size(); ++i){
+		for (unsigned int j = 0; j < (*transitions)[i].size(); ++j)
+			f << (*transitions)[i][j] << "	";
+		f << endl;
+	}
+
+	f << "Owners: " << endl;
+	for (unsigned int i = 0; i < owners->size(); ++i)
+		f << (*owners)[i] << " ";
+	f << endl;
+
+	f << "Constraints: " << endl;
+	for (unsigned int i = 0; i < startsCstraints->size(); ++i){
+		for (unsigned int j = 0; j < (*startsCstraints)[i].size(); ++j){
+			f << "[" << (*startsCstraints)[i][j] << "," << (*endsCstraints)[i][j] << "]	";
+		}
+		f << endl;
+	}
+	f << "Resets: " << endl;
+	for(unsigned int i = 0; i < resets->size(); ++i){
+		for (unsigned int j = 0; j < (*resets)[i].size(); ++j)
+			f << (*resets)[i][j] << "	";
+		f << endl;
+	}
+
+	f << endl;
+
+
+	f.close();
+
 }

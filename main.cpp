@@ -7,10 +7,17 @@
 #include <stdio.h>
 #include "Fraction.hpp"
 #include "Point.hpp"
+#include <cstdlib>
 
 using namespace std;
 
 int main(int argc, char *argv[]){
+
+	//!!!!!!!!Needed to be able to build different games
+	srand (time(NULL));
+
+
+
 	freopen("output.txt","w",stdout);
 	bool perf = false;
 	bool visu = false;
@@ -46,6 +53,8 @@ int main(int argc, char *argv[]){
 			//ptg = factory.hardBuild(0);
 		PTGSolver solver;
 		solver.solvePTG(ptg, true, v2);
+		cerr << "breakpoints: " << solver.getBreakPoints() << endl;
+
 		delete ptg;
 	}
 	else if(v2){

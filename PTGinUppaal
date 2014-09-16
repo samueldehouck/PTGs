@@ -1,0 +1,6 @@
+- Rates coded as Invariant
+- Guard [a,b] as guard
+- cost as sync
+- reset as 'r' in update
+- target as initial state
+- all transitions controllable for player 1 and uncontrollable for player 2
