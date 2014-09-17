@@ -64,7 +64,7 @@ SPTGSolverV2::~SPTGSolverV2(){
 
 void SPTGSolverV2::solveSPTG(){
 	cout << "====SolveSPTGV2====" << endl;
-	list<unsigned int> q;
+	queue<unsigned int> q;
 
 	for(unsigned int i = 0; i < size; ++i){
 		//cout << "results: ";
@@ -101,7 +101,7 @@ void SPTGSolverV2::solveSPTG(){
 	//Push all states that are going directly to 0 but with value different from infinity
 	for (unsigned int i = 0; i < size; ++i){
 		if(sptg->getTransition(i,0) != -1 && !(*vals)[i].isInfinity()){
-			q.push_back(i);
+			q.push(i);
 			++directStates;
 			cout << "push: " << i << endl;
 
@@ -109,7 +109,7 @@ void SPTGSolverV2::solveSPTG(){
 		else if(!(*vals)[i].isInfinity()){
 			for (unsigned int j = 0; j < size; ++j)
 				if((*resets)[i][j] != -1){
-					q.push_back(i);
+					q.push(i);
 					cout << "push: " << i << endl;
 
 				}
@@ -120,10 +120,16 @@ void SPTGSolverV2::solveSPTG(){
 	//While all states aren't treated
 	while(!q.empty()){
 		unsigned int state = q.front();
-		q.pop_front();
+		q.pop();
 		bool changed = updateValueFct(state);
 		if(changed || directStates > 0){
-			propagate(q,state);
+			propagate(state);
+			for (unsigned int i = 0; i < size; ++i){
+				if(sptg->getTransition(i,state) != -1 && !(*vals)[i].isInfinity()){
+					q.push(i);
+
+				}
+			}
 		}
 		--directStates;
 	}
@@ -199,19 +205,24 @@ bool SPTGSolverV2::updateValueFct(unsigned int state){
 	return changed;
 }
 
-void SPTGSolverV2::propagate(list<unsigned int> &q, unsigned int state){
+void SPTGSolverV2::propagate(unsigned int state){
 	cout << "====Propagate====" << endl;
 	//Pushes all states that have "state" as a successor and propagates the changes
 
 	queue<unsigned int> p;
 	p.push(state);
+	vector<bool> marked;
+
+	for (unsigned int i = 0; i < size; ++i)
+		marked.push_back(false);
+	marked[state] = true;
 
 	while (!p.empty()){
 		unsigned int tmpState = p.front();
 		p.pop();
 
 		for(unsigned int i = 0; i < size; ++i){
-			if(sptg->getTransition(i, tmpState) != -1 && !(*vals)[i].isInfinity()){
+			if(sptg->getTransition(i, tmpState) != -1 && !(*vals)[i].isInfinity() && !marked[i]){
 				//Need to update all states that have state as a destination
 				list<Point>::iterator itI = (*valueFcts)[i].begin();
 				list<Point>::iterator itState = (*valueFcts)[tmpState].begin();
@@ -254,10 +265,13 @@ void SPTGSolverV2::propagate(list<unsigned int> &q, unsigned int state){
 						cout << "2" << endl;
 						list<Point>::iterator itINext = itI;
 						++itINext;
+						list<Point>::iterator itStateNext = itState;
+						++itStateNext;
 						Value old = itI->getY();
 
 						Value diff = itINext->getX() - itI->getX();
-						itI->setY(itState->getY() + sptg->getTransition(i, tmpState) + (diff* sptg->getState(i)));
+
+						itI->setY(itStateNext->getY() + sptg->getTransition(i, tmpState) + (diff* sptg->getState(i)));
 						if(old != itI->getY())
 							changed = true;
 						++itI;
@@ -274,28 +288,34 @@ void SPTGSolverV2::propagate(list<unsigned int> &q, unsigned int state){
 						Value coef = (itState->getY() - itLastState->getY())/(itState->getX() - itLastState->getX());
 						Value diff = itI->getX() - itLastState->getX();
 						Value old = itI->getY();
-						if(itI->getType() == 0)
-							itI->setY(itLastState->getY() + sptg->getTransition(i,state) + diff*coef);
-						else{
+						if(itI->getType() == 0){
+							cout << "ici " << coef << " " << diff << endl;
+							itI->setY(itLastState->getY() + sptg->getTransition(i,tmpState) + (diff*coef));
+						}
+						else if(itI->getType() == 1){
+
 							list<Point>::iterator itINext = itI;
 							++itINext;
-							Value diffI = itINext->getX() - itI->getX();
-							itI->setY(itLastState->getY() + sptg->getTransition(i,state) + diff*coef + diffI*sptg->getState(i));
+							Value diff = itINext->getX() - itI->getX();
+
+							itI->setY(itState->getY() + sptg->getTransition(i,tmpState) +  diff * sptg->getState(i));
 						}
 						if(old != itI->getY())
 							changed = true;
 						++itI;
 					}
 					else if(itI->getDest() == tmpState && itState->getX() < itI->getX()){
-						//cout << "C" << endl;
-						//There is a missing break point (that is in the state value fct but not in i's)
+						cout << "C" << endl;
+						//There is a missing break point (that is in the tempstate value fct but not in i's)
 						list<Point>::iterator itILast = itI;
 						--itILast;
 
 						if(itILast->getType() == 0)
 							(*valueFcts)[i].insert(itI,Point(itState->getX(), itState->getY() + sptg->getTransition(i,tmpState), Strategy(tmpState,0,true)));
-						else{
-							Value diff = itI->getX() - itState->getX();
+						else if(itILast->getType() == 1){
+							list<Point>::iterator itINext = itI;
+							++itINext;
+							Value diff = itINext->getX() - itI->getX();
 							(*valueFcts)[i].insert(itI,Point(itState->getX(), itState->getY() + sptg->getTransition(i,tmpState) + (diff * sptg->getState(i)), Strategy(tmpState,1,true)));
 
 						}
@@ -323,6 +343,7 @@ void SPTGSolverV2::propagate(list<unsigned int> &q, unsigned int state){
 				if(changed){
 					cout << i << " pushed" << endl;
 					p.push(i);
+					marked[i] = true;
 				}
 
 

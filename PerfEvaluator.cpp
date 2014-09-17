@@ -12,7 +12,7 @@
 using namespace std;
 
 PerfEvaluator::PerfEvaluator(){
-	nbTests = 30;
+	nbTests = 20;
 }
 
 PerfEvaluator::PerfEvaluator(unsigned int nbT){
@@ -22,7 +22,7 @@ PerfEvaluator::PerfEvaluator(unsigned int nbT){
 void PerfEvaluator::eval(bool v2){
 	cerr << "====Starting computing data===" << endl;
 	cerr << "evalStatesTrans" << endl;
-	//evalStatesTrans(v2);
+	evalStatesTrans(v2);
 	cerr << "evalResets" << endl;
 	//evalResets(v2);
 	cerr << "evalStates" << endl;
@@ -34,12 +34,12 @@ void PerfEvaluator::eval(bool v2){
 	cerr << "evalbigone" << endl;
 	//evalBig(v2);
 	cerr << "evalBreakPoints" << endl;
-	evalBreakPoints(v2);
+	//evalBreakPoints(v2);
 }
 
 void PerfEvaluator::evalStatesTrans(bool v2){
 	unsigned int minState = 5;
-	unsigned int maxState = 30;
+	unsigned int maxState = 20;
 	struct timeval start, end;
 	ofstream f, o;
 
@@ -53,7 +53,7 @@ void PerfEvaluator::evalStatesTrans(bool v2){
 	f << "Max rate: 5" << endl;
 	f << "\\begin{tabular}{|c|";
 
-	o.open("tabStateTransInf.tex");
+	o.open("tabStateTransBreak.tex");
 	o << "\\documentclass{standalone}" << endl;
 	o << "\\begin{document}" << endl;
 	o << "Intervals: [0,3]" << endl;
@@ -98,10 +98,11 @@ void PerfEvaluator::evalStatesTrans(bool v2){
 			}
 			else if( nbTrans >= (nbStates - 1) && nbTrans <= (nbStates - 1)*(nbStates - 1)){
 				unsigned int average = 0;
-				double averageInf = 0;
+				double averageBreaks = 0;
 				for (unsigned int i = 0; i < nbTests; ++i){
 					PTGFactory factory;
-					PTG* ptg = factory.buildPTG(nbStates,nbTrans,0,5,5,3);
+					PTG* ptg = factory.buildSPTG(nbStates,nbTrans,5,5);
+					//PTG* ptg = factory.buildPTG(nbStates,nbTrans,0,5,5,3);
 					PTGSolver solver;
 					gettimeofday(&start, NULL);
 
@@ -110,26 +111,25 @@ void PerfEvaluator::evalStatesTrans(bool v2){
 
 					gettimeofday(&end, NULL);
 					average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
+					averageBreaks += solver.getBreakPoints();
 					double tmp = 0;
 					for(unsigned int state = 0; state < ptg->getSize(); ++state){
 						if(solver.getValueFcts()->at(state).front().getY().isInfinity())
 							++tmp;
 					}
-					tmp = tmp/double(nbStates);
-					averageInf += tmp;
 					usleep(10000);
 					delete ptg;
 
 				}
 				cerr << average << endl;
 				average /= nbTests;
-				averageInf /= double(nbTests);
+				averageBreaks /= double(nbTests);
 				if(nbTrans > minState - 1){
 					f << " & ";
 					o << " & ";
 				}
 				f << average;
-				o << averageInf;
+				o << averageBreaks;
 			}
 			else if (nbTrans > (nbStates - 1)*(nbStates -1) && nbTrans <= (maxState - 1)*(maxState - 1) ){
 				f << " & ";
@@ -147,7 +147,7 @@ void PerfEvaluator::evalStatesTrans(bool v2){
 	o << "\\end{tabular}" << endl;
 	o << "\\end{document}" << endl;
 	system("pdflatex tabStateTrans.tex");
-	system("pdflatex tabStateTransInf.tex");
+	system("pdflatex tabStateTransBreak.tex");
 	f.close();
 }
 
@@ -477,26 +477,27 @@ void PerfEvaluator::evalBreakPoints(bool v2){
 	unsigned int states = 5;
 	for ( int i = 0; i <= 10000; ++i){
 		//for (unsigned int i = 0; i < nbTests; ++i){
-		cerr << ".";
+		if(i%10 == 0)
+			cerr << ".";
 		PTGFactory factory;
-		PTG* ptg = factory.buildSPTG(6,15,5,5);
+		PTG* ptg = factory.buildSPTG(4,6,5,5);
 		PTGSolver solver;
 
 		solver.solvePTG(ptg, false, v2);
 		unsigned int nbBreakPoints = solver.getBreakPoints();
 		if(nbBreakPoints > 0)
 			++average;
-		cerr << nbBreakPoints;
+		//cerr << nbBreakPoints;
+
 		if(nbBreakPoints >= 2){
 			ostringstream tmp;
-			tmp << "sptg" << i;
+			//tmp << "sptg" << i;
 
 			ptg->write(tmp.str());
 		}
 
 		delete ptg;
 
-		//usleep(1000000);
 		//}
 
 
@@ -505,7 +506,7 @@ void PerfEvaluator::evalBreakPoints(bool v2){
 		f << "\\draw (" << double(states)/scaleX << ",0) node [below] {$" << states << "$};" << endl;
 	}
 	cerr << average << endl;
-	average /= (double)10000;
+	average /= (double)100000;
 	cerr << endl << average << endl;
 	f << "\\end{tikzpicture}" << endl;
 	f << "\\end{document}" << endl;

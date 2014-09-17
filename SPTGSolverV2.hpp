@@ -29,7 +29,7 @@ private:
 	bool getMaxFct(unsigned int, unsigned int, Value);
 	bool getMinFct(unsigned int, unsigned int, Value);
 	void cleanValueFct(list<Point>*);
-	void propagate(list<unsigned int> &, unsigned int);
+	void propagate( unsigned int);
 	bool compareWaiting(unsigned int);
 
 public:
