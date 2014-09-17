@@ -151,7 +151,6 @@ void PTG::show(){
 }
 
 void PTG::write(string s){
-	cerr << "write" << endl;
 	ofstream f;
 	string tmp = "samples/" + s;
 	f.open(tmp.c_str());

@@ -49,8 +49,8 @@ int main(int argc, char *argv[]){
 		if(file != NULL)
 			ptg = factory.buildFromFile(file);
 		else
-			ptg = factory.buildPTG(10,50,1,2,2,3);
-			//ptg = factory.hardBuild(0);
+			//ptg = factory.buildPTG(10,50,1,2,2,3);
+			ptg = factory.hardBuild(0);
 		PTGSolver solver;
 		solver.solvePTG(ptg, true, v2);
 		cerr << "breakpoints: " << solver.getBreakPoints() << endl;

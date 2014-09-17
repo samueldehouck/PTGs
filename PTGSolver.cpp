@@ -17,7 +17,11 @@ PTGSolver::PTGSolver(){
 
 void PTGSolver::solvePTG(PTG* p, bool visu, bool v2){
 	cout << "====SolvePTG====" << endl;
+
+
 	ptg = p;
+	ptg->write("problem");
+
 	size = ptg->getSize();
 	//ptg->show();
 	if(size > 0){
