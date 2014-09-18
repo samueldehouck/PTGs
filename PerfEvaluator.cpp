@@ -12,7 +12,7 @@
 using namespace std;
 
 PerfEvaluator::PerfEvaluator(){
-	nbTests = 20;
+	nbTests = 500;
 }
 
 PerfEvaluator::PerfEvaluator(unsigned int nbT){
@@ -452,8 +452,7 @@ void PerfEvaluator::evalBig(bool v2){
 
 void PerfEvaluator::evalBreakPoints(bool v2){
 
-	unsigned int step = 5;
-	unsigned int maxNbStates = 50;
+ 	unsigned int maxNbStates = 50;
 	double scaleX = 2;
 	double scaleY = 5;
 
