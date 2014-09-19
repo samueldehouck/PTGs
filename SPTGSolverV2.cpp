@@ -120,9 +120,10 @@ void SPTGSolverV2::solveSPTG(){
 	//While all states aren't treated
 	while(!q.empty()){
 		unsigned int state = q.front();
+		treatedStates[state] = true;
 		q.pop();
 		bool changed = updateValueFct(state);
-		if(changed || directStates > 0){
+		if(changed){
 			propagate(state);
 			for (unsigned int i = 0; i < size; ++i){
 				if(sptg->getTransition(i,state) != -1 && !(*vals)[i].isInfinity()){
@@ -131,7 +132,11 @@ void SPTGSolverV2::solveSPTG(){
 				}
 			}
 		}
-		--directStates;
+		unsigned int i = 0;
+		while(treatedStates[i] && i < size)
+			++i;
+		if(i != size)
+			q.push(i);
 	}
 
 	//show();
@@ -186,8 +191,7 @@ bool SPTGSolverV2::updateValueFct(unsigned int state){
 			}*/
 
 			//cout << treatedStates[j] << endl;
-			if(!treatedStates[j])
-				allDestsTreated = false;
+
 		}
 		if(solvePTG && sptg->getTransition(state,j) != -1 && (*vals)[j].isInfinity() && (*resets)[state][j] != -1){
 			//cout << "====Compare reset to " << j << " ====" << endl;
@@ -351,12 +355,12 @@ void SPTGSolverV2::propagate(unsigned int state){
 				for (list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it)
 					cout << "(" << it->getX() << "," << it->getY() << ") ";
 				cout << endl;
-				/*
+
 			cout << "State " << state << ": " << endl;
 			for (list<Point>::iterator itI = (*valueFcts)[state].begin(); itI != (*valueFcts)[state].end(); ++itI){
 				cout << "t: " << itI->getX() << " -> ";
 				itI->getStrategy().show();
-			}*/
+			}
 
 			}
 		}

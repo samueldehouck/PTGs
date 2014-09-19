@@ -8,6 +8,7 @@
 #include "Fraction.hpp"
 #include "Point.hpp"
 #include <cstdlib>
+#include <sys/time.h>
 
 using namespace std;
 
@@ -49,8 +50,8 @@ int main(int argc, char *argv[]){
 		if(file != NULL)
 			ptg = factory.buildFromFile(file);
 		else
-			//ptg = factory.buildPTG(10,50,1,2,2,3);
-			ptg = factory.hardBuild(0);
+			ptg = factory.buildPTG(100,500,15,20,20,10);
+			//ptg = factory.hardBuild(0);
 		PTGSolver solver;
 		solver.solvePTG(ptg, true, v2);
 		cerr << "breakpoints: " << solver.getBreakPoints() << endl;
@@ -78,9 +79,15 @@ int main(int argc, char *argv[]){
 	}
 	else if (argc == 1){
 		PTGFactory factory;
-		PTG* ptg = factory.hardBuild(1);
+		PTG* ptg = factory.buildPTG(100,9000,15,20,20,10);
 		PTGSolver solver;
-		solver.solvePTG(ptg, false,v2);
+
+		struct timeval start, end;
+		gettimeofday(&start, NULL);
+		solver.solvePTG(ptg, false, v2);
+		gettimeofday(&end, NULL);
+		cerr << "time: " <<  1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000 << endl;
+
 		delete ptg;
 	}
 	fclose (stdout);

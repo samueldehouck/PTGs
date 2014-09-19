@@ -197,3 +197,7 @@ ostream& operator<<(ostream& out, const Fraction& f){
 		out << f.num << "/" << f.den;
 	return out;
 }
+
+double Fraction::asDouble(){
+	return num/(double)den;
+}

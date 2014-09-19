@@ -240,14 +240,14 @@ bool SPTGSolver::makeImpSwitchesP1(){
 			//Owned by P1 because we are checking the improving switches for the P1
 			changed = false;
 			if(sptg->getOwner(state)){
-				//cout << "State: " << state << endl;
+				cout << "State: " << state << endl;
 				//cout << "Actual value: " << (*vals)[state] << endl;
 
 				//We don't need to look at the bottom transitions for the player 1 because it goes to MAX and will never be taken
 
 				//Check the lambda transition
 				if(lambdas[state] < (*vals)[state]){
-					//cout << "lambda is better" << endl;
+					cout << "lambda is better" << endl;
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
 					cout << (*vals)[state]<< endl;
@@ -265,7 +265,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 					//We need to check all transitions for every states except the lambda transition because it is taken by default and the ones that go to "MAX" (fictive state)
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 						CompositeValue tempVal = (*vals)[nextState] + sptg->getTransition(state, nextState);
-						//cout << "tmp: " << tempVal << endl;
+						cout << "tmp: " << tempVal << endl;
 						Value tempLength = (*pathsLengths)[nextState] + 1;
 
 						if(solvePTG && ((*resets)[state][nextState] != -1) &&  ((*resets)[state][nextState] < (*vals)[state])){//If we have an improvement, we update the values found
@@ -307,7 +307,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 		}
 
 	}
-	//cout << "changed: " << changed << endl;
+	cout << "changed: " << changed << endl;
 	return oneChange;
 }
 
@@ -324,14 +324,14 @@ bool SPTGSolver::makeImpSwitchesP2(){
 			//Owned by P2 because we are checking the improving switches for the P2
 			changed = false;
 			if(!sptg->getOwner(state)){
-				//cout << "State: " << state << endl;
-				//cout << "Actual value: " << (*vals)[state]<< endl;
+				cout << "State: " << state << endl;
+				cout << "Actual value: " << (*vals)[state]<< endl;
 				//We don't need to take a look at the bottom transitions because the lambda transitions will always be better for P2
 
-				//cout << lambdas[state] << endl;
+				cout << lambdas[state] << endl;
 				//Check the lambda transition
 				if(lambdas[state] > (*vals)[state] || !updated[state]){
-					//cout << "lambda is better" << endl;
+					cout << "lambda is better" << endl;
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
 					cout << (*vals)[state]<< endl;
@@ -347,12 +347,12 @@ bool SPTGSolver::makeImpSwitchesP2(){
 				}
 
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
-					//cout << "state " << state << " to " << nextState << endl;
+					cout << "state " << state << " to " << nextState << endl;
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
-						//cout << (*vals)[nextState] << endl;
+						cout << (*vals)[nextState] << endl;
 						CompositeValue tempVal = (*vals)[nextState] + sptg->getTransition(state, nextState);
 						Value tempLength = (*pathsLengths)[nextState] + 1;
-						//cout << "temp: " << tempLength << endl;
+						cout << "temp: " << tempLength << endl;
 
 						if(!tempLength.isInfinity()){
 							//Check if the reset exists and is better
@@ -370,8 +370,8 @@ bool SPTGSolver::makeImpSwitchesP2(){
 								updated[state] = true;
 
 							}
-							//cout << "tempVal: " << tempVal << endl;
-							//cout << "val: " << (*vals)[state] << endl;
+							cout << "tempVal: " << tempVal << endl;
+							cout << "val: " << (*vals)[state] << endl;
 							if(!(*vals)[state].isInfinity() && ((*valueFcts)[nextState].front().getDest() != state) && ((*resets)[state][nextState] == -1) &&
 									((tempVal > (*vals)[state])
 											||((tempVal == (*vals)[state]) && (tempLength > (*pathsLengths)[state])))){
@@ -383,8 +383,8 @@ bool SPTGSolver::makeImpSwitchesP2(){
 								}
 								else
 									(*vals)[state].setInf(true);
-								//cout << (*vals)[state] << endl;
-								//cout << tempLength << endl;
+								cout << (*vals)[state] << endl;
+								cout << tempLength << endl;
 
 								(*pathsLengths)[state] = tempLength;
 								(*valueFcts)[state].front().setDest(nextState);

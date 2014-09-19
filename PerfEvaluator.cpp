@@ -22,7 +22,7 @@ PerfEvaluator::PerfEvaluator(unsigned int nbT){
 void PerfEvaluator::eval(bool v2){
 	cerr << "====Starting computing data===" << endl;
 	cerr << "evalStatesTrans" << endl;
-	evalStatesTrans(v2);
+	//evalStatesTrans(v2);
 	cerr << "evalResets" << endl;
 	//evalResets(v2);
 	cerr << "evalStates" << endl;
@@ -34,7 +34,7 @@ void PerfEvaluator::eval(bool v2){
 	cerr << "evalbigone" << endl;
 	//evalBig(v2);
 	cerr << "evalBreakPoints" << endl;
-	//evalBreakPoints(v2);
+	evalBreakPoints(v2);
 }
 
 void PerfEvaluator::evalStatesTrans(bool v2){
@@ -474,7 +474,7 @@ void PerfEvaluator::evalBreakPoints(bool v2){
 	double average = 0;
 
 	unsigned int states = 5;
-	for ( int i = 0; i <= 10000; ++i){
+	for ( int i = 0; i <= 100000; ++i){
 		//for (unsigned int i = 0; i < nbTests; ++i){
 		if(i%10 == 0)
 			cerr << ".";
@@ -490,7 +490,7 @@ void PerfEvaluator::evalBreakPoints(bool v2){
 
 		if(nbBreakPoints >= 2){
 			ostringstream tmp;
-			//tmp << "sptg" << i;
+			tmp << "sptg" << i;
 
 			ptg->write(tmp.str());
 		}

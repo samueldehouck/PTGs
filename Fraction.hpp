@@ -30,6 +30,7 @@ public:
 	void reduce();
 	unsigned int gcd(int, int);
 	void upperSign();
+	double asDouble();
 };
 
 ostream& operator<<(ostream&, const Fraction&);
