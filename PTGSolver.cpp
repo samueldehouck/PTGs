@@ -90,6 +90,10 @@ void PTGSolver::solvePTG(PTG* p, bool visu, bool v2){
 
 				//show();
 
+				//All rates need to be multiplied by the length of the interval
+				for(unsigned int i = 0; i < size; ++i)
+					ptg->setState(i,ptg->getState(i) * (endM - time));
+
 				if(v2){
 					SPTGSolverV2* sptgSolver = new SPTGSolverV2(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
 					sptgSolver->solveSPTG();
@@ -104,6 +108,10 @@ void PTGSolver::solvePTG(PTG* p, bool visu, bool v2){
 
 				//The resolution of a SPTG is done between 0 and 1, we need to rescale the valueFcts
 				rescale(time, endM);
+
+				//All rates need to be restored as they were before solveSPTG
+				for(unsigned int i = 0; i < size; ++i)
+					ptg->setState(i,ptg->getState(i) / (endM - time));
 				//show();
 
 				//The last step is to do an extendedDijkstra on the game in the "time" instant
@@ -222,11 +230,11 @@ void PTGSolver::updateBottoms(){
 void PTGSolver::rescale(Value start, Value end){
 	//The result given by the solveSPTG needs to be rescaled (from (0,1) to (start, end))
 	cout << "====Rescaling====" << endl;
-	for (vector<list<Point> >::iterator it = valueFcts.begin(); it != valueFcts.end(); ++it){
+	/*for (vector<list<Point> >::iterator it = valueFcts.begin(); it != valueFcts.end(); ++it){
 		for (list<Point>::iterator itL = it->begin(); itL != it->end() && itL->getX() <= 1 ; ++itL){
 			itL->setX((itL->getX() * (end.getVal() - start.getVal())) + start);
 		}
-	}
+	}*/
 	for (unsigned int i = 0; i < size; ++i){
 		for (list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end() && it->getX() < 1; ++it)
 			it->setX((it->getX() * (end.getVal() - start.getVal())) + start);
@@ -492,7 +500,7 @@ void PTGSolver::visualize(){
 					f << "\\draw (0,"  << (Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << it->getDest() << "$};" << endl;
 			}
 
-			if(it->getInclusion() && ((itNext != valueFcts[i].end() && itNext->getDest() != it->getDest()) || it->getX().getVal() == 0 || it->getX().getVal() == maxX)){
+			if(it->getInclusion() && itNext->getX().getVal() != maxX && ((itNext != valueFcts[i].end() && itNext->getDest() != it->getDest()) || it->getX().getVal() == 0 || it->getX().getVal() == maxX)){
 				if(!itNext->getInclusion() && itNext != valueFcts[i].end() && itNext->getDest() != it->getDest() && it->getX().getVal() != 0 && it->getX().getVal() != maxX){
 					f << "\\node [circle,draw,fill= " << color <<",scale=0.4] at (" << it->getX().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
 
@@ -503,7 +511,7 @@ void PTGSolver::visualize(){
 						f << "\\draw (0,"  << (Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1 << ") node[left] {\\footnotesize$" << itNext->getDest() << "$};" << endl;
 
 				}
-				else if(itNext->getInclusion() && itNext != valueFcts[i].end() && itNext->getDest() != it->getDest() && it->getX().getVal() != 0 && it->getX().getVal() != maxX){
+				else if(itNext->getInclusion() && itNext != valueFcts[i].end() && itNext->getDest() != it->getDest() && it->getX().getVal() != 0 && it->getX().getVal() != maxX && itNext->getX().getVal() != maxX){
 					f << "\\draw[" << color << ",fill=white] (" << itNext->getX().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
 
 					f << "\\node [circle,draw,fill="<< colorNext <<",scale=0.4] at (" << itNext->getX().getVal()/ maxX * Fraction(length) + x << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
@@ -520,6 +528,7 @@ void PTGSolver::visualize(){
 				}
 
 			}
+
 			else if(!it->getInclusion() && itNext != valueFcts[i].end() && itNext->getDest() != it->getDest()){
 				f << "\\draw[" << color << ",fill=white] (" << itNext->getX().getVal()/ maxX * Fraction(length) + x << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
 				cout << "time: " << itNext->getX().getVal() << endl;

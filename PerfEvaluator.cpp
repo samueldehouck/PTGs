@@ -474,12 +474,12 @@ void PerfEvaluator::evalBreakPoints(bool v2){
 	double average = 0;
 
 	unsigned int states = 5;
-	for ( int i = 0; i <= 100000; ++i){
+	for ( int i = 0; i <= 10000; ++i){
 		//for (unsigned int i = 0; i < nbTests; ++i){
 		if(i%10 == 0)
 			cerr << ".";
 		PTGFactory factory;
-		PTG* ptg = factory.buildSPTG(4,6,5,5);
+		PTG* ptg = factory.buildSPTG(6,15,10,10);
 		PTGSolver solver;
 
 		solver.solvePTG(ptg, false, v2);
