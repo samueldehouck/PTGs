@@ -270,7 +270,8 @@ void SPTGSolverV2::propagate(unsigned int state){
 						list<Point>::iterator itINext = itI;
 						++itINext;
 						list<Point>::iterator itStateNext = itState;
-						++itStateNext;
+						while(itStateNext->getX() < itINext->getX() && itStateNext->getX() != 1)
+							++itStateNext;
 						Value old = itI->getY();
 
 						Value diff = itINext->getX() - itI->getX();
@@ -294,7 +295,24 @@ void SPTGSolverV2::propagate(unsigned int state){
 						Value old = itI->getY();
 						if(itI->getType() == 0){
 							cout << "ici " << coef << " " << diff << endl;
-							itI->setY(itLastState->getY() + sptg->getTransition(i,tmpState) + (diff*coef));
+							list<Point>::iterator itLastI = itI;
+							list<Point>::iterator itNextI = itI;
+							--itLastI;
+							++itNextI;
+							Value coefLast = (itI->getY() - itLastI->getY())/(itI->getX() - itLastI->getX());
+							Value zeroLast = itI->getY() - coefLast * itI->getX();
+							Value zeroI = itLastState->getY() + sptg->getTransition(i,tmpState) - coef*itLastState->getX();
+							Value inter = (zeroLast - zeroI)/(coefLast - coef);
+							//If there is the intersection with the strategy that was before that hasn't the same X, we change the X of our point
+
+							if(inter > itLastI->getX() && inter < itState->getX() ){
+								itI->setX(inter);
+								itI->setY(zeroLast + coef*inter);
+							}
+							else{
+								//Will maybe need to implement it
+							}
+
 						}
 						else if(itI->getType() == 1){
 
