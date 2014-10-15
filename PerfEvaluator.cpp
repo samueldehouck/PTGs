@@ -107,7 +107,7 @@ void PerfEvaluator::evalStatesTrans(bool v2){
 					gettimeofday(&start, NULL);
 
 
-					solver.solvePTG(ptg, false,v2);
+					solver.solvePTG(ptg, false,v2,false);
 
 					gettimeofday(&end, NULL);
 					average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
@@ -188,7 +188,7 @@ void PerfEvaluator::evalResets(bool v2){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false,v2);
+			solver.solvePTG(ptg, false,v2,false);
 
 			delete ptg;
 			gettimeofday(&end, NULL);
@@ -245,7 +245,7 @@ void PerfEvaluator::evalStates(bool v2){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, v2);
+			solver.solvePTG(ptg, false, v2,false);
 
 			gettimeofday(&end, NULL);
 			delete ptg;
@@ -292,7 +292,7 @@ void PerfEvaluator::evalStates(bool v2){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, v2);
+			solver.solvePTG(ptg, false, v2,false);
 
 			gettimeofday(&end, NULL);
 			delete ptg;
@@ -350,7 +350,7 @@ void PerfEvaluator::evalTrans(bool v2){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, v2);
+			solver.solvePTG(ptg, false, v2,false);
 
 			delete ptg;
 			gettimeofday(&end, NULL);
@@ -407,7 +407,7 @@ void PerfEvaluator::evalInterval(bool v2){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, v2);
+			solver.solvePTG(ptg, false, v2,false);
 
 			delete ptg;
 			gettimeofday(&end, NULL);
@@ -438,7 +438,7 @@ void PerfEvaluator::evalBig(bool v2){
 		PTGSolver solver;
 		gettimeofday(&start, NULL);
 
-		solver.solvePTG(ptg, true, v2);
+		solver.solvePTG(ptg, true, v2, false);
 
 		delete ptg;
 		gettimeofday(&end, NULL);
@@ -482,7 +482,7 @@ void PerfEvaluator::evalBreakPoints(bool v2){
 		PTG* ptg = factory.buildSPTG(6,15,10,10);
 		PTGSolver solver;
 
-		solver.solvePTG(ptg, false, v2);
+		solver.solvePTG(ptg, false, v2,false);
 		unsigned int nbBreakPoints = solver.getBreakPoints();
 		if(nbBreakPoints > 0)
 			++average;

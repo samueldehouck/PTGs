@@ -35,11 +35,12 @@ private:
 	void cleanStrats();
 	void createResets();
 	void updateResets();
-	void visualize();
-
+	void visualize(bool, bool);
+	void visualizeVals();
+	void visualizeStrats();
 public:
 	PTGSolver();
-	void solvePTG(PTG*, bool, bool);
+	void solvePTG(PTG*, bool, bool, bool);
 	vector<list<Point> >* getValueFcts();
 	unsigned int getBreakPoints();
 	void show();
