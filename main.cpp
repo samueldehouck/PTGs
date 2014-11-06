@@ -13,8 +13,15 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
+	freopen("output.txt","w",stdout);
+	PTGFactory factory;
+	PTG* ptg;
 
-
+	ptg = factory.hardBuild(0);
+	PTGSolver solver;
+	solver.solvePTG(ptg, false, 3, false);
+	cerr << "breakpoints: " << solver.getBreakPoints() << endl;
+	fclose (stdout);
 
 /*
 	//!!!!!!!!Needed to be able to build different games

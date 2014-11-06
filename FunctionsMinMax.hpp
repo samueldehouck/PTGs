@@ -12,14 +12,14 @@ using namespace std;
 
 class FunctionsMinMax {
 private:
-	void nextPoint(list<Point>, Point, Point, Point, Point, unsigned int, Value, bool);
+	void nextPoint(list<Point>*, Point, Point, Point, Point, unsigned int, Value, bool);
 	void tryWaiting(list<Point>, unsigned int, Value, bool);
 	void clean(list<Point>);
 public:
 	FunctionsMinMax();
 	virtual ~FunctionsMinMax();
 
-	list<Point> getMinMax(SPTG*, list<Point>, unsigned int, list<Point>, unsigned int,bool);
+	list<Point>* getMinMax(SPTG*, list<Point>, unsigned int, list<Point>, unsigned int,bool);
 
 };
 

@@ -10,6 +10,7 @@
 #include "Transition.hpp"
 #include "Value.hpp"
 #include "SPTGSolverV2.hpp"
+#include "SPTGSolverValIt.hpp"
 
 class PTGSolver{
 private:

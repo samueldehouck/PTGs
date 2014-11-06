@@ -90,7 +90,6 @@ void SPTGSolverV2::solveSPTG(){
 		delete ps;
 	}
 
-
 	//Starts by building the valueFcts such that all states are waiting then following their strategies
 	buildValueFcts();
 
@@ -148,8 +147,6 @@ void SPTGSolverV2::solveSPTG(){
 void SPTGSolverV2::buildValueFcts(){
 	//The base function is to wait in the state then go to the target
 	for (unsigned int i = 0; i < size; ++i){
-		(*valueFcts)[i].front().setX(1);
-		(*valueFcts)[i].front().setY((*vals)[i]);
 		(*valueFcts)[i].push_front(Point(0,((*vals)[i] + sptg->getState(i)),Strategy((*valueFcts)[i].front().getDest(),1,false)));
 	}
 }

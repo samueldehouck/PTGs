@@ -105,7 +105,9 @@ void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats){
 					delete sptgSolver;
 				}
 				else if (version == 3){
-
+					SPTGSolverValIt* sptgSolver = new SPTGSolverValIt(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
+					sptgSolver->solveSPTG();
+					delete sptgSolver;
 				}
 
 

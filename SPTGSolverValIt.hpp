@@ -11,6 +11,7 @@
 #include <list>
 #include "PG.hpp"
 #include "PGSolver.hpp"
+#include "FunctionsMinMax.hpp"
 
 using namespace std;
 
@@ -26,13 +27,18 @@ private:
 	vector<Value>* bottoms;
 	vector<vector<CompositeValue> >* resets;
 	vector<bool> updated;
+	vector<bool> defined;
+	vector<list<Point>* > copyValsSrc;
+	vector<list<Point>* > copyVals;
+	bool compareCopy();
+	void copyValueFcts();
 
 public:
 	SPTGSolverValIt();
 	SPTGSolverValIt(SPTG* , vector<Value>* ,  vector<Value>* , vector<CompositeValue>* , vector<list<Point> >* , vector<vector<CompositeValue> >* );
 	virtual ~SPTGSolverValIt();
 	void show();
-
+	void solveSPTG();
 };
 
 #endif /* SPTGSOLVERVALIT_HPP_ */

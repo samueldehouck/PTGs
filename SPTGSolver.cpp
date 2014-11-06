@@ -136,11 +136,6 @@ void SPTGSolver::solveSPTG(){
 		cout << endl;
 	}*/
 
-	//Copy the vals obtained by extended dijkstra into the valueFcts
-	for (unsigned int i = 0; i < size; ++i){
-		(*valueFcts)[i].front().setY((*vals)[i]);
-	}
-
 	while (time > 0){
 
 		for(unsigned int i = 0; i < size ; ++i){

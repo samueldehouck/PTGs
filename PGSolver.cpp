@@ -175,15 +175,20 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 			cout << "Change value of state " << finalState << " to ";
 			if(minIsBottom){
 				cout << (*bottoms)[finalState] << endl;
+
 				if((*bottoms)[finalState].isInfinity())
 					(*vals)[finalState].setInf(true);
 				else{
+					cout << (*vals)[finalState] << endl;
 					(*vals)[finalState] = (*bottoms)[finalState];
+					cout << (*vals)[finalState] << endl;
+
 				}
 
 				(*pathsLengths)[finalState] = 1;
 				list<Point>::iterator it = (*valueFcts)[finalState].begin();
 				++it;
+				(*valueFcts)[finalState].front().setY((*vals)[finalState]);
 				(*valueFcts)[finalState].front().setDest(it->getDest());
 				(*valueFcts)[finalState].front().setType(2);
 
@@ -191,7 +196,10 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 			else if(minIsReset){
 				(*vals)[finalState] = (*resets)[finalState][finalTrans];
 				cout << (*resets)[finalState][finalTrans] << endl;
+
 				(*pathsLengths)[finalState] = 1;
+				(*valueFcts)[finalState].front().setY((*vals)[finalState]);
+
 				(*valueFcts)[finalState].front().setDest(finalTrans);
 				(*valueFcts)[finalState].front().setType(3);
 			}
@@ -200,9 +208,11 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 					(*vals)[finalState].setInf(true);
 				else
 					(*vals)[finalState] = (*vals)[finalTrans] + pg->getTransition(finalState, finalTrans);
-				cout << (*vals)[finalState] << endl;
 
 				(*vals)[finalState].getVal().upperSign();
+				cout << (*vals)[finalState] << endl;
+				(*valueFcts)[finalState].front().setY((*vals)[finalState]);
+
 				(*pathsLengths)[finalState] = (*pathsLengths)[finalTrans] + 1;
 				(*valueFcts)[finalState].front().setDest(finalTrans);
 				(*valueFcts)[finalState].front().setType(0);
