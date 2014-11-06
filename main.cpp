@@ -14,6 +14,9 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 
+
+
+/*
 	//!!!!!!!!Needed to be able to build different games
 	srand (time(NULL));
 
@@ -22,7 +25,7 @@ int main(int argc, char *argv[]){
 	freopen("output.txt","w",stdout);
 	bool perf = false;
 	bool visu = false;
-	bool v2 = false;
+	unsigned int version = 1;
 	bool sat = false;
 	char* file = NULL;
 
@@ -32,7 +35,9 @@ int main(int argc, char *argv[]){
 		else if(strcmp(argv[i],"-v") == 0)
 			visu = true;
 		else if(strcmp(argv[i],"-v2") == 0)
-			v2 = true;
+			version = 2;
+		else if (strcmp(argv[i], "-v3") == 0)
+			version = 3;
 		else if(strcmp(argv[i],"-sat") == 0)
 			sat = true;
 		else
@@ -43,7 +48,7 @@ int main(int argc, char *argv[]){
 		PerfEvaluator perf;
 		if(visu)
 			cerr << "Can't do visualization and perfomances!" << endl;
-		perf.eval(v2);
+		perf.eval(version);
 
 	}
 	else if(sat){
@@ -56,7 +61,7 @@ int main(int argc, char *argv[]){
 			ptg = factory.buildPTG(100,500,15,20,20,10);
 			//ptg = factory.hardBuild(0);
 		PTGSolver solver;
-		solver.solvePTG(ptg, false, v2, sat);
+		solver.solvePTG(ptg, false, version, sat);
 		cerr << "breakpoints: " << solver.getBreakPoints() << endl;
 
 		delete ptg;
@@ -71,12 +76,12 @@ int main(int argc, char *argv[]){
 			ptg = factory.buildPTG(100,500,15,20,20,10);
 			//ptg = factory.hardBuild(0);
 		PTGSolver solver;
-		solver.solvePTG(ptg, true, v2, false);
+		solver.solvePTG(ptg, true, version, false);
 		cerr << "breakpoints: " << solver.getBreakPoints() << endl;
 
 		delete ptg;
 	}
-	else if(v2){
+	else if(version == 2){
 		PTGFactory factory;
 		PTG* ptg;
 
@@ -85,14 +90,26 @@ int main(int argc, char *argv[]){
 		else
 			ptg = factory.hardBuild(0);
 		PTGSolver solver;
-		solver.solvePTG(ptg, false,v2, false);
+		solver.solvePTG(ptg, false,version, false);
+		delete ptg;
+	}
+	else if(version == 3){
+		PTGFactory factory;
+		PTG* ptg;
+
+		if(file != NULL)
+			ptg = factory.buildFromFile(file);
+		else
+			ptg = factory.hardBuild(0);
+		PTGSolver solver;
+		solver.solvePTG(ptg, false, version, false);
 		delete ptg;
 	}
 	else if (file != NULL){
 		PTGFactory factory;
 		PTG* ptg = factory.buildFromFile(argv[1]);
 		PTGSolver solver;
-		solver.solvePTG(ptg, true,v2, false);
+		solver.solvePTG(ptg, true,version, false);
 		delete ptg;
 	}
 	else if (argc == 1){
@@ -102,12 +119,15 @@ int main(int argc, char *argv[]){
 
 		struct timeval start, end;
 		gettimeofday(&start, NULL);
-		solver.solvePTG(ptg, false, v2, false);
+		solver.solvePTG(ptg, false, version, false);
 		gettimeofday(&end, NULL);
 		cerr << "time: " <<  1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000 << endl;
 
 		delete ptg;
 	}
 	fclose (stdout);
+	*/
+
+
 	return 1;
 }

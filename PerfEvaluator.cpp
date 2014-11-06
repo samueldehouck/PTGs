@@ -19,25 +19,25 @@ PerfEvaluator::PerfEvaluator(unsigned int nbT){
 	nbTests = nbT;
 }
 
-void PerfEvaluator::eval(bool v2){
+void PerfEvaluator::eval(unsigned int version){
 	cerr << "====Starting computing data===" << endl;
 	cerr << "evalStatesTrans" << endl;
-	//evalStatesTrans(v2);
+	//evalStatesTrans(version);
 	cerr << "evalResets" << endl;
-	//evalResets(v2);
+	//evalResets(version);
 	cerr << "evalStates" << endl;
-	//evalStates(v2);
+	//evalStates(version);
 	cerr << "evalTrans" << endl;
-	//evalTrans(v2);
+	//evalTrans(version);
 	cerr << "evalInterval" << endl;
-	//evalInterval(v2);
+	//evalInterval(version);
 	cerr << "evalbigone" << endl;
-	//evalBig(v2);
+	//evalBig(version);
 	cerr << "evalBreakPoints" << endl;
-	evalBreakPoints(v2);
+	evalBreakPoints(version);
 }
 
-void PerfEvaluator::evalStatesTrans(bool v2){
+void PerfEvaluator::evalStatesTrans(unsigned int version){
 	unsigned int minState = 5;
 	unsigned int maxState = 20;
 	struct timeval start, end;
@@ -45,7 +45,7 @@ void PerfEvaluator::evalStatesTrans(bool v2){
 
 	//Compute a tab while modifying the number of states and transitions
 	f.open("tabStateTrans.tex");
-	f << "\\documentclass{standalone}" << endl;
+	f << "\\documentclass{article}" << endl;
 	f << "\\begin{document}" << endl;
 	f << "Intervals: [0,3]" << endl;
 	f << "Resets: 0" << endl;
@@ -54,7 +54,7 @@ void PerfEvaluator::evalStatesTrans(bool v2){
 	f << "\\begin{tabular}{|c|";
 
 	o.open("tabStateTransBreak.tex");
-	o << "\\documentclass{standalone}" << endl;
+	o << "\\documentclass{article}" << endl;
 	o << "\\begin{document}" << endl;
 	o << "Intervals: [0,3]" << endl;
 	o << "Resets: 0" << endl;
@@ -107,7 +107,7 @@ void PerfEvaluator::evalStatesTrans(bool v2){
 					gettimeofday(&start, NULL);
 
 
-					solver.solvePTG(ptg, false,v2,false);
+					solver.solvePTG(ptg, false,version,false);
 
 					gettimeofday(&end, NULL);
 					average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
@@ -151,7 +151,7 @@ void PerfEvaluator::evalStatesTrans(bool v2){
 	f.close();
 }
 
-void PerfEvaluator::evalResets(bool v2){
+void PerfEvaluator::evalResets(unsigned int version){
 	struct timeval start, end;
 
 	unsigned int maxNbResets = 25;
@@ -163,7 +163,7 @@ void PerfEvaluator::evalResets(bool v2){
 
 	ofstream f;
 	f.open("resetsGraph.tex");
-	f << "\\documentclass{standalone}" << endl;
+	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
 	f << "\\begin{document}" << endl;
 	f << "\\begin{tikzpicture}" << endl;
@@ -188,7 +188,7 @@ void PerfEvaluator::evalResets(bool v2){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false,v2,false);
+			solver.solvePTG(ptg, false,version,false);
 
 			delete ptg;
 			gettimeofday(&end, NULL);
@@ -211,7 +211,7 @@ void PerfEvaluator::evalResets(bool v2){
 }
 
 
-void PerfEvaluator::evalStates(bool v2){
+void PerfEvaluator::evalStates(unsigned int version){
 	struct timeval start, end;
 
 	unsigned int step = 10;
@@ -221,7 +221,7 @@ void PerfEvaluator::evalStates(bool v2){
 
 	ofstream f;
 	f.open("states.tex");
-	f << "\\documentclass{standalone}" << endl;
+	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
 	f << "\\begin{document}" << endl;
 
@@ -245,7 +245,7 @@ void PerfEvaluator::evalStates(bool v2){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, v2,false);
+			solver.solvePTG(ptg, false, version,false);
 
 			gettimeofday(&end, NULL);
 			delete ptg;
@@ -270,7 +270,7 @@ void PerfEvaluator::evalStates(bool v2){
 
 	maxNbStates = 200;
 	f.open("statesfixed.tex");
-	f << "\\documentclass{standalone}" << endl;
+	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
 	f << "\\begin{document}" << endl;
 
@@ -292,7 +292,7 @@ void PerfEvaluator::evalStates(bool v2){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, v2,false);
+			solver.solvePTG(ptg, false, version,false);
 
 			gettimeofday(&end, NULL);
 			delete ptg;
@@ -315,7 +315,7 @@ void PerfEvaluator::evalStates(bool v2){
 	system("pdflatex statesfixed.tex");
 }
 
-void PerfEvaluator::evalTrans(bool v2){
+void PerfEvaluator::evalTrans(unsigned int version){
 	struct timeval start, end;
 
 	unsigned int step = 20;
@@ -325,7 +325,7 @@ void PerfEvaluator::evalTrans(bool v2){
 
 	ofstream f;
 	f.open("transitions.tex");
-	f << "\\documentclass{standalone}" << endl;
+	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
 	f << "\\begin{document}" << endl;
 	f << "\\begin{tikzpicture}" << endl;
@@ -350,7 +350,7 @@ void PerfEvaluator::evalTrans(bool v2){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, v2,false);
+			solver.solvePTG(ptg, false, version,false);
 
 			delete ptg;
 			gettimeofday(&end, NULL);
@@ -372,7 +372,7 @@ void PerfEvaluator::evalTrans(bool v2){
 	system("pdflatex transitions.tex");
 }
 
-void PerfEvaluator::evalInterval(bool v2){
+void PerfEvaluator::evalInterval(unsigned int version){
 	struct timeval start, end;
 
 	unsigned int step = 5;
@@ -384,7 +384,7 @@ void PerfEvaluator::evalInterval(bool v2){
 
 	ofstream f;
 	f.open("intervals.tex");
-	f << "\\documentclass{standalone}" << endl;
+	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
 	f << "\\begin{document}" << endl;
 	f << "\\begin{tikzpicture}" << endl;
@@ -407,7 +407,7 @@ void PerfEvaluator::evalInterval(bool v2){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, v2,false);
+			solver.solvePTG(ptg, false, version,false);
 
 			delete ptg;
 			gettimeofday(&end, NULL);
@@ -428,7 +428,7 @@ void PerfEvaluator::evalInterval(bool v2){
 	system("pdflatex intervals.tex");
 }
 
-void PerfEvaluator::evalBig(bool v2){
+void PerfEvaluator::evalBig(unsigned int version){
 	struct timeval start, end;
 	unsigned int average = 0;
 	for (unsigned int i = 0; i < 20; ++i){
@@ -438,7 +438,7 @@ void PerfEvaluator::evalBig(bool v2){
 		PTGSolver solver;
 		gettimeofday(&start, NULL);
 
-		solver.solvePTG(ptg, true, v2, false);
+		solver.solvePTG(ptg, true, version, false);
 
 		delete ptg;
 		gettimeofday(&end, NULL);
@@ -450,7 +450,7 @@ void PerfEvaluator::evalBig(bool v2){
 }
 
 
-void PerfEvaluator::evalBreakPoints(bool v2){
+void PerfEvaluator::evalBreakPoints(unsigned int version){
 
  	unsigned int maxNbStates = 50;
 	double scaleX = 2;
@@ -458,7 +458,7 @@ void PerfEvaluator::evalBreakPoints(bool v2){
 
 	ofstream f;
 	f.open("breakpoints.tex");
-	f << "\\documentclass{standalone}" << endl;
+	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
 	f << "\\begin{document}" << endl;
 
@@ -482,7 +482,7 @@ void PerfEvaluator::evalBreakPoints(bool v2){
 		PTG* ptg = factory.buildSPTG(6,15,10,10);
 		PTGSolver solver;
 
-		solver.solvePTG(ptg, false, v2,false);
+		solver.solvePTG(ptg, false, version,false);
 		unsigned int nbBreakPoints = solver.getBreakPoints();
 		if(nbBreakPoints > 0)
 			++average;

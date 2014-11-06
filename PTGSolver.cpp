@@ -15,7 +15,7 @@ PTGSolver::PTGSolver(){
 }
 
 
-void PTGSolver::solvePTG(PTG* p, bool visu, bool v2, bool strats){
+void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats){
 	cout << "====SolvePTG====" << endl;
 
 
@@ -94,15 +94,18 @@ void PTGSolver::solvePTG(PTG* p, bool visu, bool v2, bool strats){
 				for(unsigned int i = 0; i < size; ++i)
 					ptg->setState(i,ptg->getState(i) * (endM - time));
 
-				if(v2){
+				if(version == 1){
+					SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
+					sptgSolver->solveSPTG();
+					delete sptgSolver;
+				}
+				if(version == 2){
 					SPTGSolverV2* sptgSolver = new SPTGSolverV2(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
 					sptgSolver->solveSPTG();
 					delete sptgSolver;
 				}
-				else{
-					SPTGSolver* sptgSolver = new SPTGSolver(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
-					sptgSolver->solveSPTG();
-					delete sptgSolver;
+				else if (version == 3){
+
 				}
 
 
@@ -375,7 +378,7 @@ void PTGSolver::visualizeVals(){
 	ofstream f;
 
 	f.open("valueFcts.tex");
-	f << "\\documentclass{standalone}" << endl;
+	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
 	f << "\\begin{document}" << endl;
 	f << "\\begin{tikzpicture}" << endl;
@@ -467,7 +470,7 @@ void PTGSolver::visualizeStrats(){
 
 
 	f.open("strategies.tex");
-	f << "\\documentclass{standalone}" << endl;
+	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
 	f << "\\begin{document}" << endl;
 	f << "\\begin{tikzpicture}" << endl;
