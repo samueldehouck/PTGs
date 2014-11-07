@@ -13,17 +13,8 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
-	freopen("output.txt","w",stdout);
-	PTGFactory factory;
-	PTG* ptg;
 
-	ptg = factory.hardBuild(0);
-	PTGSolver solver;
-	solver.solvePTG(ptg, false, 3, false);
-	cerr << "breakpoints: " << solver.getBreakPoints() << endl;
-	fclose (stdout);
 
-/*
 	//!!!!!!!!Needed to be able to build different games
 	srand (time(NULL));
 
@@ -80,8 +71,8 @@ int main(int argc, char *argv[]){
 		if(file != NULL)
 			ptg = factory.buildFromFile(file);
 		else
-			ptg = factory.buildPTG(100,500,15,20,20,10);
-			//ptg = factory.hardBuild(0);
+			//ptg = factory.buildPTG(100,500,15,20,20,10);
+			ptg = factory.hardBuild(0);
 		PTGSolver solver;
 		solver.solvePTG(ptg, true, version, false);
 		cerr << "breakpoints: " << solver.getBreakPoints() << endl;
@@ -133,7 +124,7 @@ int main(int argc, char *argv[]){
 		delete ptg;
 	}
 	fclose (stdout);
-	*/
+
 
 
 	return 1;

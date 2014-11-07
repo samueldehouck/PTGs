@@ -120,10 +120,13 @@ void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats){
 				//show();
 
 				//The last step is to do an extendedDijkstra on the game in the "time" instant
+				for(unsigned int i = 0; i < size; ++i){
+					vals[i] = valueFcts[i].front().getY();
+					valueFcts[i].push_front(Point(time, 0, Strategy(0,0,true)));
+				}
+
 				keepTransAvailable(time, time);
 				updateBottoms();
-				for(unsigned int i = 0; i < size; ++i)
-					valueFcts[i].push_front(Point(time, 0, Strategy(0,0,true)));
 
 
 				pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &valueFcts, &bottoms, &resets);

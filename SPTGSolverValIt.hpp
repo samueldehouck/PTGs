@@ -27,6 +27,7 @@ private:
 	vector<Value>* bottoms;
 	vector<vector<CompositeValue> >* resets;
 	vector<bool> updated;
+	vector<bool> complete;
 	vector<bool> defined;
 	vector<list<Point>* > copyValsSrc;
 	vector<list<Point>* > copyVals;
