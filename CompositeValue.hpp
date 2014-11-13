@@ -1,3 +1,7 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
 #ifndef COMPOSITEVALUE_HPP_
 #define COMPOSITEVALUE_HPP_
 

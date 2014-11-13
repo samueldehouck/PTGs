@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef PTGFACTORY_HPP_
 #define PTGFACTORY_HPP_
 

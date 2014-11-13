@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #include "FunctionsMinMax.hpp"
 
 using namespace std;
@@ -151,7 +156,7 @@ void FunctionsMinMax::clean(list<Point>* f){
 	}
 }
 
-list<Point>* FunctionsMinMax::tryWaiting(list<Point>* f, unsigned int state, Value coefWait, bool max){
+list<Point>* FunctionsMinMax::tryWaiting(list<Point>* f, Value coefWait, bool max){
 
 	cout << "Waiting" << endl;
 	list<Point>* result = new list<Point> ();
@@ -230,10 +235,9 @@ list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int
 		++it;
 	}
 	cout << endl;
-
+	list<Point>* result = new list<Point>();
 
 	//We consider that f is the function of the current state (the one that will be replaced)
-	list<Point>* result = new list<Point>();
 
 	list<Point>::iterator itF = f->begin();
 	list<Point>::iterator itG = g->begin();
@@ -246,7 +250,6 @@ list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int
 
 	if(max){
 		if(itF->getY() < itG->getY() + cost){
-
 			result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
 		}
 		else if (itF->getY() > itG->getY() + cost){
@@ -332,7 +335,7 @@ list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int
 	}
 	cout << endl;
 
-	result = tryWaiting(result, crtState, sptg->getState(crtState), max);
+	result = tryWaiting(result, sptg->getState(crtState), max);
 	clean(result);
 
 	cout << "Result after wait: " << endl;

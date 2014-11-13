@@ -1,5 +1,9 @@
-#include "Point.hpp"
+/*
+ * Author: Samuel Dehouck
+ */
 
+
+#include "Point.hpp"
 
 Point::Point() : x() ,y()
 {}
@@ -63,4 +67,12 @@ bool Point::getInclusion() const{
 
 void Point::setInclusion(bool b){
 	s.setInclusion(b);
+}
+
+void Point::setInf(bool b){
+	y.setInf(b);
+}
+
+bool Point::getInf() const{
+	return y.isInfinity();
 }

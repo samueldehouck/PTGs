@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #include "PerfEvaluator.hpp"
 #include "PTGFactory.hpp"
 #include "PTG.hpp"

@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef STRATEGY_HPP_
 #define STRATEGY_HPP_
 

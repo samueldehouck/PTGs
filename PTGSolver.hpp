@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef PTGSOLVER_HPP_
 #define PTGSOLVER_HPP_
 

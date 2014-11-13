@@ -1,5 +1,9 @@
-#include "Value.hpp"
+/*
+ * Author: Samuel Dehouck
+ */
 
+
+#include "Value.hpp"
 
 Value::Value(){
 	val = 0;

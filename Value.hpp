@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef VALUE_HPP_
 #define VALUE_HPP_
 

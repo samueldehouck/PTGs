@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef SPTGSOLVERV2_HPP_
 #define SPTGSOLVERV2_HPP_
 

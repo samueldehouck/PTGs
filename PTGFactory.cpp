@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #include "PTGFactory.hpp"
 #include "pugixml/pugixml.hpp"
 #include <cstdlib>

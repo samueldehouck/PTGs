@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #include "SPTGSolverV2.hpp"
 #include <iostream>
 #include "PGSolver.hpp"

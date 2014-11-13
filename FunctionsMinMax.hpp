@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef FUNCTIONSMINMAX_HPP_
 #define FUNCTIONSMINMAX_HPP_
 
@@ -13,13 +18,14 @@ using namespace std;
 class FunctionsMinMax {
 private:
 	void nextPoint(list<Point>*, Point, Point, Point, Point, unsigned int, Value, bool);
-	list<Point>* tryWaiting(list<Point>*, unsigned int, Value, bool);
 	void clean(list<Point>*);
 public:
 	FunctionsMinMax();
 	virtual ~FunctionsMinMax();
 
 	list<Point>* getMinMax(SPTG*, list<Point>*, unsigned int, list<Point>*, unsigned int,bool);
+	list<Point>* tryWaiting(list<Point>*, Value, bool);
+
 
 };
 

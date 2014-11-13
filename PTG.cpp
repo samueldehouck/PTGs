@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #include "PTG.hpp"
 #include <iostream>
 #include <fstream>

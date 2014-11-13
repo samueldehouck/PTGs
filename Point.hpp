@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef POINT_HPP_
 #define POINT_HPP_
 
@@ -25,6 +30,8 @@ public:
 	void setDest(unsigned int);
 	bool getInclusion() const;
 	void setInclusion(bool);
+	void setInf(bool);
+	bool getInf() const;
 };
 
 

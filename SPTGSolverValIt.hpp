@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef SPTGSOLVERVALIT_HPP_
 #define SPTGSOLVERVALIT_HPP_
 
@@ -26,9 +31,7 @@ private:
 	vector<list<Point> >* valueFcts;//We need a list of points for every state
 	vector<Value>* bottoms;
 	vector<vector<CompositeValue> >* resets;
-	vector<bool> updated;
 	vector<bool> complete;
-	vector<bool> defined;
 	vector<list<Point>* > copyValsSrc;
 	vector<list<Point>* > copyVals;
 	bool compareCopy();

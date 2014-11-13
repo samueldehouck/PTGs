@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef TRANSITION_HPP_
 #define TRANSITION_HPP_
 

@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #include "Transition.hpp"
 
 Transition::Transition(){

@@ -1,3 +1,7 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
 #include "CompositeValue.hpp"
 
 CompositeValue::CompositeValue(){

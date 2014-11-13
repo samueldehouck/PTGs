@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #include "SPTGSolverValIt.hpp"
 
 SPTGSolverValIt::SPTGSolverValIt() {
@@ -20,11 +25,9 @@ SPTGSolverValIt::SPTGSolverValIt(SPTG* s, vector<Value>* b,  vector<Value>* pl, 
 		for (unsigned int i = 0; i < size; ++i){
 
 			//Used to force the player 2 to, at least, set his strategy
-			updated.push_back(false);
 			complete.push_back(false);
 			copyValsSrc.push_back(new list<Point>());
 			copyVals.push_back(new list<Point>());
-			defined.push_back(false);
 		}
 		complete[0] = true;
 	}
@@ -90,8 +93,7 @@ void SPTGSolverValIt::copyValueFcts(){
 			delete copyValsSrc[i];
 		copyValsSrc[i] = copyVals[i];
 		copyVals[i] = new list<Point>();
-		if(!copyValsSrc[i]->empty())
-			defined[i] = true;
+
 	}
 }
 
@@ -134,7 +136,6 @@ void SPTGSolverValIt::solveSPTG(){
 	//Initialization of the value iteration
 	for(unsigned int i = 0; i < size; ++i){
 		if(sptg->getTransition(i,0) != -1){
-			defined[i] = true;
 			copyValsSrc[i]->push_front((*valueFcts)[i].front());
 			if(sptg->getOwner(i)){
 				copyValsSrc[i]->push_front(Point(0,(*valueFcts)[i].front().getY(), Strategy(0,0,false)));
@@ -143,12 +144,19 @@ void SPTGSolverValIt::solveSPTG(){
 				copyValsSrc[i]->push_front(Point(0,(*valueFcts)[i].front().getY() + sptg->getState(i), Strategy(0,1,false)));
 			}
 		}
+		else{
+			copyValsSrc[i]->push_front((*valueFcts)[i].front());
+			copyValsSrc[i]->front().setInf(true);
+			copyValsSrc[i]->push_front(Point(0,0, Strategy(0,1,false)));
+			copyValsSrc[i]->front().setInf(true);
+
+		}
+
 	}
 
 	delete ps;
 	show();
 
-	//!!!! This algorithm is convergent under some hypothesis
 	unsigned int cnt = 0;
 
 	while(compareCopy() && cnt < 10){
@@ -157,11 +165,8 @@ void SPTGSolverValIt::solveSPTG(){
 		if(cnt != 0)
 			copyValueFcts();
 
-
-
 		for (unsigned int i = 1; i < size; ++i){
 			cout << "State: " << i << endl;
-			updated[i] = false;
 			complete[i] = true;
 
 			for (unsigned int j = 0; j < size; ++j){
@@ -173,19 +178,30 @@ void SPTGSolverValIt::solveSPTG(){
 				copyVals[i] = copyValsSrc[i];
 			}
 			else{
+				bool updated = false;
 				for (unsigned int j = 1; j < size; ++j){
-					if(sptg->getTransition(i,j) != -1 && defined[j]){
-						if(!updated[i]){
-							for (list<Point>::iterator it = copyValsSrc[j]->begin(); it != copyValsSrc[j]->end(); ++it){
-								if(it->getX() != 0 && it->getX() != 1)
-									copyVals[i]->push_back(Point(it->getX(), it->getY() + sptg->getTransition(i,j), Strategy(j, 0, true)));
-								else
-									copyVals[i]->push_back(Point(it->getX(), it->getY() + sptg->getTransition(i,j), Strategy(j, 0, false)));
+					if(sptg->getTransition(i,j) != -1){
+						if(!updated){
 
+							//We need to copy the first function that is compared
+							list<Point>::iterator it = copyValsSrc[j]->begin();
+							while(it != copyValsSrc[j]->end()){
+								if(it->getX() != 0 && it->getX() != 1)
+									copyVals[i]->push_back(Point(it->getX(), it->getY() + sptg->getTransition(i,j), Strategy(j,0,true)));
+								else
+									copyVals[i]->push_back(Point(it->getX(), it->getY() + sptg->getTransition(i,j), Strategy(j,0,false)));
+
+								++it;
 							}
-							updated[i] = true;
+
+							//Try if waiting is better
+							copyVals[i] = minMax.tryWaiting(copyVals[i], sptg->getState(i), !sptg->getOwner(i));
+
+							updated = true;
 						}
-						copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, copyValsSrc[j], j, !sptg->getOwner(i));
+
+						else
+							copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, copyValsSrc[j], j, !sptg->getOwner(i));
 					}
 				}
 			}

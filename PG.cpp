@@ -1,3 +1,7 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
 #include "PG.hpp"
 
 #include <iostream>

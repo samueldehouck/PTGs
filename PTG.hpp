@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef PTG_HPP_
 #define PTG_HPP_
 

@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef PGSOLVER_HPP
 #define PGSOLVER_HPP
 

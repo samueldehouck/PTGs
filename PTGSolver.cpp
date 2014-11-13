@@ -1,5 +1,10 @@
-#include "PTGSolver.hpp"
+/*
+ * Author: Samuel Dehouck
+ */
 
+
+#include "PTGSolver.hpp"
+#include "PTGVisu.hpp"
 #include "stdlib.h"
 #include <iostream>
 #include <fstream>
@@ -158,7 +163,6 @@ void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats){
 			visualize(true, true);
 		}
 		cleanValueFcts();
-		//cleanStrats();
 		cout << endl << "====Results SolvePTG===" << endl;
 		show();
 	}
@@ -373,10 +377,11 @@ void PTGSolver::show(){
 }
 
 void PTGSolver::visualize(bool vals, bool strats){
+	PTGVisu v;
 	if(vals)
-		visualizeVals();
-	if(strats)
-		visualizeStrats();
+		v.visualizeVals(ptg, &valueFcts);
+	//if(strats)
+		//v.visualizeStrats(ptg, &valueFcts);
 }
 
 void PTGSolver::visualizeVals(){

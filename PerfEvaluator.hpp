@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef PERFEVALUATOR_HPP_
 #define PERFEVALUATOR_HPP_
 

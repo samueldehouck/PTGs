@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #include "SPTGSolver.hpp"
 #include <iostream>
 #include <queue>

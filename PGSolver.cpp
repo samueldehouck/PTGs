@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #include "PGSolver.hpp"
 #include <iostream>
 

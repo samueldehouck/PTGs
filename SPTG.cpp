@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #include "SPTG.hpp"
 #include <iostream>
 

@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #ifndef FRACTION_HPP_
 #define FRACTION_HPP_
 

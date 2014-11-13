@@ -1,3 +1,8 @@
+/*
+ * Author: Samuel Dehouck
+ */
+
+
 #include "Fraction.hpp"
 
 #include <iostream>
