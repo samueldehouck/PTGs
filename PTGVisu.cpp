@@ -26,8 +26,8 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 
 	unsigned int size = ptg->getSize();
 
-	double length = 5;
-	double high = 5;
+	double length = 3;
+	double high = 3;
 	f.open("valueFcts.tex");
 	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
@@ -46,6 +46,7 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 
 	double scale = high/max;
 
+	//For each state, we draw the function
 	for (unsigned int i = 1; i < size; ++i){
 		f << "\\begin{tikzpicture}" << endl;
 
@@ -54,15 +55,14 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 		//Draw the x axis
 		f << "\\draw [->][thick] (0,0) -- ( " << x + length + 1 << ",0);" << endl;
 		f << "\\draw ( " << x + length + 1 << ",0) node[right] {$t$};" << endl;
-		f << "\\draw (0,0) node [below]{\\footnotesize$0$};" << endl;
+		//f << "\\draw (0,0) node [below]{\\footnotesize$0$};" << endl;
 		//Draw the y axis
-		f << "\\draw [->][thick] (0,0) -- (0," << length + 1 << ");" << endl;
+		f << "\\draw [->][thick] (0,0) -- (0," << high + 2 << ");" << endl;
 		if(ptg->hasLabels())
-			f<< "\\draw (0," << length + 1<<") node[above] {$\\sigma_{" <<  ptg->getLabel(i) << "}(t)$}; " << endl;
+			f<< "\\draw (0," << high + 2<<") node[above] {$\\sigma_{" <<  ptg->getLabel(i) << "}(t)$}; " << endl;
 		else
-			f<< "\\draw (0," << length + 1<<") node[above] {$\\sigma_{" <<  i << "}(t)$}; " << endl;
+			f<< "\\draw (0," << high + 2<<") node[above] {$\\sigma_{" <<  i << "}(t)$}; " << endl;
 
-		cerr << scale << endl;
 
 		list<Point>::iterator it = (*valueFcts)[i].begin();
 		list<Point>::iterator itNext = it;
@@ -73,17 +73,18 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 		while(itNext != (*valueFcts)[i].end() && it != (*valueFcts)[i].end()){
 
 
-			cerr << "loop 1" << endl;
 			while(itNext != (*valueFcts)[i].end() && itNext->getX() != 1){
 				if(!it->getY().isInfinity()){
-				f << "\\draw (" << it->getX().getVal().asDouble()*length + x* length + x << ", " << it->getY().getVal().asDouble()*scale <<") -- (" << itNext->getX().getVal().asDouble()*length + x* length + x << "," << itNext->getY().getVal().asDouble()*scale << ");" << endl;
-				f<< "\\draw (" << itNext->getX().getVal().asDouble()*length + x* length + x <<",0) node[below] {$ " << itNext->getX().getVal()<< "$}; " << endl;
+					f << "\\draw (" << it->getX().getVal().asDouble()*length + x* length + x << ", " << it->getY().getVal().asDouble()*scale <<") -- (" << itNext->getX().getVal().asDouble()*length + x* length + x << "," << itNext->getY().getVal().asDouble()*scale << ");" << endl;
+					f << "\\draw (" << itNext->getX().getVal().asDouble()*length + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
 
 
-				indexes.push_back(it->getY().getVal());
+					indexes.push_back(it->getY().getVal());
 				}
 
 				else{
+					f << "\\draw (" << it->getX().getVal().asDouble()*length + x* length + x << ", " << high + 1 <<") -- (" << itNext->getX().getVal().asDouble()*length + x* length + x << "," << high + 1 << ");" << endl;
+					f << "\\draw (" << itNext->getX().getVal().asDouble()*length + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
 					inf = true;
 				}
 
@@ -93,16 +94,18 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 			//Need to trace the last segment
 
 			if(!it->getY().isInfinity()){
-			f << "\\draw (" << it->getX().getVal().asDouble()*length + x* length + x << ", " << it->getY().getVal().asDouble()*scale <<") -- (" << itNext->getX().getVal().asDouble()*length + x* length + x << "," << itNext->getY().getVal().asDouble()*scale << ");" << endl;
-			f<< "\\draw (" << itNext->getX().getVal().asDouble()*length + x* length + x <<",0) node[below] {$ " << itNext->getX().getVal()<< "$}; " << endl;
+				f << "\\draw (" << it->getX().getVal().asDouble()*length + x* length + x << ", " << it->getY().getVal().asDouble()*scale <<") -- (" << itNext->getX().getVal().asDouble()*length + x* length + x << "," << itNext->getY().getVal().asDouble()*scale << ");" << endl;
+				f<< "\\draw (" << itNext->getX().getVal().asDouble()*length + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
 
-			indexes.push_back(it->getY().getVal());
-			indexes.push_back(itNext->getY().getVal());
+				indexes.push_back(it->getY().getVal());
+				indexes.push_back(itNext->getY().getVal());
 
 
 			}
 
 			else{
+				f << "\\draw (" << it->getX().getVal().asDouble()*length + x* length + x << ", " << high + 1 <<") -- (" << itNext->getX().getVal().asDouble()*length + x* length + x << "," << high + 1 << ");" << endl;
+				f << "\\draw (" << itNext->getX().getVal().asDouble()*length + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
 				inf = true;
 			}
 
@@ -124,8 +127,11 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 		indexes.unique();
 
 		for (list<Fraction>::iterator itY = indexes.begin(); itY != indexes.end(); ++itY){
-			f << "\\draw (0," <<  itY->asDouble() * scale << ") node[left] {$" << (*itY) << "$};" << endl;
+			f << "\\draw (0," <<  itY->asDouble() * scale << ") node[left] {\\footnotesize$" << (*itY) << "$};" << endl;
 		}
+
+		if (inf)
+			f << "\\draw (0," <<  high + 1 << ") node[left] {$inf$};" << endl;
 
 
 		f << "\\end{tikzpicture}" << endl;
@@ -138,7 +144,6 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 
 void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 	ofstream f;
-	Fraction y = 0;
 	const int length = 3;
 
 	unsigned int size = ptg->getSize();
@@ -147,11 +152,10 @@ void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
 	f << "\\begin{document}" << endl;
-	f << "\\begin{tikzpicture}" << endl;
 
-	y = 0;
 
 	for(unsigned int i = 1; i < size; ++i){
+		f << "\\begin{tikzpicture}" << endl;
 		cout << "State " << i << endl;
 		Fraction x = 0;
 		Fraction maxX = (*valueFcts)[i].back().getX().getVal();
@@ -187,60 +191,60 @@ void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 
 			//Draw the line
 			if(itNext != (*valueFcts)[i].end() && itNext->getX().getVal() != 0){
-				f << "\\draw [" << color << "] (" << (it->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length))  - y + 1).asDouble()<< ") -- (" << (itNext->getX().getVal()/maxX  * Fraction(length) + x).asDouble()<< "," << (Fraction(it->getDest()) / Fraction(maxY) * Fraction(length) - y + 1).asDouble()<< ");" << endl;
-				f << "\\draw (" << (it->getX().getVal() / maxX * Fraction(length) + x).asDouble()<< "," << Fraction (0) - y <<") node[below] {\\footnotesize$" << it->getX().getVal() << "$};" << endl;
+				f << "\\draw [" << color << "] (" << (it->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length))  + 1).asDouble()<< ") -- (" << (itNext->getX().getVal()/maxX  * Fraction(length) + x).asDouble()<< "," << (Fraction(it->getDest()) / Fraction(maxY) * Fraction(length) + 1).asDouble()<< ");" << endl;
+				f << "\\draw (" << (it->getX().getVal() / maxX * Fraction(length) + x).asDouble() << ",0) node[below] {\\footnotesize$" << it->getX().getVal() << "$};" << endl;
 				if(ptg->hasLabels())
-					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1).asDouble() << ") node[left] {\\footnotesize$" << ptg->getLabel(it->getDest()) << "$};" << endl;
+					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\footnotesize$" << ptg->getLabel(it->getDest()) << "$};" << endl;
 				else
-					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1).asDouble() << ") node[left] {\\footnotesize$" << it->getDest() << "$};" << endl;
+					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length))+ 1).asDouble() << ") node[left] {\\footnotesize$" << it->getDest() << "$};" << endl;
 			}
 
 			if(it->getInclusion() && itNext->getX().getVal() != maxX && ((itNext != (*valueFcts)[i].end() && itNext->getDest() != it->getDest()) || it->getX().getVal() == 0 || it->getX().getVal() == maxX)){
 				if(!itNext->getInclusion() && itNext != (*valueFcts)[i].end() && itNext->getDest() != it->getDest() && it->getX().getVal() != 0 && it->getX().getVal() != maxX){
-					f << "\\node [circle,draw,fill= " << color <<",scale=0.4] at (" << (it->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
+					f << "\\node [circle,draw,fill= " << color <<",scale=0.4] at (" << (it->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length) + 1 << ") {};" << endl;
 
-					f << "\\draw[" << colorNext << ",fill=white] (" << (itNext->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
+					f << "\\draw[" << colorNext << ",fill=white] (" << (itNext->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length) + 1 << ") circle (0.07);" << endl;
 					if(ptg->hasLabels())
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1).asDouble() << ") node[left] {\\footnotesize$" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\footnotesize$" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
 					else
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1).asDouble() << ") node[left] {\\footnotesize$" << itNext->getDest() << "$};" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length))+ 1).asDouble() << ") node[left] {\\footnotesize$" << itNext->getDest() << "$};" << endl;
 
 				}
 				else if(itNext->getInclusion() && itNext != (*valueFcts)[i].end() && itNext->getDest() != it->getDest() && it->getX().getVal() != 0 && it->getX().getVal() != maxX && itNext->getX().getVal() != maxX){
-					f << "\\draw[" << color << ",fill=white] (" << (itNext->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
+					f << "\\draw[" << color << ",fill=white] (" << (itNext->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length) + 1 << ") circle (0.07);" << endl;
 
-					f << "\\node [circle,draw,fill="<< colorNext <<",scale=0.4] at (" << (itNext->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
+					f << "\\node [circle,draw,fill="<< colorNext <<",scale=0.4] at (" << (itNext->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length) + 1 << ") {};" << endl;
 
 					if(ptg->hasLabels())
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1).asDouble() << ") node[left] {\\footnotesize$" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\footnotesize$" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
 					else
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1).asDouble() << ") node[left] {\\footnotesize$" << itNext->getDest() << "$};" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\footnotesize$" << itNext->getDest() << "$};" << endl;
 
 				}
 				else{
-					f << "\\node [circle,draw,fill= " << color <<",scale=0.4] at (" << (it->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") {};" << endl;
+					f << "\\node [circle,draw,fill= " << color <<",scale=0.4] at (" << (it->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length) + 1 << ") {};" << endl;
 
 				}
 
 			}
 
 			else if(!it->getInclusion() && itNext != (*valueFcts)[i].end() && itNext->getDest() != it->getDest()){
-				f << "\\draw[" << color << ",fill=white] (" << (itNext->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
+				f << "\\draw[" << color << ",fill=white] (" << (itNext->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length) + 1 << ") circle (0.07);" << endl;
 				cout << "time: " << itNext->getX().getVal() << endl;
 				if(itNext != (*valueFcts)[i].end() && itNext->getDest() != it->getDest()){
 					if(ptg->hasLabels())
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1).asDouble() << ") node[left] {\\footnotesize$" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\footnotesize$" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
 					else
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1).asDouble() << ") node[left] {\\footnotesize$" << itNext->getDest() << "$};" << endl;
-					f << "\\draw[fill=" << colorNext << "] (" << (itNext->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\footnotesize$" << itNext->getDest() << "$};" << endl;
+					f << "\\draw[fill=" << colorNext << "] (" << (itNext->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)+ 1 << ") circle (0.07);" << endl;
 				}
 			}
 			else if(it->getInclusion() && it->getX().getVal() == 0){
-				f << "\\draw[fill=" << color << "] (" << (it->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)  - y + 1 << ") circle (0.07);" << endl;
+				f << "\\draw[fill=" << color << "] (" << (it->getX().getVal()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length) + 1 << ") circle (0.07);" << endl;
 				if(ptg->hasLabels())
-					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1).asDouble() << ") node[left] {\\footnotesize$" << ptg->getLabel(it->getDest()) << "$};" << endl;
+					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\footnotesize$" << ptg->getLabel(it->getDest()) << "$};" << endl;
 				else
-					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) - y + 1).asDouble() << ") node[left] {\\footnotesize$" << it->getDest() << "$};" << endl;
+					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\footnotesize$" << it->getDest() << "$};" << endl;
 
 			}
 
@@ -248,29 +252,30 @@ void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 		}
 
 		//Draw the x axis
-		f << "\\draw [->][thick] (0," << (Fraction(0) - y).asDouble() << ") -- ( " << (x + length + 1).asDouble() << "," << (Fraction(0) - y).asDouble() << ");" << endl;
-		f << "\\draw ( " << x + length + 1 << "," << (Fraction(0) - y).asDouble() << ") node[right] {$t$};" << endl;
-		f << "\\draw (0," << Fraction(0) - y <<") node [below]{\\footnotesize$0$};" << endl;
+		f << "\\draw [->][thick] (0,0) -- ( " << (x + length + 1).asDouble() << ",0);" << endl;
+		f << "\\draw ( " << x + length + 1 << ",0) node[right] {$t$};" << endl;
+		f << "\\draw (0,0) node [below]{\\footnotesize$0$};" << endl;
 		//Draw the y axis
-		f << "\\draw [->][thick] (0," << (Fraction(0) - y).asDouble() << ") -- (0," << (Fraction(length + 1) - y).asDouble()  << ");" << endl;
+		f << "\\draw [->][thick] (0,0) -- (0," << (Fraction(length + 1)).asDouble()  << ");" << endl;
 		if(ptg->hasLabels())
-			f<< "\\draw (0," << (Fraction(length + 1) - y).asDouble()<<") node[above] {$\\sigma_{" <<  ptg->getLabel(i) << "}(t)$}; " << endl;
+			f<< "\\draw (0," << (Fraction(length + 1)).asDouble()<<") node[above] {$\\sigma_{" <<  ptg->getLabel(i) << "}(t)$}; " << endl;
 		else
-			f<< "\\draw (0," << (Fraction(length + 1) - y).asDouble()<<") node[above] {$\\sigma_{" <<  i << "}(t)$}; " << endl;
+			f<< "\\draw (0," << (Fraction(length + 1)).asDouble()<<") node[above] {$\\sigma_{" <<  i << "}(t)$}; " << endl;
 
-		y = y + 5;
+		f << "\\end{tikzpicture}" << endl;
 	}
-
-	f << "\\draw[black, fill=black] (0," << (Fraction(3) - y).asDouble() << ") circle (0.07);" << endl;
-	f << "\\node [right] at (0.5, " << (Fraction(3) - y).asDouble() << ") {Normal transition};" << endl;
-	f << "\\draw[black, fill=blue] (0," << (Fraction(2) - y).asDouble() << ") circle (0.07);" << endl;
-	f << "\\node [right] at (0.5, " << (Fraction(2) - y).asDouble() << ") {Waiting (lambda transition)};" << endl;
-	f << "\\draw[black, fill=green] (0," << (Fraction(1) - y).asDouble() << ") circle (0.07);" << endl;
-	f << "\\node [right] at (0.5, " << (Fraction(1) - y).asDouble() << ") {Waiting (bottom transition)};" << endl;
-	f << "\\draw[black, fill=red] (0," << (Fraction(0) - y).asDouble() << ") circle (0.07);" << endl;
-	f << "\\node [right] at (0.5, " << (Fraction(0) - y).asDouble() << ") {Reset};" << endl;
-
+	f << "\\begin{tikzpicture}" << endl;
+	f << "\\draw[black, fill=black] (0,3) circle (0.07);" << endl;
+	f << "\\node [right] at (0.5,3) {Normal transition};" << endl;
+	f << "\\draw[black, fill=blue] (0,2) circle (0.07);" << endl;
+	f << "\\node [right] at (0.5,2) {Waiting (lambda transition)};" << endl;
+	f << "\\draw[black, fill=green] (0,1) circle (0.07);" << endl;
+	f << "\\node [right] at (0.5,1) {Waiting (bottom transition)};" << endl;
+	f << "\\draw[black, fill=red] (0,0) circle (0.07);" << endl;
+	f << "\\node [right] at (0.5,0) {Reset};" << endl;
 	f << "\\end{tikzpicture}" << endl;
+
+
 	f << "\\end{document}" << endl;
 	system("pdflatex strategies.tex");
 }

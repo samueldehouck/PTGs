@@ -380,98 +380,10 @@ void PTGSolver::visualize(bool vals, bool strats){
 	PTGVisu v;
 	if(vals)
 		v.visualizeVals(ptg, &valueFcts);
-	//if(strats)
-		//v.visualizeStrats(ptg, &valueFcts);
+	if(strats)
+		v.visualizeStrats(ptg, &valueFcts);
 }
 
-void PTGSolver::visualizeVals(){
-	ofstream f;
-
-	f.open("valueFcts.tex");
-	f << "\\documentclass{article}" << endl;
-	f << "\\usepackage{tikz}" << endl;
-	f << "\\begin{document}" << endl;
-	f << "\\begin{tikzpicture}" << endl;
-
-	Fraction y = 0;
-	const int length = 3;
-	for (unsigned int i = 1; i < size; ++i, y = y - (length + 4) ){
-		Fraction x = 0;
-		Fraction maxY = 0;
-		Fraction maxX = valueFcts[i].back().getX().getVal();
-
-		for (list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
-			if (!it->getY().isInfinity() && it->getY().getVal() > maxY){
-				maxY = it->getY().getVal();
-			}
-		}
-
-		if(maxY == 0)
-			maxY = 1;
-
-		//Draw the x axis
-		f << "\\draw [->][thick] (0," << Fraction(0) - y << ") -- ( " << (ptg->getNbResets() + 2)* length  << "," << (Fraction(0) - y).asDouble() << ");" << endl;
-		f << "\\draw ( " << (ptg->getNbResets() + 2)* length << "," << (Fraction(0) - y).asDouble() << ") node[right] {$t$};" << endl;
-		//Draw the y axis
-		f << "\\draw [->][thick] (0," << (Fraction(0) - y).asDouble() << ") -- (0," << (Fraction(length + 2) - y).asDouble()  << ");" << endl;
-		if(ptg->hasLabels())
-			f<< "\\draw (0," << (Fraction(length + 2) - y).asDouble() <<") node[above] {$v_" <<  ptg->getLabel(i) << "(t)$}; " << endl;
-		else
-			f<< "\\draw (0," << (Fraction(length + 2) - y).asDouble() <<") node[above] {$v_" <<  i << "(t)$}; " << endl;
-
-
-
-		list<Point>::iterator itNext = valueFcts[i].begin();
-		list<Point>::iterator itLast;
-
-
-		for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
-			++itNext;
-
-			if(it->getInclusion() && (it->getX().getVal() == 0 || it->getX().getVal() == maxX || (itLast->getY() != it->getY() && itLast->getX() == it->getX()) || (itNext->getY() != it->getY() && itNext->getX() == it->getX()))){
-
-				if(it->getY().isInfinity())
-					f << "\\node [circle,draw,fill=black,scale=0.4] at (" << (it->getX().getVal()/Fraction(maxX) * length + x).asDouble() << "," << (Fraction(length + 1)  - y).asDouble()  << ") {};" << endl;
-				else
-					f << "\\node [circle,draw,fill=black,scale=0.4] at (" << (it->getX().getVal()/Fraction(maxX)* length + x).asDouble() << "," << (it->getY().getVal()/ Fraction(maxY) * Fraction(length)  - y).asDouble()  << ") {};" << endl;
-			}
-			else if (!it->getInclusion() && ((itNext->getX() == it->getX() && itNext->getY() != it->getY()) || (itLast->getX() == it->getX() && itLast->getY() != it->getY()))){
-				if(it->getY().isInfinity())
-					f << "\\node [circle,draw,fill=white,scale=0.4] at (" << (it->getX().getVal()/Fraction(maxX) * length + x).asDouble() << "," << Fraction(length + 1)  - y << ") {};" << endl;
-				else
-					f << "\\node [circle,draw,fill=white,scale=0.4] at (" << (it->getX().getVal()/Fraction(maxX) * length + x).asDouble() << "," << (it->getY().getVal()/ Fraction(maxY) * Fraction(length)  - y).asDouble() << ") {};" << endl;
-			}
-
-			if(itNext != valueFcts[i].end() && it->getX().getVal() != maxX && (!it->getInclusion() || (it->getInclusion() && it->getX() != itNext->getX()))  && itNext->getX() != it->getX()){
-				if(it->getY().isInfinity())
-					f << "\\draw [color=gray!100](" << (it->getX().getVal()/Fraction(maxX) * length + x).asDouble() << "," << Fraction(length + 1)  - y << ") -- (" << (itNext->getX().getVal()/Fraction(maxX) * length + x).asDouble() << "," << (Fraction(length + 1)  - y).asDouble() << ");" << endl;
-				else
-					f << "\\draw [color=gray!100](" << (it->getX().getVal()/Fraction(maxX) * length + x).asDouble() << "," << (it->getY().getVal()/ Fraction(maxY) * Fraction(length)  - y).asDouble() << ") -- (" << (itNext->getX().getVal()/Fraction(maxX) * length + x).asDouble() << "," << (itNext->getY().getVal()/ Fraction(maxY) * Fraction(length)  - y).asDouble() << ");" << endl;
-
-			}
-
-			if(it->getY().isInfinity())
-				f << "\\draw (0,"  << (Fraction(length + 1) - y).asDouble() << ") node[left] {\\footnotesize$inf$};" << endl;
-			else
-				f << "\\draw (0,"  << (it->getY().getVal()/Fraction(maxY)* length - y).asDouble() << ") node[left] {\\footnotesize$" << (it->getY().getVal()).asDouble() << "$};" << endl;
-			f << "\\draw ("  << (it->getX().getVal()/Fraction(maxX)* length + x).asDouble() << "," << (Fraction(0) - y).asDouble() << ") node[below] {\\footnotesize$" << it->getX().getVal().asDouble() << "$};" << endl;
-
-
-			if(it->getX().getVal() == maxX && it->getInclusion()){
-				x = x + length + 1;
-			}
-			itLast = it;
-
-		}
-
-
-	}
-
-	f << "\\end{tikzpicture}" << endl;
-	f << "\\end{document}" << endl;
-	f.close();
-	system("pdflatex valueFcts.tex");
-}
 
 void PTGSolver::visualizeStrats(){
 	ofstream f;
