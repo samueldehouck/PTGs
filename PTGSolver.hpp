@@ -42,8 +42,7 @@ private:
 	void createResets();
 	void updateResets();
 	void visualize(bool, bool);
-	void visualizeVals();
-	void visualizeStrats();
+
 public:
 	PTGSolver();
 	void solvePTG(PTG*, bool, unsigned int, bool);

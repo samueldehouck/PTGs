@@ -57,10 +57,12 @@ FunctionsMinMax.o: FunctionsMinMax.cpp FunctionsMinMax.hpp
 
 PTGVisu.o: PTGVisu.cpp PTGVisu.hpp
 	g++ -c -W -Wextra -Wall -pedantic PTGVisu.cpp	
+	
 main.o: main.cpp
 	g++ -c -W -Wextra -Wall -pedantic main.cpp
 
-debug: CompositeValue.cpp CompositeValue.hpp pugixml/pugixml.cpp pugixml/pugixml.hpp Value.cpp Value.hpp Point.cpp Point.hpp SPTG.cpp SPTG.hpp main.cpp SPTGSolver.cpp SPTGSolver.hpp Fraction.cpp Fraction.hpp Strategy.cpp Strategy.hpp Transition.cpp Transition.hpp PTGSolver.cpp PTG.cpp PTG.hpp PTGSolver.hpp PTGFactory.cpp PTGFactory.hpp PGSolver.cpp PGSolver.hpp PG.cpp PG.hpp PerfEvaluator.cpp PerfEvaluator.hpp SPTGSolverV2.cpp SPTGSolverV2.hpp
-	 g++ -W -Wextra -Wall -pedantic -g main.cpp pugixml/pugixml.cpp CompositeValue.cpp Value.cpp Point.cpp SPTG.cpp SPTGSolver.cpp Fraction.cpp Strategy.cpp Transition.cpp PTGSolver.cpp PTG.cpp PTGFactory.cpp PGSolver.cpp PG.cpp PerfEvaluator.cpp SPTGSolverV2.cpp
+debug: CompositeValue.cpp CompositeValue.hpp pugixml/pugixml.cpp pugixml/pugixml.hpp Value.cpp Value.hpp Point.cpp Point.hpp SPTG.cpp SPTG.hpp main.cpp SPTGSolver.cpp SPTGSolver.hpp Fraction.cpp Fraction.hpp Strategy.cpp Strategy.hpp Transition.cpp Transition.hpp PTGSolver.cpp PTG.cpp PTG.hpp PTGSolver.hpp PTGFactory.cpp PTGFactory.hpp PGSolver.cpp PGSolver.hpp PG.cpp PG.hpp PerfEvaluator.cpp PerfEvaluator.hpp SPTGSolverV2.cpp SPTGSolverV2.hpp PTGVisu.cpp PTGVisu.hpp FunctionsMinMax.cpp FunctionsMinMax.hpp SPTGSolverValIt.cpp SPTGSolverValIt.hpp
+	 g++ -W -Wextra -Wall -pedantic -g main.cpp pugixml/pugixml.cpp CompositeValue.cpp Value.cpp Point.cpp SPTG.cpp SPTGSolver.cpp Fraction.cpp Strategy.cpp Transition.cpp PTGSolver.cpp PTG.cpp PTGFactory.cpp PGSolver.cpp PG.cpp PerfEvaluator.cpp SPTGSolverV2.cpp PTGVisu.cpp FunctionsMinMax.cpp SPTGSolverValIt.cpp
+
 clean:
 	rm *.o solver output.txt *.tex *.log *.aux *.pdf

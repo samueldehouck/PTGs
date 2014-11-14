@@ -46,17 +46,6 @@ void SPTGSolverValIt::show(){
 
 	cout << endl;
 
-	cout << "Strategies: " << endl;
-
-	for (unsigned int i = 0; i < size; ++i){
-		cout << "State " << i << ": ";
-		for (list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it){
-			cout << "t: " << it->getX() << " ";
-			it->getStrategy().show();
-		}
-		cout << endl;
-	}
-
 	cout << "Lengths: " << endl;
 	for (unsigned int i = 0; i < pathsLengths->size(); ++i)
 		cout << (*pathsLengths)[i] << "	";
@@ -75,6 +64,19 @@ void SPTGSolverValIt::show(){
 		}
 		cout << endl;
 	}
+	cout << endl;
+
+	cout << "CopyStrategies: " << endl;
+
+	for (unsigned int i = 0; i < size; ++i){
+		cout << "State " << i << ": ";
+		for (list<Point>::iterator it = copyValsSrc[i]->begin(); it != copyValsSrc[i]->end(); ++it){
+			cout << "t: " << it->getX() << " ";
+			it->getStrategy().show();
+		}
+		cout << endl;
+	}
+	cout << endl;
 	cout << "Copy" << endl;
 	for (unsigned int i = 1; i < size; ++i){
 		cout << " State " << i <<": ";
@@ -122,16 +124,20 @@ bool SPTGSolverValIt::compareCopy(){
 
 void SPTGSolverValIt::solveSPTG(){
 	cout << "====SolveSPTG===" << endl;
+
+
+	cout << "Values" << endl;
+	for (unsigned int i = 1; i < size; ++i){
+		cout << " State " << i <<": ";
+		for(list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it){
+			cout << "(" << it->getX() << "," << it->getY() << ")	";
+		}
+		cout << endl;
+	}
+
+
+
 	FunctionsMinMax minMax;
-	PGSolver* ps;
-	if(solvePTG){
-		ps = new PGSolver(sptg, pathsLengths, vals, valueFcts, bottoms, resets);//PGSolver will consider sptg as a pg thanks to inheritance
-		ps->extendedDijkstra(true);
-	}
-	else{
-		ps = new PGSolver(sptg, pathsLengths, vals, valueFcts, resets);//PGSolver will consider sptg as a pg thanks to inheritance
-		ps->extendedDijkstra(false); //If extendedDijkstra returns false, some states can't be treated and there is a cycle
-	}
 
 	//Initialization of the value iteration
 	for(unsigned int i = 0; i < size; ++i){
@@ -146,25 +152,24 @@ void SPTGSolverValIt::solveSPTG(){
 		}
 		else{
 			copyValsSrc[i]->push_front((*valueFcts)[i].front());
+			copyValsSrc[i]->front().setInclusion(false);
 			copyValsSrc[i]->front().setInf(true);
 			copyValsSrc[i]->push_front(Point(0,0, Strategy(0,1,false)));
 			copyValsSrc[i]->front().setInf(true);
-
 		}
 
 	}
 
-	delete ps;
 	show();
 
 	unsigned int cnt = 0;
 
-	while(compareCopy() && cnt < 10){
+	while(compareCopy()){
 		cout << "Turn " << cnt << endl;
 
 		if(cnt != 0)
 			copyValueFcts();
-
+		show();
 		for (unsigned int i = 1; i < size; ++i){
 			cout << "State: " << i << endl;
 			complete[i] = true;
@@ -206,7 +211,6 @@ void SPTGSolverValIt::solveSPTG(){
 				}
 			}
 		}
-		show();
 		++cnt;
 
 	}
