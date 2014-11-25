@@ -10,7 +10,8 @@ SPTGSolverValIt::SPTGSolverValIt() {
 
 }
 
-SPTGSolverValIt::SPTGSolverValIt(SPTG* s, vector<Value>* b,  vector<Value>* pl, vector<CompositeValue>* v, vector<list<Point> >* vF, vector<vector<CompositeValue> >* r){
+SPTGSolverValIt::SPTGSolverValIt(SPTG* s, vector<Value>* b,  vector<Value>* pl, vector<CompositeValue>* v, vector<list<Point> >* vF, vector<vector<CompositeValue> >* r, bool outFcts){
+
 	sptg = s;
 	solvePTG = true;
 	bottoms = b;
@@ -18,7 +19,7 @@ SPTGSolverValIt::SPTGSolverValIt(SPTG* s, vector<Value>* b,  vector<Value>* pl, 
 	vals = v;
 	valueFcts = vF;
 	resets = r;
-
+	outputFcts = outFcts;
 	size = sptg->getSize();
 	if(size != 0){
 
@@ -28,9 +29,12 @@ SPTGSolverValIt::SPTGSolverValIt(SPTG* s, vector<Value>* b,  vector<Value>* pl, 
 			complete.push_back(false);
 			copyValsSrc.push_back(new list<Point>());
 			copyVals.push_back(new list<Point>());
+
 		}
 		complete[0] = true;
 	}
+
+
 }
 
 SPTGSolverValIt::~SPTGSolverValIt() {

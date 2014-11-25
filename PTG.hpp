@@ -19,7 +19,6 @@ protected:
 	vector<vector<Fraction> >* endsCstraints;
 	unsigned int nbResets;
 	vector<string> labels;
-
 public:
 	PTG();
 	PTG(unsigned int);
@@ -38,6 +37,7 @@ public:
 	bool hasLabels();
 	void show();
 	void write(string);
+
 };
 
 #endif

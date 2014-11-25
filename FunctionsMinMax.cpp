@@ -18,6 +18,9 @@ FunctionsMinMax::~FunctionsMinMax() {
 void FunctionsMinMax::nextPoint(list<Point>* result, Point fStart, Point fEnd, Point gStart, Point gEnd, unsigned int state, Value cost, bool max){
 
 	cout << "NextPoint" << endl;
+	cout << "(" << fStart.getX() << "," << fStart.getY() << ") - (" << fEnd.getX() << "," << fEnd.getY() << ")" << endl;
+	cout << "(" << gStart.getX() << "," << gStart.getY()+cost << ") - (" << gEnd.getX() << "," << gEnd.getY()+cost << ")" << endl;
+
 	if(fStart.getY() > gStart.getY() + cost && fEnd.getY() > gEnd.getY() + cost){
 		if(fEnd.getX() < gEnd.getX()){
 			if(max){
@@ -143,6 +146,58 @@ void FunctionsMinMax::nextPoint(list<Point>* result, Point fStart, Point fEnd, P
 							result->push_back(Point(gEnd.getX(), gEnd.getY() + cost, Strategy(state, 0, true)));
 						else
 							result->push_back(Point(gEnd.getX(), gEnd.getY() + cost, Strategy(state, 0, false)));
+					}
+				}
+			}
+		}
+		else{
+			if(fEnd.getX() <= gEnd.getX()){
+				Value g = zeroG + coefG * fEnd.getX();
+
+				if(max){
+					if(g < fEnd.getY()){
+						result->push_back(Point(fEnd.getX(), fEnd.getY(), fEnd.getStrategy()));
+					}
+					else{
+						//Nothing to add for now
+					}
+				}
+				else{
+					if(g < fEnd.getY()){
+						//Nothing to add for now
+
+					}
+					else{
+						result->push_back(Point(fEnd.getX(), fEnd.getY(), fEnd.getStrategy()));
+
+					}
+				}
+
+			}
+			else{
+				Value f = zeroF + coefF * gEnd.getX();
+				if(max){
+					if(f < gEnd.getY() + cost){
+						if(gEnd.getX() != 0 && gEnd.getX() != 1)
+							result->push_back(Point(gEnd.getX(), gEnd.getY() + cost, Strategy(state, 0, true)));
+						else
+							result->push_back(Point(gEnd.getX(), gEnd.getY() + cost, Strategy(state, 0, false)));
+
+					}
+					else{
+						//Nothing to do for now
+					}
+				}
+				else{
+					if(f < gEnd.getY() + cost){
+
+					}
+					else{
+						if(gEnd.getX() != 0 && gEnd.getX() != 1)
+							result->push_back(Point(gEnd.getX(), gEnd.getY() + cost, Strategy(state, 0, true)));
+						else
+							result->push_back(Point(gEnd.getX(), gEnd.getY() + cost, Strategy(state, 0, false)));
+
 					}
 				}
 			}

@@ -112,7 +112,7 @@ void PerfEvaluator::evalStatesTrans(unsigned int version){
 					gettimeofday(&start, NULL);
 
 
-					solver.solvePTG(ptg, false,version,false);
+					solver.solvePTG(ptg, false,version,false,false);
 
 					gettimeofday(&end, NULL);
 					average += 1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000;
@@ -193,7 +193,7 @@ void PerfEvaluator::evalResets(unsigned int version){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false,version,false);
+			solver.solvePTG(ptg, false,version,false,false);
 
 			delete ptg;
 			gettimeofday(&end, NULL);
@@ -250,7 +250,7 @@ void PerfEvaluator::evalStates(unsigned int version){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, version,false);
+			solver.solvePTG(ptg, false, version,false,false);
 
 			gettimeofday(&end, NULL);
 			delete ptg;
@@ -297,7 +297,7 @@ void PerfEvaluator::evalStates(unsigned int version){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, version,false);
+			solver.solvePTG(ptg, false, version,false, false);
 
 			gettimeofday(&end, NULL);
 			delete ptg;
@@ -355,7 +355,7 @@ void PerfEvaluator::evalTrans(unsigned int version){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, version,false);
+			solver.solvePTG(ptg, false, version,false, false);
 
 			delete ptg;
 			gettimeofday(&end, NULL);
@@ -412,7 +412,7 @@ void PerfEvaluator::evalInterval(unsigned int version){
 			PTGSolver solver;
 			gettimeofday(&start, NULL);
 
-			solver.solvePTG(ptg, false, version,false);
+			solver.solvePTG(ptg, false, version,false, false);
 
 			delete ptg;
 			gettimeofday(&end, NULL);
@@ -443,7 +443,7 @@ void PerfEvaluator::evalBig(unsigned int version){
 		PTGSolver solver;
 		gettimeofday(&start, NULL);
 
-		solver.solvePTG(ptg, true, version, false);
+		solver.solvePTG(ptg, true, version, false, false);
 
 		delete ptg;
 		gettimeofday(&end, NULL);
@@ -487,7 +487,7 @@ void PerfEvaluator::evalBreakPoints(unsigned int version){
 		PTG* ptg = factory.buildSPTG(6,15,10,10);
 		PTGSolver solver;
 
-		solver.solvePTG(ptg, false, version,false);
+		solver.solvePTG(ptg, false, version,false, false);
 		unsigned int nbBreakPoints = solver.getBreakPoints();
 		if(nbBreakPoints > 0)
 			++average;

@@ -32,6 +32,7 @@ PTG::PTG(unsigned int size){
 		resets->push_back(vector<bool>());
 		startsCstraints->push_back(vector<Fraction>());
 		endsCstraints->push_back(vector<Fraction>());
+		outputFcts.push_back(new list<Point>());
 		for(unsigned int j = 0; j < size; ++j){
 			(*transitions)[i].push_back(-1);
 			(*resets)[i].push_back(false);
@@ -58,6 +59,8 @@ PTG::PTG(unsigned int size, bool label){
 		resets->push_back(vector<bool>());
 		startsCstraints->push_back(vector<Fraction>());
 		endsCstraints->push_back(vector<Fraction>());
+		outputFcts.push_back(new list<Point>());
+
 		for(unsigned int j = 0; j < size; ++j){
 			(*transitions)[i].push_back(-1);
 			(*resets)[i].push_back(false);
@@ -133,6 +136,10 @@ bool PTG::hasLabels(){
 		return true;
 	return false;
 }
+
+
+
+
 
 void PTG::show(){
 	cout << "====PTG===" << endl;

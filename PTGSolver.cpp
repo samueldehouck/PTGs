@@ -20,7 +20,7 @@ PTGSolver::PTGSolver(){
 }
 
 
-void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats){
+void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats, bool outputFcts){
 	cout << "====SolvePTG====" << endl;
 
 
@@ -110,7 +110,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats){
 					delete sptgSolver;
 				}
 				else if (version == 3){
-					SPTGSolverValIt* sptgSolver = new SPTGSolverValIt(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
+					SPTGSolverValIt* sptgSolver = new SPTGSolverValIt(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets, outputFcts);
 					sptgSolver->solveSPTG();
 					delete sptgSolver;
 				}
@@ -153,7 +153,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats){
 		}
 		correctStrats();
 
-		//show();
+		show();
 		if(strats){
 			cerr << "Drawing..." << endl;
 			visualize(false, true);

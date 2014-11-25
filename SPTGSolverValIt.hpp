@@ -34,12 +34,13 @@ private:
 	vector<bool> complete;
 	vector<list<Point>* > copyValsSrc;
 	vector<list<Point>* > copyVals;
+	bool outputFcts;
 	bool compareCopy();
 	void copyValueFcts();
 
 public:
 	SPTGSolverValIt();
-	SPTGSolverValIt(SPTG* , vector<Value>* ,  vector<Value>* , vector<CompositeValue>* , vector<list<Point> >* , vector<vector<CompositeValue> >* );
+	SPTGSolverValIt(SPTG* , vector<Value>* ,  vector<Value>* , vector<CompositeValue>* , vector<list<Point> >* , vector<vector<CompositeValue> >* , bool);
 	virtual ~SPTGSolverValIt();
 	void show();
 	void solveSPTG();

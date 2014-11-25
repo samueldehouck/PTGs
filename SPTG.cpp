@@ -8,6 +8,7 @@
 
 SPTG::SPTG(){
 	states = new vector<Value>();
+
 }
 
 SPTG::~SPTG(){
@@ -41,4 +42,13 @@ Value SPTG::getState(unsigned int index) const{
 
 void SPTG::setState(unsigned int index, Value f){
 	(*states)[index] = f;
+}
+
+list<Point>* SPTG::getFct(unsigned int index) const{
+	return outputFcts.at(index);
+}
+
+void SPTG::setFct(unsigned int index, list<Point>* l){
+
+	outputFcts[index] = l;
 }

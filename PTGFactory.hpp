@@ -19,6 +19,7 @@ public:
 	PTG* buildFromFlatFile(char*);
 	PTG* buildFromXmlFile(char*);
 	PTG* hardBuild(unsigned int);
+	void buildOutputFcts(char*, PTG*);
 
 };
 

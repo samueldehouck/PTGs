@@ -26,6 +26,7 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 
 	unsigned int size = ptg->getSize();
 
+	unsigned int nbResets = ptg->getNbResets();
 	double length = 3;
 	double high = 3;
 	f.open("valueFcts.tex");
@@ -45,16 +46,16 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 
 
 	double scale = high/max;
+	double scaleX = length/(*valueFcts)[0].back().getX().getVal().asDouble();
 
 	//For each state, we draw the function
 	for (unsigned int i = 1; i < size; ++i){
 		f << "\\begin{tikzpicture}" << endl;
 
-		double x = 0;
 
 		//Draw the x axis
-		f << "\\draw [->][thick] (0,0) -- ( " << x + length + 1 << ",0);" << endl;
-		f << "\\draw ( " << x + length + 1 << ",0) node[right] {$t$};" << endl;
+		f << "\\draw [->][thick] (0,0) -- ( " << nbResets + length * (nbResets + 1) + 1 << ",0);" << endl;
+		f << "\\draw ( " << nbResets + length * (nbResets + 1) + 1 << ",0) node[right] {$t$};" << endl;
 		//f << "\\draw (0,0) node [below]{\\footnotesize$0$};" << endl;
 		//Draw the y axis
 		f << "\\draw [->][thick] (0,0) -- (0," << high + 2 << ");" << endl;
@@ -70,32 +71,54 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 
 		list<Fraction> indexes;
 		bool inf = false;
-		while(itNext != (*valueFcts)[i].end() && it != (*valueFcts)[i].end()){
 
+		//Trace for each reset
+		for (unsigned int x = 0; x <= nbResets && itNext != (*valueFcts)[i].end(); ++x){
+			cout << x << endl;
+			//Up to the max interval
+			while(itNext != (*valueFcts)[i].end() && itNext->getX() != (*valueFcts)[i].back().getX()){
+				if(it->getX() == 0 && it->getInclusion()){
+					f << "\\draw (" << it->getX().getVal().asDouble()*scaleX + x* length + x <<",0) node[below] {\\footnotesize$ " << it->getX().getVal()<< "$}; " << endl;
 
-			while(itNext != (*valueFcts)[i].end() && itNext->getX() != 1){
-				if(!it->getY().isInfinity()){
-					f << "\\draw (" << it->getX().getVal().asDouble()*length + x* length + x << ", " << it->getY().getVal().asDouble()*scale <<") -- (" << itNext->getX().getVal().asDouble()*length + x* length + x << "," << itNext->getY().getVal().asDouble()*scale << ");" << endl;
-					f << "\\draw (" << itNext->getX().getVal().asDouble()*length + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
-
-
-					indexes.push_back(it->getY().getVal());
 				}
+				if(it->getX() != itNext->getX()){
+					//We have to trace a segment
+					if(!it->getY().isInfinity()){
 
+						f << "\\draw [gray](" << it->getX().getVal().asDouble()*scaleX + x* length + x << ", " << it->getY().getVal().asDouble()*scale <<") -- (" << itNext->getX().getVal().asDouble()*scaleX + x* length + x << "," << itNext->getY().getVal().asDouble()*scale << ");" << endl;
+						f << "\\draw (" << itNext->getX().getVal().asDouble()*scaleX + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
+
+						indexes.push_back(it->getY().getVal());
+					}
+
+					else{
+						f << "\\draw [gray](" << it->getX().getVal().asDouble()*scaleX + x* length + x << ", " << high + 1 <<") -- (" << itNext->getX().getVal().asDouble()*scaleX + x* length + x << "," << high + 1 << ");" << endl;
+						f << "\\draw (" << itNext->getX().getVal().asDouble()*scaleX + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
+						inf = true;
+					}
+
+
+				}
 				else{
-					f << "\\draw (" << it->getX().getVal().asDouble()*length + x* length + x << ", " << high + 1 <<") -- (" << itNext->getX().getVal().asDouble()*length + x* length + x << "," << high + 1 << ");" << endl;
-					f << "\\draw (" << itNext->getX().getVal().asDouble()*length + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
-					inf = true;
-				}
+					list<Point>::iterator itLast = it;
+					if(it != (*valueFcts)[i].begin() && it->getX() != 0)
+							--itLast;
 
+					if (it->getInclusion() && (it->getY() != itNext->getY() || it->getY() != itLast->getY()) && !it->getY().isInfinity()){
+						//We have a "jump" in the value fct
+
+						f << "\\draw[black,fill=black] (" << it->getX().getVal().asDouble()*scaleX + x* length + x << "," <<it->getY().getVal().asDouble()*scale << ") circle (0.04);" << endl;
+
+					}
+				}
 				it = itNext;
 				++itNext;
 			}
 			//Need to trace the last segment
 
 			if(!it->getY().isInfinity()){
-				f << "\\draw (" << it->getX().getVal().asDouble()*length + x* length + x << ", " << it->getY().getVal().asDouble()*scale <<") -- (" << itNext->getX().getVal().asDouble()*length + x* length + x << "," << itNext->getY().getVal().asDouble()*scale << ");" << endl;
-				f<< "\\draw (" << itNext->getX().getVal().asDouble()*length + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
+				f << "\\draw [gray](" << it->getX().getVal().asDouble()*scaleX + x * length + x << ", " << it->getY().getVal().asDouble()*scale <<") -- (" << itNext->getX().getVal().asDouble()*scaleX + x* length + x << "," << itNext->getY().getVal().asDouble()*scale << ");" << endl;
+				f<< "\\draw (" << itNext->getX().getVal().asDouble()*scaleX + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
 
 				indexes.push_back(it->getY().getVal());
 				indexes.push_back(itNext->getY().getVal());
@@ -104,24 +127,31 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 			}
 
 			else{
-				f << "\\draw (" << it->getX().getVal().asDouble()*length + x* length + x << ", " << high + 1 <<") -- (" << itNext->getX().getVal().asDouble()*length + x* length + x << "," << high + 1 << ");" << endl;
-				f << "\\draw (" << itNext->getX().getVal().asDouble()*length + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
+				f << "\\draw (" << it->getX().getVal().asDouble()*scaleX + x* length + x << ", " << high + 1 <<") -- (" << itNext->getX().getVal().asDouble()*scaleX + x* length + x << "," << high + 1 << ");" << endl;
+				f << "\\draw (" << itNext->getX().getVal().asDouble()*scaleX + x* length + x <<",0) node[below] {\\footnotesize$ " << itNext->getX().getVal()<< "$}; " << endl;
 				inf = true;
 			}
 
-			//Place the iterators at the start of the next reset interval
+
+			//And maybe the last point
+			it = itNext;
 			++itNext;
+			if (itNext->getInclusion() && it->getY() != itNext->getY() && !itNext->getY().isInfinity()){
+				//We have a "jump" in the value fct
+
+				f << "\\draw[black, fill=black] (" << itNext->getX().getVal().asDouble()*scaleX + x* length + x << "," <<itNext->getY().getVal().asDouble()*scale << ") circle (0.04);" << endl;
+
+			}
+			//Place the iterators at the start of the next reset interval
 			++itNext;
 			it = itNext;
 			++itNext;
 
 
-			++x;
-
 		}
 
 		if (inf){
-
+			//???
 		}
 
 		indexes.unique();

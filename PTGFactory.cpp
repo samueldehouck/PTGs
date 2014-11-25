@@ -9,6 +9,10 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <iostream>
+#include <stdio.h>
+#include <cstring>
+
 
 using namespace std;
 using namespace pugi;
@@ -58,29 +62,29 @@ PTG* PTGFactory::buildPTG(int nbStates, int nbTrans, int nbResets, int maxRate, 
 
 PTG* PTGFactory::buildSPTG(int nbStates, int nbTrans, int maxRate, int maxCost){
 	//The PTG is randomly built
-		PTG* ptg = new PTG(nbStates);
-		ptg->setNbResets(0);
-		//Generates everything
-		ptg->setOwner(0,1);
-		ptg->setState(0,0);
-		for (unsigned int i = 1; i < ptg->getSize(); ++i){
-			ptg->setState(i, rand() % (maxRate + 1));
-			ptg->setOwner(i, rand()%2);
+	PTG* ptg = new PTG(nbStates);
+	ptg->setNbResets(0);
+	//Generates everything
+	ptg->setOwner(0,1);
+	ptg->setState(0,0);
+	for (unsigned int i = 1; i < ptg->getSize(); ++i){
+		ptg->setState(i, rand() % (maxRate + 1));
+		ptg->setOwner(i, rand()%2);
+	}
+	int tmp = nbTrans;
+	while (tmp != 0){
+		int i = rand() % (nbStates - 1) + 1;
+		int j = rand() % nbStates;
+		if(ptg->getTransition(i,j) == -1 && i != j){
+			ptg->setTransition(i,j,rand() % (maxCost + 1));
+			ptg->setEndCst(i, j, 1);
+			ptg->setStartCst(i, j, 0);
+			--tmp;
 		}
-		int tmp = nbTrans;
-		while (tmp != 0){
-			int i = rand() % (nbStates - 1) + 1;
-			int j = rand() % nbStates;
-			if(ptg->getTransition(i,j) == -1 && i != j){
-				ptg->setTransition(i,j,rand() % (maxCost + 1));
-				ptg->setEndCst(i, j, 1);
-				ptg->setStartCst(i, j, 0);
-				--tmp;
-			}
-		}
+	}
 
-		ptg->show();
-		return ptg;
+	ptg->show();
+	return ptg;
 }
 
 PTG* PTGFactory::buildFromFile(char* f){
@@ -291,6 +295,58 @@ PTG* PTGFactory::buildFromXmlFile(char* f){
 		cerr << "Error while loading the xml file" << endl;
 	return ptg;
 }
+
+void PTGFactory::buildOutputFcts(char* f, PTG* ptg){
+	ifstream file(f);
+	string line = "";
+	while(!file.eof()){
+		getline(file,line);
+		list<Point>* l = new list<Point>();
+		unsigned int index = 0;
+
+		string label = "";
+
+		while (line[index] != ':' && index < line.length()){
+			label.push_back(line[index]);
+			++index;
+		}
+
+		while (index < line.length()){
+
+			string next = "";
+			while (line[index] != '(' && index < line.length())
+				++index;
+			++index;
+			while(line[index] != ',' && index < line.length()){
+				next.push_back(line[index]);
+				++index;
+			}
+			int x = atoi(next.c_str());
+			++index;
+			next = "";
+			while(line[index] != ')' && index < line.length()){
+				next.push_back(line[index]);
+				++index;
+			}
+			++index;
+			int y = atoi(next.c_str());
+
+			l->push_back(Point(x,y,Strategy(0,0,false)));
+		}
+
+		bool found = false;
+		for (unsigned int i = 0; i < ptg->getSize() && !found; ++i){
+			if(strcmp(label.c_str(),ptg->getLabel(i).c_str()) == 0){
+				ptg->setFct(i,l);
+				found = true;
+			}
+		}
+	}
+
+}
+
+
+
 
 PTG* PTGFactory::hardBuild(unsigned int build){
 	//Can build some examples of PTGs
