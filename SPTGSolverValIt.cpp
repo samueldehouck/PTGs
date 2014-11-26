@@ -11,7 +11,6 @@ SPTGSolverValIt::SPTGSolverValIt() {
 }
 
 SPTGSolverValIt::SPTGSolverValIt(SPTG* s, vector<Value>* b,  vector<Value>* pl, vector<CompositeValue>* v, vector<list<Point> >* vF, vector<vector<CompositeValue> >* r, bool outFcts){
-
 	sptg = s;
 	solvePTG = true;
 	bottoms = b;
@@ -145,6 +144,7 @@ void SPTGSolverValIt::solveSPTG(){
 
 	//Initialization of the value iteration
 	for(unsigned int i = 0; i < size; ++i){
+		//States that can reach the target
 		if(sptg->getTransition(i,0) != -1){
 			copyValsSrc[i]->push_front((*valueFcts)[i].front());
 			if(sptg->getOwner(i)){
@@ -155,13 +155,17 @@ void SPTGSolverValIt::solveSPTG(){
 			}
 		}
 		else{
+			//Otherwise the value is initialized to the inf
 			copyValsSrc[i]->push_front((*valueFcts)[i].front());
 			copyValsSrc[i]->front().setInclusion(false);
 			copyValsSrc[i]->front().setInf(true);
 			copyValsSrc[i]->push_front(Point(0,0, Strategy(0,1,false)));
 			copyValsSrc[i]->front().setInf(true);
 		}
-
+		if (outputFcts && sptg->getFct(i)->size() != 0){
+			//If there is a value fct at the exit
+			copyValsSrc[i] = minMax.getMinMax(sptg, copyValsSrc[i], i, sptg->getFct(i), 0, !sptg->getOwner(i));
+		}
 	}
 
 	show();
@@ -171,13 +175,13 @@ void SPTGSolverValIt::solveSPTG(){
 	while(compareCopy()){
 		cout << "Turn " << cnt << endl;
 
-		if(cnt != 0)
+		if(cnt != 0)//If it isn't the first turn, we need to copy the value fcts to the src
 			copyValueFcts();
 		show();
 		for (unsigned int i = 1; i < size; ++i){
 			cout << "State: " << i << endl;
 			complete[i] = true;
-
+			//If the value fct is complete (all states that can be reached are complete) we just need to copy it
 			for (unsigned int j = 0; j < size; ++j){
 				if(sptg->getTransition(i,j) != -1 && !complete[j])
 					complete[i] = false;
@@ -211,6 +215,14 @@ void SPTGSolverValIt::solveSPTG(){
 
 						else
 							copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, copyValsSrc[j], j, !sptg->getOwner(i));
+
+					}
+				}
+				if(outputFcts && sptg->getTransition(i,0) != -1){
+					//If there are value fcts at the exit
+
+					if (sptg->getFct(i)->size() != 0){
+						copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, sptg->getFct(i), 0, !sptg->getOwner(i));
 					}
 				}
 			}
