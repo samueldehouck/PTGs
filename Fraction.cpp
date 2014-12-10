@@ -108,7 +108,7 @@ Fraction Fraction::operator/(Fraction i){
 	return tmp;
 }
 
-bool Fraction::operator<(Fraction i){
+bool Fraction::operator<(Fraction i) const{
 	if((num/(double)den) < (i.num/(double)i.den))
 		return true;
 	else
@@ -116,14 +116,14 @@ bool Fraction::operator<(Fraction i){
 
 }
 
-bool Fraction::operator <=(Fraction i){
+bool Fraction::operator <=(Fraction i) const{
 	if((num/(double)den) <= (i.num/(double)i.den))
 		return true;
 	else
 		return false;
 }
 
-bool Fraction::operator>(Fraction i){
+bool Fraction::operator>(Fraction i) const{
 	if((num/(double)den) > (i.num/(double)i.den))
 		return true;
 	else
@@ -131,32 +131,25 @@ bool Fraction::operator>(Fraction i){
 
 }
 
-bool Fraction::operator >=(Fraction i){
+bool Fraction::operator >=(Fraction i) const{
 	if((num/(double)den) >= (i.num/(double)i.den))
 		return true;
 	else
 		return false;
 }
 
-bool Fraction::operator==(Fraction i){
-	reduce();
-	upperSign();
+bool Fraction::operator==(Fraction i) const{
+    Fraction f = *this ;
 
-	if((num == i.num) && (den == i.den))
+	if((f.num == i.num) && (f.den == i.den))
 		return true;
 	else
 		return false;
 
 }
 
-bool Fraction::operator!=(Fraction i){
-	reduce();
-	upperSign();
-
-	if((num != i.num) || (den != i.den))
-		return true;
-	else
-		return false;
+bool Fraction::operator!=(Fraction i) const{
+    return !(*this==i) ;
 
 }
 

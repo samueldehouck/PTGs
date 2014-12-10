@@ -67,13 +67,13 @@ Value Value::operator*(Value v){
 	return tmp;
 }
 
-bool Value::operator==(Value v){
+bool Value::operator==(Value v) const{
 	if((inf && v.isInfinity()) || (!inf && !v.isInfinity() && val == v.getVal()))
 		return true;
 
 	return false;
 }
-bool Value::operator<(Value v){
+bool Value::operator<(Value v) const{
 	if((!inf && !v.isInfinity() && val < v.getVal()) ||
 			(!inf && v.isInfinity()))
 		return true;
@@ -81,7 +81,7 @@ bool Value::operator<(Value v){
 	return false;
 }
 
-bool Value::operator<=(Value v){
+bool Value::operator<=(Value v) const{
 	if((inf && v.isInfinity()) ||
 			(!inf && !v.isInfinity() && val <= v.getVal()) ||
 			(!inf && v.isInfinity()))
@@ -90,14 +90,14 @@ bool Value::operator<=(Value v){
 	return false;
 }
 
-bool Value::operator>(Value v){
+bool Value::operator>(Value v) const{
 	if((!inf && !v.isInfinity() && val > v.getVal()) ||
 			(inf && !v.isInfinity()))
 		return true;
 
 	return false;
 }
-bool Value::operator>=(Value v){
+bool Value::operator>=(Value v) const{
 	if((inf && v.isInfinity()) ||
 			(!inf && !v.isInfinity() && val >= v.getVal()) ||
 			(inf && !v.isInfinity()))
@@ -105,7 +105,7 @@ bool Value::operator>=(Value v){
 
 	return false;
 }
-bool Value::operator!=(Value v){
+bool Value::operator!=(Value v) const{
 	if((inf && !v.isInfinity()) ||
 			(!inf && v.isInfinity()) ||
 			(!inf && !v.isInfinity() && val != v.getVal()))

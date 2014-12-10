@@ -26,12 +26,12 @@ public:
 	Fraction operator-(int);
 	Fraction operator*(Fraction);
 	Fraction operator/(Fraction);
-	bool operator<(Fraction);
-	bool operator<=(Fraction);
-	bool operator>(Fraction);
-	bool operator>=(Fraction);
-	bool operator==(Fraction);
-	bool operator!=(Fraction);
+	bool operator<(Fraction) const;
+	bool operator<=(Fraction) const;
+	bool operator>(Fraction) const;
+	bool operator>=(Fraction) const;
+	bool operator==(Fraction) const;
+	bool operator!=(Fraction) const;
 	void reduce();
 	unsigned int gcd(int, int);
 	void upperSign();

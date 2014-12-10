@@ -17,7 +17,7 @@
 using namespace std;
 
 PerfEvaluator::PerfEvaluator(){
-	nbTests = 500;
+	nbTests = 100;
 }
 
 PerfEvaluator::PerfEvaluator(unsigned int nbT){
@@ -29,17 +29,17 @@ void PerfEvaluator::eval(unsigned int version){
 	cerr << "evalStatesTrans" << endl;
 	//evalStatesTrans(version);
 	cerr << "evalResets" << endl;
-	//evalResets(version);
+	evalResets(version);
 	cerr << "evalStates" << endl;
-	//evalStates(version);
+	evalStates(version);
 	cerr << "evalTrans" << endl;
-	//evalTrans(version);
+	evalTrans(version);
 	cerr << "evalInterval" << endl;
-	//evalInterval(version);
+	evalInterval(version);
 	cerr << "evalbigone" << endl;
 	//evalBig(version);
 	cerr << "evalBreakPoints" << endl;
-	evalBreakPoints(version);
+	//evalBreakPoints(version);
 }
 
 void PerfEvaluator::evalStatesTrans(unsigned int version){
@@ -159,7 +159,7 @@ void PerfEvaluator::evalStatesTrans(unsigned int version){
 void PerfEvaluator::evalResets(unsigned int version){
 	struct timeval start, end;
 
-	unsigned int maxNbResets = 25;
+	unsigned int maxNbResets = 20;
 	unsigned int step = 2;
 	unsigned int nbStates = 20;
 	unsigned int nbTrans = (nbStates - 1)*(nbStates - 1)/2;
@@ -273,7 +273,7 @@ void PerfEvaluator::evalStates(unsigned int version){
 	system("pdflatex states.tex");
 
 
-	maxNbStates = 200;
+	maxNbStates = 100;
 	f.open("statesfixed.tex");
 	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
@@ -324,7 +324,7 @@ void PerfEvaluator::evalTrans(unsigned int version){
 	struct timeval start, end;
 
 	unsigned int step = 20;
-	unsigned int nbStates = 30;
+	unsigned int nbStates = 20;
 	double scaleX = 20;
 	double scaleY = 50;
 
@@ -339,7 +339,7 @@ void PerfEvaluator::evalTrans(unsigned int version){
 	f << "\\draw [->][thick] (0,0) -- (" << double((nbStates -1)*(nbStates -1))/scaleX << ",0);" << endl;
 	f << "\\draw ( " << double((nbStates -1)*(nbStates -1))/scaleX + 0.5 << ",0) node [right] {$transitions$};" << endl;
 	//Draw the y axis
-	f << "\\draw [->][thick] (0,0) -- (0," << double(600)/ scaleY  << ");" << endl;
+	f << "\\draw [->][thick] (0,0) -- (0," << double(100)/ scaleY  << ");" << endl;
 	f<< "\\draw (0," << double(600)/ scaleY   <<") node [above] {$ms$}; " << endl;
 	for (unsigned int i = 0; i <= 600; i += 50)
 		f << "\\draw (0," << double(i)/scaleY << ") node [left] {$" << i << "$};" << endl;
@@ -479,7 +479,7 @@ void PerfEvaluator::evalBreakPoints(unsigned int version){
 	double average = 0;
 
 	unsigned int states = 5;
-	for ( int i = 0; i <= 10000; ++i){
+	for ( int i = 0; i <= 1000; ++i){
 		//for (unsigned int i = 0; i < nbTests; ++i){
 		if(i%10 == 0)
 			cerr << ".";
@@ -515,5 +515,5 @@ void PerfEvaluator::evalBreakPoints(unsigned int version){
 	f << "\\end{tikzpicture}" << endl;
 	f << "\\end{document}" << endl;
 	f.close();
-	//system("pdflatex breakpoints.tex");
+	system("pdflatex breakpoints.tex");
 }
