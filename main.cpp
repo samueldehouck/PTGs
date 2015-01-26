@@ -7,6 +7,7 @@
 #include "PTG.hpp"
 #include "PTGFactory.hpp"
 #include "PTGSolver.hpp"
+#include "SPTGTester.hpp"
 #include <cstring>
 #include <stdio.h>
 #include "Fraction.hpp"
@@ -24,6 +25,7 @@ int main(int argc, char *argv[]){
 
 
 	freopen("output.txt","w",stdout);
+	bool test = false;
 	bool perf = false;
 	bool visu = false;
 	unsigned int version = 1;
@@ -32,19 +34,18 @@ int main(int argc, char *argv[]){
 	char* fctsFile = NULL;
 
 	for (int i = 1; i < argc; ++i){
+		if(strcmp(argv[i], "-test") == 0)
+			test = true;
 		if(strcmp(argv[i], "-perf") == 0)
 			perf = true;
 		else if(strcmp(argv[i],"-v") == 0)
 			visu = true;
-		else if(strcmp(argv[i],"-v2") == 0)
-			version = 2;
 		else if (strcmp(argv[i], "-vi") == 0)
-			version = 3;
+			version = 2;
 		else if(strcmp(argv[i],"-sat") == 0)
 			sat = true;
 		else if (file != NULL && fctsFile == NULL)
 			fctsFile = argv[i];
-
 		else
 			file = argv[i];
 	}
@@ -56,6 +57,13 @@ int main(int argc, char *argv[]){
 		factory.buildOutputFcts(fctsFile, ptg);
 		PTGSolver solver;
 		solver.solvePTG(ptg, true, 3, false, true);
+	}
+	else if(test){
+		SPTGTester tester;
+		if(visu)
+			cerr << "Testing" << endl;
+		tester.test();
+
 	}
 	else if(perf){
 		PerfEvaluator perf;
@@ -95,18 +103,6 @@ int main(int argc, char *argv[]){
 		delete ptg;
 	}
 	else if(version == 2){
-		PTGFactory factory;
-		PTG* ptg;
-
-		if(file != NULL)
-			ptg = factory.buildFromFile(file);
-		else
-			ptg = factory.hardBuild(0);
-		PTGSolver solver;
-		solver.solvePTG(ptg, false,version, false, false);
-		delete ptg;
-	}
-	else if(version == 3){
 		PTGFactory factory;
 		PTG* ptg;
 

@@ -23,6 +23,8 @@ SPTGSolverValIt::SPTGSolverValIt(SPTG* s, vector<Value>* b,  vector<Value>* pl, 
 	if(size != 0){
 
 		for (unsigned int i = 0; i < size; ++i){
+
+			//Used to force the player 2 to, at least, set his strategy
 			complete.push_back(false);
 			copyValsSrc.push_back(new list<Point>());
 			copyVals.push_back(new list<Point>());
@@ -56,7 +58,7 @@ void SPTGSolverValIt::show(){
 	cout << endl;
 
 	cout << "CopySrc" << endl;
-	for (unsigned int i = 0; i < size; ++i){
+	for (unsigned int i = 1; i < size; ++i){
 		cout << " State " << i <<": ";
 		for(list<Point>::iterator it = copyValsSrc[i]->begin(); it != copyValsSrc[i]->end(); ++it){
 			cout << "(" << it->getX() << "," << it->getY() << ")	";
@@ -88,39 +90,51 @@ void SPTGSolverValIt::show(){
 
 void SPTGSolverValIt::copyValueFcts(){
 	for (unsigned int i = 0; i < size; ++i){
-		delete copyValsSrc[i];
+
+		if(!complete[i])
+			//If the value has completely been computed, copyVals[i] == copyValsSrc[i]
+			delete copyValsSrc[i];
 		copyValsSrc[i] = copyVals[i];
 		copyVals[i] = new list<Point>();
+
 	}
 }
 
 bool SPTGSolverValIt::compareCopy(){
-	cout << "Compare" << endl;
-	show();
+	bool different = false;
 	for (unsigned int i = 0; i < size; ++i){
 		if(copyVals[i]->size() != copyValsSrc[i]->size()){
-				return true;
+			different = true;
 		}
 		else{
 			list<Point>::iterator itC = copyVals[i]->begin();
 			list<Point>::iterator itSrc = copyValsSrc[i]->begin();
 
-			while(itC != copyVals[i]->end()){
-				cout << itC->getY().isInfinity() << " " << itSrc->getY().isInfinity() << endl;
-				if((itC->getY().isInfinity() && !itSrc->getY().isInfinity())  || (itC->getY().isInfinity() && !itSrc->getY().isInfinity()))
-					return true;
-				else if(itC->getX() != itSrc->getX() || itC->getY() != itSrc->getY())
-					return true;
+			while(itC != copyVals[i]->end() && !different){
+				cout << "diff?" << endl;
+				if(itC->getX() != itSrc->getX() || itC->getY() != itSrc->getY())
+					different = true;
 				++itC;
 				++itSrc;
 			}
 		}
 	}
-	return false;
+	cout << different << endl;
+	return different;
 }
 
 void SPTGSolverValIt::solveSPTG(){
 	cout << "====SolveSPTG===" << endl;
+
+
+	cout << "Values" << endl;
+	for (unsigned int i = 1; i < size; ++i){
+		cout << " State " << i <<": ";
+		for(list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it){
+			cout << "(" << it->getX() << "," << it->getY() << ")	";
+		}
+		cout << endl;
+	}
 
 	Value maxState = 0;
 	for (unsigned int i = 0; i < sptg->getSize(); ++i){
@@ -128,29 +142,33 @@ void SPTGSolverValIt::solveSPTG(){
 			maxState = sptg->getState(i);
 		}
 	}
-
-	//Create the value fct of state max
+//Create the value fct of the state max
 	list<Point> valueMax;
 	valueMax.push_front(Point(1,0,Strategy(0,0,false)));
-	valueMax.push_front(Point(0,maxState,Strategy(0,1,false)));
+	valueMax.push_front(Point(1,maxState,Strategy(0,1,false)));
 
 	FunctionsMinMax minMax;
-	//Fill the value of state 0
-	copyValsSrc[0]->push_front(Point(1,0, Strategy(0,0,false)));
-	copyValsSrc[0]->push_front(Point(0,0, Strategy(0,0,false)));
-
-
 
 	//Initialization of the value iteration
-	for(unsigned int i = 1; i < size; ++i){
-
-		//Otherwise the value is initialized to the inf
-		copyValsSrc[i]->push_front((*valueFcts)[i].front());
-		copyValsSrc[i]->front().setInclusion(false);
-		copyValsSrc[i]->front().setInf(true);
-		copyValsSrc[i]->push_front(Point(0,0, Strategy(0,1,false)));
-		copyValsSrc[i]->front().setInf(true);
-
+	for(unsigned int i = 0; i < size; ++i){
+		//States that can reach the target
+		if(sptg->getTransition(i,0) != -1){
+			copyValsSrc[i]->push_front((*valueFcts)[i].front());
+			if(sptg->getOwner(i)){
+				copyValsSrc[i]->push_front(Point(0,(*valueFcts)[i].front().getY(), Strategy(0,0,false)));
+			}
+			else{
+				copyValsSrc[i]->push_front(Point(0,(*valueFcts)[i].front().getY() + sptg->getState(i), Strategy(0,1,false)));
+			}
+		}
+		else{
+			//Otherwise the value is initialized to the inf
+			copyValsSrc[i]->push_front((*valueFcts)[i].front());
+			copyValsSrc[i]->front().setInclusion(false);
+			copyValsSrc[i]->front().setInf(true);
+			copyValsSrc[i]->push_front(Point(0,0, Strategy(0,1,false)));
+			copyValsSrc[i]->front().setInf(true);
+		}
 		if (outputFcts && sptg->getFct(i)->size() != 0){
 			//If there is a value fct at the exit
 			copyValsSrc[i] = minMax.getMinMax(sptg, copyValsSrc[i], i, sptg->getFct(i), 0, !sptg->getOwner(i), sptg->getTransition(i, 0));
@@ -166,23 +184,23 @@ void SPTGSolverValIt::solveSPTG(){
 
 		if(cnt != 0)//If it isn't the first turn, we need to copy the value fcts to the src
 			copyValueFcts();
-		for (unsigned int i = 0; i < size; ++i)
-			cout << complete[i] <<  " ";
-		cout << endl;
-		for (unsigned int i = 0; i < size; ++i){
+		show();
+		for (unsigned int i = 1; i < size; ++i){
 			cout << "State: " << i << endl;
-
+			complete[i] = true;
+			//If the value fct is complete (all states that can be reached are complete) we just need to copy it
+			for (unsigned int j = 0; j < size; ++j){
+				if(sptg->getTransition(i,j) != -1 && !complete[j])
+					complete[i] = false;
+			}
 
 			if(complete[i]){
-				for(list<Point>::iterator it = copyValsSrc[i]->begin(); it != copyValsSrc[i]->end(); ++it)
-					copyVals[i]->push_back(Point(it->getX(),it->getY(),it->getStrategy()));
+				copyVals[i] = copyValsSrc[i];
 			}
 			else{
 				bool updated = false;
-				bool nbSucc = 0;
-				for (unsigned int j = 0; j < size; ++j){
+				for (unsigned int j = 1; j < size; ++j){
 					if(sptg->getTransition(i,j) != -1){
-						++nbSucc;
 						if(!updated){
 
 							//We need to copy the first function that is compared
@@ -207,20 +225,11 @@ void SPTGSolverValIt::solveSPTG(){
 
 					}
 				}
-				if(nbSucc == 0){
-					copyVals[i]->push_front(Point(1,0,Strategy(i,1,false)));
-					copyVals[i]->front().setInf(true);
-					copyVals[i]->push_front(Point(1,0,Strategy(i,1,false)));
-					copyVals[i]->front().setInf(true);
-
-				}
-				if(!bottoms->empty()){
+				if(!bottoms->empty() && sptg->getOwner(i)){
 					cout << "try bottom transition" << endl;
-					if(sptg->getOwner(i))
-						copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, &valueMax, 0, !sptg->getOwner(i), (*bottoms)[i]);
-					else
-						copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, copyValsSrc[0], 0, !sptg->getOwner(i), (*bottoms)[i]);
+					copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, &valueMax, 0, !sptg->getOwner(i), (*bottoms)[i]);
 
+					//We don't need to add the bottom transitions for the player 2 because lambdas will always be better.
 				}
 
 
@@ -232,39 +241,20 @@ void SPTGSolverValIt::solveSPTG(){
 					}
 				}
 			}
-
 		}
-		vector<bool> changed;
-		for (unsigned int i = 0; i < size; ++i){
-			changed.push_back(true);
-			if(!complete[i]){
-				//If the value fct is complete (all states that can be reached are complete) we just need to copy it
-				for (unsigned int j = 0; j < size; ++j){
-					if(sptg->getTransition(i,j) != -1 && !complete[j])
-						changed[i] = false;
-				}
-			}
-		}
-
-		for (unsigned int i = 0; i < size; ++i){
-			if(changed[i])
-				complete[i] = true;
-		}
-
 		++cnt;
 	}
 
 	cout << "Result: " << endl;
 	show();
-
+	copyValueFcts();
 	for (unsigned int i = 0; i < size; ++i){
 		for(list<Point>::reverse_iterator rit = copyValsSrc[i]->rbegin(); rit != copyValsSrc[i]->rend(); ++rit){
-			if(rit != copyValsSrc[i]->rbegin())
-				(*valueFcts)[i].push_front(Point(rit->getX(), rit->getY(), rit->getStrategy()));
+			(*valueFcts)[i].push_front(Point(rit->getX(), rit->getY(), rit->getStrategy()));
 		}
 	}
-
 }
+
 
 
 

@@ -14,7 +14,6 @@
 #include "Point.hpp"
 #include "Transition.hpp"
 #include "Value.hpp"
-#include "SPTGSolverV2.hpp"
 #include "SPTGSolverValIt.hpp"
 
 class PTGSolver{
@@ -35,6 +34,7 @@ private:
 	void keepTransAvailable(Value, Value);
 	void restoreAllTrans();
 	void updateBottoms();
+	void addMax();
 	void rescale(Value, Value);
 	void cleanValueFcts();
 	void correctStrats();

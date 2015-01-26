@@ -104,12 +104,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats, b
 					sptgSolver->solveSPTG();
 					delete sptgSolver;
 				}
-				if(version == 2){
-					SPTGSolverV2* sptgSolver = new SPTGSolverV2(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets);
-					sptgSolver->solveSPTG();
-					delete sptgSolver;
-				}
-				else if (version == 3){
+				else if (version == 2){
 					SPTGSolverValIt* sptgSolver = new SPTGSolverValIt(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets, outputFcts);
 					sptgSolver->solveSPTG();
 					delete sptgSolver;

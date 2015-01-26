@@ -302,18 +302,62 @@ list<Point>* FunctionsMinMax::tryWaiting(list<Point>* f, Value coefWait, bool ma
 
 	}
 
-
-
-
-
 	return result;
 }
 
-list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int crtState, list<Point>* g, unsigned int state, bool max){
+void FunctionsMinMax::sync(list<Point>* f, list<Point>* g){
+
+	list<Point>::iterator itF = f->begin();
+	list<Point>::iterator itFNext = itF;
+	++itFNext;
+	list<Point>::iterator itG = g->begin();
+	list<Point>::iterator itGNext = itG;
+	++itGNext;
+	if(!itF->getInf() && !itG->getInf()){
+		while (itGNext != g->end() && itF != f->end()){
+			Value coefF = (itFNext->getY() - itF->getY())/(itFNext->getX() - itF->getX());
+			Value coefG = (itGNext->getY() - itG->getY())/(itGNext->getX() - itG->getX());
+			Value zeroF = itF->getY() - itF->getX() * coefF;
+			Value zeroG = itG->getY() - itG->getX() * coefG;
+			if(itGNext->getX() < itFNext->getX()){
+				f->insert(itFNext,Point(itGNext->getX(),zeroF + coefF* itGNext->getX(), itF->getStrategy()));
+			}
+			else if(itGNext->getX() > itFNext->getX()){
+				g->insert(itFNext,Point(itFNext->getX(),zeroG + coefG* itFNext->getX(), itG->getStrategy()));
+			}
+			itF = itFNext;
+			++itFNext;
+			itG = itGNext;
+			++itGNext;
+		}
+	}
+
+}
+
+list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int crtState, list<Point>* g, unsigned int state, bool max, Value cost){
 
 	cout << "MinMax state " << crtState << " and " << state << endl;
+		cout << "f: " << endl;
+		list<Point>::iterator it = f->begin();
+		while (it != f->end()){
+			cout << "(" << it->getX() << "," << it->getY() << ") ";
+			++it;
+		}
+		cout << endl;
+		cout << "g: " << endl;
+		it = g->begin();
+		while (it != g->end()){
+			cout << "(" << it->getX() << "," << it->getY() + cost << ") ";
+			++it;
+		}
+		cout << endl;
+	list<Point>* result = new list<Point>();
+	sync(f,g);
+
+
+	cout << "after sync" << endl;
 	cout << "f: " << endl;
-	list<Point>::iterator it = f->begin();
+	 it = f->begin();
 	while (it != f->end()){
 		cout << "(" << it->getX() << "," << it->getY() << ") ";
 		++it;
@@ -322,12 +366,10 @@ list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int
 	cout << "g: " << endl;
 	it = g->begin();
 	while (it != g->end()){
-		cout << "(" << it->getX() << "," << it->getY() + sptg->getTransition(crtState,state) << ") ";
+		cout << "(" << it->getX() << "," << it->getY() + cost << ") ";
 		++it;
 	}
 	cout << endl;
-	list<Point>* result = new list<Point>();
-
 	//We consider that f is the function of the current state (the one that will be replaced)
 
 	list<Point>::iterator itF = f->begin();
@@ -337,107 +379,139 @@ list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int
 	list<Point>::iterator itGNext = itG;
 	++itGNext;
 
-	Value cost = sptg->getTransition(crtState, state);
 
-	if(max){
-		if(itF->getY() < itG->getY() + cost){
-			if(itG->getX() != 0 && itG->getX() != 1)
-				result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
-			else
-				result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, false)));		}
-		else if (itF->getY() > itG->getY() + cost){
-			result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
-
+	if(itF->getInf() || itG->getInf()){
+		if(max){
+			if(itG->getInf()){
+				while(itG != g->end()){
+					result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
+					++itG;
+				}
+			}
+			else{
+				while(itF != f->end()){
+					result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
+					++itF;
+				}
+			}
 		}
 		else{
-			Value coefG = (itGNext->getY() - itG->getY())/(itGNext->getX() - itG->getX());
-			Value coefF = (itFNext->getY() - itF->getY())/(itFNext->getX() - itF->getX());
-			if(coefG > coefF){
+			if(itF->getInf()){
+				while(itG != g->end()){
+					result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
+					++itG;
+				}
+			}
+			else{
+				while(itF != f->end()){
+					result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
+					++itF;
+				}
+			}
+		}
+	}
+	else{
+		if(max){
+			if(itF->getY() < itG->getY() + cost){
 				if(itG->getX() != 0 && itG->getX() != 1)
 					result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
 				else
 					result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, false)));
 			}
-			else{
+			else if (itF->getY() > itG->getY() + cost){
 				result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
 
 			}
-		}
-	}
-	else{
-		if(itF->getY() > itG->getY() + cost){
-			if(itG->getX() != 0 && itG->getX() != 1)
-				result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
-			else
-				result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, false)));
-		}
-		else if(itF->getY() < itG->getY() + cost){
-			result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
+			else{
+				Value coefG = (itGNext->getY() - itG->getY())/(itGNext->getX() - itG->getX());
+				Value coefF = (itFNext->getY() - itF->getY())/(itFNext->getX() - itF->getX());
+				if(coefG > coefF){
+					if(itG->getX() != 0 && itG->getX() != 1)
+						result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
+					else
+						result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, false)));
+				}
+				else{
+					result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
 
+				}
+			}
 		}
 		else{
-			Value coefG = (itGNext->getY() - itG->getY())/(itGNext->getX() - itG->getX());
-			Value coefF = (itFNext->getY() - itF->getY())/(itFNext->getX() - itF->getX());
-			if(coefG < coefF){
+			if(itF->getY() > itG->getY() + cost){
+				if(itG->getX() != 0 && itG->getX() != 1)
+					result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
+				else
+					result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, false)));
+			}
+			else if(itF->getY() < itG->getY() + cost){
+				result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
+
+			}
+			else{
+				Value coefG = (itGNext->getY() - itG->getY())/(itGNext->getX() - itG->getX());
+				Value coefF = (itFNext->getY() - itF->getY())/(itFNext->getX() - itF->getX());
+				if(coefG < coefF){
+					if(itG->getX() != 0 && itG->getX() != 1)
+						result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
+					else
+						result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, false)));
+
+				}
+				else{
+					result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
+
+				}
+			}
+		}
+
+		//Build the result fct
+		while( itFNext != f->end() && itGNext != g->end()){
+			nextPoint(result, *itF, *itFNext, *itG, *itGNext, state, cost, max);
+			if(itFNext->getX() < itGNext->getX()){
+				itF = itFNext;
+				++itFNext;
+			}
+			else if(itFNext->getX() > itGNext->getX()){
+				itG = itGNext;
+				++itGNext;
+			}
+			else{
+				itF = itFNext;
+				++itFNext;
+				itG = itGNext;
+				++itGNext;
+			}
+
+		}
+
+		//Add the last point (in time 0)
+		if(max){
+			if(itF->getY() <= itG->getY() + cost){
 				if(itG->getX() != 0 && itG->getX() != 1)
 					result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
 				else
 					result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, false)));
 
 			}
-			else{
+			else
 				result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
 
-			}
-		}
-	}
-
-	//Build the result fct
-	while( itFNext != f->end() && itGNext != g->end()){
-		nextPoint(result, *itF, *itFNext, *itG, *itGNext, state, sptg->getTransition(crtState, state), max);
-		if(itFNext->getX() < itGNext->getX()){
-			itF = itFNext;
-			++itFNext;
-		}
-		else if(itFNext->getX() > itGNext->getX()){
-			itG = itGNext;
-			++itGNext;
 		}
 		else{
-			itF = itFNext;
-			++itFNext;
-			itG = itGNext;
-			++itGNext;
-		}
+			if(itF->getY() > itG->getY() + cost){
+				if(itG->getX() != 0 && itG->getX() != 1)
+					result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
+				else
+					result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, false)));
 
-	}
-
-	//Add the last point (in time 0)
-	if(max){
-		if(itF->getY() <= itG->getY() + cost){
-			if(itG->getX() != 0 && itG->getX() != 1)
-				result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
+			}
 			else
-				result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, false)));
-
+				result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
 		}
-		else
-			result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
 
+		clean (result);
 	}
-	else{
-		if(itF->getY() > itG->getY() + cost){
-			if(itG->getX() != 0 && itG->getX() != 1)
-				result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, true)));
-			else
-				result->push_back(Point(itG->getX(), itG->getY() + cost, Strategy(state, 0, false)));
-
-		}
-		else
-			result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
-	}
-
-	clean (result);
 	cout << "Result: " << endl;
 	it = result->begin();
 	while (it != result->end()){

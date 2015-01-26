@@ -23,7 +23,8 @@ public:
 	FunctionsMinMax();
 	virtual ~FunctionsMinMax();
 
-	list<Point>* getMinMax(SPTG*, list<Point>*, unsigned int, list<Point>*, unsigned int,bool);
+	void sync(list<Point>*, list<Point>*);
+	list<Point>* getMinMax(SPTG*, list<Point>*, unsigned int, list<Point>*, unsigned int,bool, Value);
 	list<Point>* tryWaiting(list<Point>*, Value, bool);
 
 
