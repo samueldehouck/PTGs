@@ -53,27 +53,31 @@ void FunctionsMinMax::nextPoint(list<Point>* result, Point fStart, Point fEnd, P
 
 		Value inter = (zeroF - zeroG)/(coefG - coefF);
 
-		if(fStart.getY() > gStart.getY()){
+		if(fStart.getY() > gStart.getY() + cost){
 			if(max){
 				result->push_back(Point(fStart.getX(), fStart.getY(), fStart.getStrategy()));
-				result->push_back(Point(inter, zeroF + coefF * inter, Strategy(state, 0, true)));
+				if(inter != 1)
+					result->push_back(Point(inter, zeroF + coefF * inter, Strategy(state, 0, true)));
 			}
 			else{
 				result->push_back(Point(gStart.getX(), gStart.getY() + cost, Strategy(state, 0, true)));
-				result->push_back(Point(inter, zeroF + coefF * inter, fStart.getStrategy()));
+				if(inter != 1)
+					result->push_back(Point(inter, zeroF + coefF * inter, fStart.getStrategy()));
 			}
 		}
-		else if (fStart.getY() < gStart.getY()){
+		else if (fStart.getY() < gStart.getY() + cost){
 			if(max){
 				result->push_back(Point(gStart.getX(), gStart.getY() + cost, Strategy(state, 0, true)));
-				result->push_back(Point(inter, zeroF + coefF * inter, fStart.getStrategy()));
+				if(inter != 1)
+					result->push_back(Point(inter, zeroF + coefF * inter, fStart.getStrategy()));
 			}
 			else{
 				result->push_back(Point(fStart.getX(), fStart.getY(), fStart.getStrategy()));
-				result->push_back(Point(inter, zeroF + coefF * inter, Strategy(state, 0, true)));
+				if(inter != 1)
+					result->push_back(Point(inter, zeroF + coefF * inter, Strategy(state, 0, true)));
 			}
 		}
-		else if(fStart.getY() == gStart.getY()){
+		else if(fStart.getY() == gStart.getY() + cost){
 			if(coefF > coefG){
 				if(max){
 					result->push_back(Point(fStart.getX(), fStart.getY(), fStart.getStrategy()));
