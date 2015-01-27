@@ -99,7 +99,7 @@ bool SPTGSolverValIt::compareCopy(){
 	show();
 	for (unsigned int i = 0; i < size; ++i){
 		if(copyVals[i]->size() != copyValsSrc[i]->size()){
-				return true;
+			return true;
 		}
 		else{
 			list<Point>::iterator itC = copyVals[i]->begin();
@@ -146,8 +146,10 @@ void SPTGSolverValIt::solveSPTG(){
 
 		//Otherwise the value is initialized to the inf
 		copyValsSrc[i]->push_front((*valueFcts)[i].front());
+		copyValsSrc[i]->front().setX(1);
 		copyValsSrc[i]->front().setInclusion(false);
 		copyValsSrc[i]->front().setInf(true);
+		copyValsSrc[i]->front().setType(1);
 		copyValsSrc[i]->push_front(Point(0,0, Strategy(0,1,false)));
 		copyValsSrc[i]->front().setInf(true);
 
@@ -183,44 +185,67 @@ void SPTGSolverValIt::solveSPTG(){
 				for (unsigned int j = 0; j < size; ++j){
 					if(sptg->getTransition(i,j) != -1){
 						++nbSucc;
-						if(!updated){
 
-							//We need to copy the first function that is compared
-							list<Point>::iterator it = copyValsSrc[j]->begin();
-							while(it != copyValsSrc[j]->end()){
-								if(it->getX() != 0 && it->getX() != 1)
-									copyVals[i]->push_back(Point(it->getX(), it->getY() + sptg->getTransition(i,j), Strategy(j,0,true)));
-								else
-									copyVals[i]->push_back(Point(it->getX(), it->getY() + sptg->getTransition(i,j), Strategy(j,0,false)));
+						if((*resets)[i][j] == -1){
+							if(!updated){
 
-								++it;
+								//We need to copy the first function that is compared
+								list<Point>::iterator it = copyValsSrc[j]->begin();
+								while(it != copyValsSrc[j]->end()){
+									if(it->getX() != 0 && it->getX() != 1)
+										copyVals[i]->push_back(Point(it->getX(), it->getY() + sptg->getTransition(i,j), Strategy(j,0,true)));
+									else
+										copyVals[i]->push_back(Point(it->getX(), it->getY() + sptg->getTransition(i,j), Strategy(j,0,false)));
+
+									++it;
+								}
+
+								//Try if waiting is better
+								copyVals[i] = minMax.tryWaiting(copyVals[i], sptg->getState(i), !sptg->getOwner(i));
+
+								updated = true;
 							}
-
-							//Try if waiting is better
-							copyVals[i] = minMax.tryWaiting(copyVals[i], sptg->getState(i), !sptg->getOwner(i));
-
-							updated = true;
+							else
+								copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, copyValsSrc[j], j, !sptg->getOwner(i), sptg->getTransition(i, j));
 						}
+						else{
 
-						else
-							copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, copyValsSrc[j], j, !sptg->getOwner(i), sptg->getTransition(i, j));
+							//This transition has a reset
+							//resets already contain the weight of the transition
+							list<Point> reset;
+							reset.push_front(Point(1,(*resets)[i][j],Strategy(j,0,false)));
+							reset.push_front(Point(0,(*resets)[i][j],Strategy(j,0,false)));
+
+							if(!updated){
+
+								copyVals[i]->push_back(Point(0, (*resets)[i][j], Strategy(j,0,false)));
+								copyVals[i]->push_back(Point(1, (*resets)[i][j], Strategy(j,0,false)));
+
+
+								//Try if waiting is better
+								copyVals[i] = minMax.tryWaiting(copyVals[i], sptg->getState(i), !sptg->getOwner(i));
+
+								updated = true;
+							}
+							else
+								copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, &reset, j, !sptg->getOwner(i), sptg->getTransition(i, j));
+						}
 
 					}
 				}
-				if(nbSucc == 0){
-					copyVals[i]->push_front(Point(1,0,Strategy(i,1,false)));
-					copyVals[i]->front().setInf(true);
-					copyVals[i]->push_front(Point(1,0,Strategy(i,1,false)));
-					copyVals[i]->front().setInf(true);
-
-				}
 				if(!bottoms->empty()){
 					cout << "try bottom transition" << endl;
-					if(sptg->getOwner(i))
-						copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, &valueMax, 0, !sptg->getOwner(i), (*bottoms)[i]);
-					else
-						copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, copyValsSrc[0], 0, !sptg->getOwner(i), (*bottoms)[i]);
 
+					if(!updated){
+						copyVals[i]->push_back(Point(0, (*bottoms)[i] + sptg->getState(i), Strategy(0,2,false)));
+						copyVals[i]->push_back(Point(1, (*bottoms)[i], Strategy(0,2,false)));
+					}
+					else{
+						if(sptg->getOwner(i))
+							copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, &valueMax, 0, !sptg->getOwner(i), (*bottoms)[i]);
+						else
+							copyVals[i] = minMax.getMinMax(sptg, copyVals[i], i, copyValsSrc[0], 0, !sptg->getOwner(i), (*bottoms)[i]);
+					}
 				}
 
 

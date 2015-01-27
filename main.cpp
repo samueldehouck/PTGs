@@ -49,6 +49,7 @@ int main(int argc, char *argv[]){
 		else
 			file = argv[i];
 	}
+
 	if(fctsFile != NULL){
 		PTGFactory factory;
 		PTG* ptg;
@@ -69,7 +70,7 @@ int main(int argc, char *argv[]){
 		PerfEvaluator perf;
 		if(visu)
 			cerr << "Can't do visualization and perfomances!" << endl;
-		perf.eval(version);
+		perf.eval();
 
 	}
 	else if(sat){
@@ -95,7 +96,7 @@ int main(int argc, char *argv[]){
 			ptg = factory.buildFromFile(file);
 		else
 			//ptg = factory.buildPTG(100,500,15,20,20,10);
-			ptg = factory.hardBuild(0);
+			ptg = factory.hardBuild(2);
 		PTGSolver solver;
 		solver.solvePTG(ptg, true, version, false, false);
 		cerr << "breakpoints: " << solver.getBreakPoints() << endl;
@@ -109,7 +110,7 @@ int main(int argc, char *argv[]){
 		if(file != NULL)
 			ptg = factory.buildFromFile(file);
 		else
-			ptg = factory.hardBuild(0);
+			ptg = factory.hardBuild(2);
 		PTGSolver solver;
 		solver.solvePTG(ptg, false, version, false, false);
 		delete ptg;

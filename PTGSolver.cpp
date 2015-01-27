@@ -241,13 +241,9 @@ void PTGSolver::updateBottoms(){
 void PTGSolver::rescale(Value start, Value end){
 	//The result given by the solveSPTG needs to be rescaled (from (0,1) to (start, end))
 	cout << "====Rescaling====" << endl;
-	/*for (vector<list<Point> >::iterator it = valueFcts.begin(); it != valueFcts.end(); ++it){
-		for (list<Point>::iterator itL = it->begin(); itL != it->end() && itL->getX() <= 1 ; ++itL){
-			itL->setX((itL->getX() * (end.getVal() - start.getVal())) + start);
-		}
-	}*/
+
 	for (unsigned int i = 0; i < size; ++i){
-		for (list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end() && it->getX() < 1; ++it)
+		for (list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end() && it->getX() <= 1; ++it)
 			it->setX((it->getX() * (end.getVal() - start.getVal())) + start);
 	}
 }

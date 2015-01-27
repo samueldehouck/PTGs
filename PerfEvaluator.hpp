@@ -10,18 +10,12 @@
 #include "PTGFactory.hpp"
 class PerfEvaluator{
 private:
-	unsigned int nbTests;
-	void evalStatesTrans(unsigned int);
-	void evalResets(unsigned int);
-	void evalStates(unsigned int);
-	void evalTrans(unsigned int);
-	void evalInterval(unsigned int);
-	void evalBig(unsigned int);
-	void evalBreakPoints(unsigned int);
+	double nbTests;
+	void nbBreakPoints();
 public:
 	PerfEvaluator();
-	PerfEvaluator(unsigned int);
-	void eval(unsigned int);
+	PerfEvaluator(double);
+	void eval();
 
 };
 

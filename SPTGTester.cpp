@@ -51,6 +51,7 @@ void SPTGTester::test(){
 				delete solverVI;
 
 			}
+			cerr << endl;
 		}
 		cerr << endl;
 	}

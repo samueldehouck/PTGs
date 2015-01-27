@@ -202,7 +202,7 @@ void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 			else if(it->getType() == 1)
 				color = "blue";
 			else if(it->getType() == 2)
-				color = "green";
+				color = "blue";
 			else if(it->getType() == 3)
 				color = "red";
 
@@ -298,13 +298,11 @@ void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 	}
 	f << "\\begin{tikzpicture}" << endl;
 	f << "\\draw[black, fill=black] (0,3) circle (0.07);" << endl;
-	f << "\\node [right] at (0.5,3) {Normal transition};" << endl;
+	f << "\\node [right] at (0.5,3) {Take transition};" << endl;
 	f << "\\draw[black, fill=blue] (0,2) circle (0.07);" << endl;
-	f << "\\node [right] at (0.5,2) {Waiting (lambda transition)};" << endl;
-	f << "\\draw[black, fill=green] (0,1) circle (0.07);" << endl;
-	f << "\\node [right] at (0.5,1) {Waiting (bottom transition)};" << endl;
+	f << "\\node [right] at (0.5,2) {Wait};" << endl;
 	f << "\\draw[black, fill=red] (0,0) circle (0.07);" << endl;
-	f << "\\node [right] at (0.5,0) {Reset};" << endl;
+	f << "\\node [right] at (0.5,1) {Reset};" << endl;
 	f << "\\end{tikzpicture}" << endl;
 
 
