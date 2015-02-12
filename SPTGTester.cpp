@@ -32,32 +32,39 @@ void SPTGTester::test(){
 	PTGFactory factory;
 	PTG* ptg;
 	for (unsigned int nbStates = 3; equal && nbStates < 10; ++nbStates){
-		cerr << "nbStates = " << nbStates << endl;;
+		if(outputEnabled)
+			cerr << "nbStates = " << nbStates << endl;;
 		for(unsigned int nbTrans = nbStates; equal && nbTrans < (nbStates - 1)*(nbStates - 1); ++nbTrans){
-			cerr << nbTrans << ":" ;
+			if(outputEnabled)
+				cerr << nbTrans << ":" ;
 			for (unsigned int i = 0; i < nbTests && equal; ++i){
 
-				cerr << ".";
+				if(outputEnabled)
+					cerr << ".";
 				equal = false;
 				ptg = factory.buildSPTG(nbStates,nbTrans,20,50);
 				solverVF = new PTGSolver();
-				solverVF->solvePTG(ptg,false,1,false,false);
+				solverVF->solvePTG(ptg,false,1,false);
 
 				solverVI = new PTGSolver();
-				solverVI->solvePTG(ptg,false,2,false,false);
+				solverVI->solvePTG(ptg,false,2,false);
 				if(solverVF->getBreakPoints() == solverVI->getBreakPoints() && compareVF(ptg->getSize(),  solverVF->getValueFcts(), solverVI->getValueFcts()))
 					equal = true;
 				delete solverVF;
 				delete solverVI;
 
 			}
-			cerr << endl;
+			if(outputEnabled)
+				cerr << endl;
 		}
-		cerr << endl;
+		if(outputEnabled)
+			cerr << endl;
 	}
-	cerr << endl;
+	if(outputEnabled)
+		cerr << endl;
 	if(!equal){
-		cerr << "PROB FOUND" << endl;
+		if(outputEnabled)
+			cerr << "PROB FOUND" << endl;
 		ptg->write("prob.txt");
 	}
 }
@@ -65,18 +72,21 @@ void SPTGTester::test(){
 bool SPTGTester::compareVF(unsigned int size, vector<list<Point> >* vFSI, vector<list<Point> >* vFVI){
 	for (unsigned int i = 1; i < size; ++i){
 		if((*vFSI)[i].size() != (*vFVI)[i].size()){
-			cerr << "NOT SAME SIZE" << endl;
+			if(outputEnabled)
+				cerr << "NOT SAME SIZE" << endl;
 			return false;
 		}
 		list<Point>::iterator itS = (*vFSI)[i].begin();
 		list<Point>::iterator itV = (*vFVI)[i].begin();
 		for (; itS != (*vFSI)[i].end() && itV != (*vFVI)[i].end(); ++itS, ++itV){
 			if(itS->getInf() != itV->getInf()){
-				cerr << "NOT BOTH INF" << endl;
+				if(outputEnabled)
+					cerr << "NOT BOTH INF" << endl;
 				return false;
 			}
 			if(!itS->getInf() && (itS->getX() != itV->getX() || itS->getY() != itV->getY())){
-				cerr << "NOT EQUAL" << endl;
+				if(outputEnabled)
+					cerr << "NOT EQUAL" << endl;
 				return false;
 			}
 		}

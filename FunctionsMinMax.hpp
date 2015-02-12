@@ -10,6 +10,7 @@
 #include "SPTG.hpp"
 #include "Value.hpp"
 #include "Strategy.hpp"
+#include "Constants.hpp"
 #include <list>
 
 using namespace std;

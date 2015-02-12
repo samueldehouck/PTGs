@@ -22,15 +22,15 @@ public:
 	Value operator-(Value);
 	Value operator/(Value);
 	Value operator*(Value);
-	bool operator==(Value) const;
-	bool operator<(Value) const;
-	bool operator<=(Value) const;
-	bool operator>(Value) const;
-	bool operator>=(Value) const;
-	bool operator!=(Value) const;
+	bool operator==(Value);
+	bool operator<(Value);
+	bool operator<=(Value);
+	bool operator>(Value);
+	bool operator>=(Value);
+	bool operator!=(Value);
 
-	Fraction getVal() const;
-	void setVal(Fraction);
+	Fraction getValue() const;
+	void setValue(Fraction);
 	bool isInfinity() const;
 	void setInf(bool);
 };

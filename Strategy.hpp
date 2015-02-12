@@ -7,8 +7,8 @@
 #define STRATEGY_HPP_
 
 #include <vector>
-#include "Value.hpp"
 #include "Fraction.hpp"
+#include "Constants.hpp"
 
 using namespace std;
 

@@ -10,7 +10,6 @@
 #include "Point.hpp"
 #include "Fraction.hpp"
 #include "Value.hpp"
-#include "CompositeValue.hpp"
 #include "Strategy.hpp"
 #include <stddef.h>
 #include <list>
@@ -25,7 +24,6 @@ private:
 	SPTG* sptg;
 	bool solvePTG;
 	unsigned int size;
-	vector<CompositeValue>* vals;
 	vector<Value>* pathsLengths;
 	vector<CompositeValue> lambdas;
 	vector<list<Point> >* valueFcts;//We need a list of points for every state
@@ -40,7 +38,7 @@ private:
 
 public:
 	SPTGSolverValIt();
-	SPTGSolverValIt(SPTG* , vector<Value>* ,  vector<Value>* , vector<CompositeValue>* , vector<list<Point> >* , vector<vector<CompositeValue> >* , bool);
+	SPTGSolverValIt(SPTG* , vector<Value>* ,  vector<Value>* ,  vector<list<Point> >* , vector<vector<CompositeValue> >* , bool);
 	virtual ~SPTGSolverValIt();
 	void show();
 	void solveSPTG();

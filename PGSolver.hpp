@@ -10,6 +10,7 @@
 #include <list>
 
 #include "PG.hpp"
+#include "Constants.hpp"
 #include "Value.hpp"
 #include "CompositeValue.hpp"
 #include "Point.hpp"

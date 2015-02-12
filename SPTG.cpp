@@ -18,22 +18,25 @@ SPTG::~SPTG(){
 }
 
 void SPTG::show(){
-	cout << "Rates: " << endl;
-	for (unsigned int i =0; i < states->size(); ++i)
-		cout << (*states)[i] << " ";
-	cout << endl;
+	if(outputEnabled)
+	{
+		cout << "Rates: " << endl;
+		for (unsigned int i =0; i < states->size(); ++i)
+			cout << (*states)[i] << " ";
+		cout << endl;
 
-	cout << "Transitions: "<< endl;
-	for (unsigned int i = 0; i < transitions->size(); ++i){
-		for (unsigned int j = 0; j < (*transitions)[i].size(); ++j)
-			cout << (*transitions)[i][j] << "	";
+		cout << "Transitions: "<< endl;
+		for (unsigned int i = 0; i < transitions->size(); ++i){
+			for (unsigned int j = 0; j < (*transitions)[i].size(); ++j)
+				cout << (*transitions)[i][j] << "	";
+			cout << endl;
+		}
+
+		cout << "Owners: " << endl;
+		for (unsigned int i = 0; i < owners->size(); ++i)
+			cout << (*owners)[i] << " ";
 		cout << endl;
 	}
-
-	cout << "Owners: " << endl;
-	for (unsigned int i = 0; i < owners->size(); ++i)
-		cout << (*owners)[i] << " ";
-	cout << endl;
 }
 
 Value SPTG::getState(unsigned int index) const{

@@ -9,7 +9,7 @@
 #include "Fraction.hpp"
 
 class CompositeValue: public Value {
-private:
+protected:
 	Fraction epsilon;
 
 public:

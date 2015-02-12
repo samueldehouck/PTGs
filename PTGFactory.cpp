@@ -235,6 +235,7 @@ PTG* PTGFactory::buildFromXmlFile(char* f){
 				for(xml_node_iterator itT = it->begin(); itT != it->end(); ++itT){
 					if(string(itT->name()).compare("source") == 0){
 						unsigned int i = 0;
+						if(outputEnabled)
 						cout << itT->attribute("ref").as_string() << endl;
 						for (; i < ids.size() && ids[i].compare(itT->attribute("ref").as_string()); ++i);
 						if(i != ids.size()){

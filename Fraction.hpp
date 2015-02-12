@@ -36,6 +36,7 @@ public:
 	unsigned int gcd(int, int);
 	void upperSign();
 	double asDouble();
+	string getLatex();
 };
 
 ostream& operator<<(ostream&, const Fraction&);

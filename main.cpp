@@ -3,6 +3,7 @@
  */
 
 #include <iostream>
+#include "Constants.hpp"
 #include "PerfEvaluator.hpp"
 #include "PTG.hpp"
 #include "PTGFactory.hpp"
@@ -22,119 +23,62 @@ int main(int argc, char *argv[]){
 	//!!!!!!!!Needed to be able to build different games
 	srand (time(NULL));
 
-
-
 	freopen("output.txt","w",stdout);
-	bool test = false;
+
+
 	bool perf = false;
-	bool visu = false;
+	bool test = false;
+	bool output = false;
 	unsigned int version = 1;
-	bool sat = false;
 	char* file = NULL;
 	char* fctsFile = NULL;
 
 	for (int i = 1; i < argc; ++i){
-		if(strcmp(argv[i], "-test") == 0)
+		if (strcmp(argv[i], "-test") == 0)
 			test = true;
-		if(strcmp(argv[i], "-perf") == 0)
+		else if(strcmp(argv[i], "-perf") == 0)
 			perf = true;
-		else if(strcmp(argv[i],"-v") == 0)
-			visu = true;
 		else if (strcmp(argv[i], "-vi") == 0)
 			version = 2;
-		else if(strcmp(argv[i],"-sat") == 0)
-			sat = true;
+		else if (strcmp(argv[i], "-output") == 0)
+			output = true;
 		else if (file != NULL && fctsFile == NULL)
 			fctsFile = argv[i];
 		else
 			file = argv[i];
 	}
+	if(output){
+		outputEnabled = true;
+	}
 
-	if(fctsFile != NULL){
+	if (test){
+		SPTGTester tester;
+		tester.test();
+	}
+	else if(fctsFile != NULL){
 		PTGFactory factory;
 		PTG* ptg;
 
 		ptg = factory.buildFromFile(file);
 		factory.buildOutputFcts(fctsFile, ptg);
 		PTGSolver solver;
-		solver.solvePTG(ptg, true, 3, false, true);
-	}
-	else if(test){
-		SPTGTester tester;
-		if(visu)
-			cerr << "Testing" << endl;
-		tester.test();
-
+		solver.solvePTG(ptg, true, 3,  true);
+		delete ptg;
 	}
 	else if(perf){
 		PerfEvaluator perf;
-		if(visu)
-			cerr << "Can't do visualization and perfomances!" << endl;
 		perf.eval();
-
-	}
-	else if(sat){
-		PTGFactory factory;
-		PTG* ptg;
-
-		if(file != NULL)
-			ptg = factory.buildFromFile(file);
-		else
-			//ptg = factory.buildPTG(100,500,15,20,20,10);
-			ptg = factory.hardBuild(0);
-		PTGSolver solver;
-		solver.solvePTG(ptg, false, version, sat, false);
-		cerr << "breakpoints: " << solver.getBreakPoints() << endl;
-
-		delete ptg;
-	}
-	else if(visu){
-		PTGFactory factory;
-		PTG* ptg;
-
-		if(file != NULL)
-			ptg = factory.buildFromFile(file);
-		else
-			//ptg = factory.buildPTG(100,500,15,20,20,10);
-			ptg = factory.hardBuild(2);
-		PTGSolver solver;
-		solver.solvePTG(ptg, true, version, false, false);
-		cerr << "breakpoints: " << solver.getBreakPoints() << endl;
-
-		delete ptg;
-	}
-	else if(version == 2){
-		PTGFactory factory;
-		PTG* ptg;
-
-		if(file != NULL)
-			ptg = factory.buildFromFile(file);
-		else
-			ptg = factory.hardBuild(2);
-		PTGSolver solver;
-		solver.solvePTG(ptg, false, version, false, false);
-		delete ptg;
 	}
 	else if (file != NULL){
 		PTGFactory factory;
-		PTG* ptg = factory.buildFromFile(argv[1]);
+		PTG* ptg = factory.buildFromFile(file);
 		PTGSolver solver;
-		solver.solvePTG(ptg, true,version, false, false);
+		solver.solvePTG(ptg, true,version, false);
 		delete ptg;
 	}
-	else if (argc == 1){
-		PTGFactory factory;
-		PTG* ptg = factory.buildPTG(100,9000,15,20,20,10);
-		PTGSolver solver;
+	else
+		cerr << "Nothing to be done..." << endl;
 
-		struct timeval start, end;
-		gettimeofday(&start, NULL);
-		solver.solvePTG(ptg, false, version, false, false);
-		gettimeofday(&end, NULL);
-		cerr << "time: " <<  1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec)/1000 << endl;
-
-		delete ptg;
-	}
 	fclose (stdout);
 
 

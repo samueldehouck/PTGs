@@ -8,9 +8,9 @@
 Transition::Transition(){
 	dest = 0;
 	origin = 0;
-	cost = 0;
+	val = 0;
 }
 
-Transition::Transition(unsigned int o, unsigned int d,  Value c):
-		origin(o), dest(d), cost(c)
+Transition::Transition(unsigned int o, unsigned int d,  Value v):
+		origin(o), dest(d), val(v)
 {}

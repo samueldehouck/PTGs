@@ -74,6 +74,8 @@ PTG::~PTG(){
 	delete startsCstraints;
 	delete endsCstraints;
 	delete resets;
+	for (unsigned int i = 0; i < outputFcts.size();++i)
+		delete outputFcts[i];
 }
 
 Fraction PTG::getStartCst(unsigned int origin, unsigned int dest) const{
@@ -142,6 +144,7 @@ bool PTG::hasLabels(){
 
 
 void PTG::show(){
+	if(outputEnabled){
 	cout << "====PTG===" << endl;
 	SPTG::show();
 
@@ -160,6 +163,7 @@ void PTG::show(){
 	}
 
 	cout << endl;
+	}
 }
 
 void PTG::write(string s){

@@ -12,6 +12,13 @@ class PerfEvaluator{
 private:
 	double nbTests;
 	void nbBreakPoints();
+	void timeBPs();
+	void timeStates();
+	void timeTrans();
+	void timeResets();
+	void timeConsts();
+	void timeWeights();
+	void timeRates();
 public:
 	PerfEvaluator();
 	PerfEvaluator(double);

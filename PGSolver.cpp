@@ -109,8 +109,8 @@ PGSolver::PGSolver(PG* p, vector<Value>* pl, vector<CompositeValue>* v, vector<l
 void PGSolver::extendedDijkstra(bool solvePTG){
 	//the parameter "solvePTG" is true when we have created a PG in solvePTG
 
-
-	cout << "====Extended Dijkstra====" << endl;
+	if(outputEnabled)
+		cout << "====Extended Dijkstra====" << endl;
 	//Compute the values in a Priced Game
 	unsigned int cnt = nbTransitions;
 	for(unsigned int i = 1; i < size; ++i)
@@ -128,14 +128,16 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 		for (unsigned int state = 1; state < size; ++state){
 			if (ensStates[state]){
 				//If the state is still in the ensemble
-
-				cout << "State " << state << endl;
+				if(outputEnabled)
+					cout << "State " << state << endl;
 				//Check the lambda transition if needed due to "withLambas"
 
 				if(solvePTG && ensBottoms[state]){
-					cout << min << " " << ((*bottoms)[state]) << " " << min.isInfinity() << endl;
+					if(outputEnabled)
+						cout << min << " " << ((*bottoms)[state]) << " " << min.isInfinity() << endl;
 					if( min >= (*bottoms)[state] || min.isInfinity()){
-						cout << "minisBottom: " << (*bottoms)[state] << endl;
+						if(outputEnabled)
+							cout << "minisBottom: " << (*bottoms)[state] << endl;
 						finalState = state;
 						finalTrans = 0;
 						min = (*bottoms)[state];
@@ -147,7 +149,8 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 				}
 				for (unsigned int j = 0; resets != NULL && j < size; ++j){
 					if(ensResets[state][j] && min >= (*resets)[state][j] ){
-						cout << "minisReset: " << (*resets)[state][j] << endl;
+						if(outputEnabled)
+							cout << "minisReset: " << (*resets)[state][j] << endl;
 						finalState = state;
 						finalTrans = j;
 						min = (*resets)[state][j];
@@ -160,11 +163,13 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
 					if(ensTransitions[state][nextState]){
-						cout << state << " to " << nextState << endl;
-						cout << "min: " << min << endl;
-						cout << "new val:" << (*vals)[nextState] + pg->getTransition(state, nextState) << endl;
+						if(outputEnabled){
+							cout << state << " to " << nextState << endl;
+							cout << "min: " << min << endl;
+							cout << "new val:" << (*vals)[nextState] + pg->getTransition(state, nextState) << endl;
+						}
 						if( ((*resets)[state][nextState] == -1 && min > ((*vals)[nextState] + pg->getTransition(state, nextState))) || (!minIsBottom && ! minIsReset && min.isInfinity())){
-							//cout << "New min to " << nextState << " with cost " << (*vals)[nextState] + pg->getTransition(state, nextState) << endl;
+							//cout << "New min to " << nextState << " with Value " << (*vals)[nextState] + pg->getTransition(state, nextState) << endl;
 							finalState = state;
 							finalTrans = nextState;
 							min = (*vals)[nextState] + pg->getTransition(state, nextState);
@@ -177,16 +182,20 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 		}
 		//Change the values
 		if((ensTransitions[finalState][finalTrans] || minIsBottom || minIsReset) && ensStates[finalState] && (pg->getOwner(finalState) || isLastTransition(finalState, finalTrans, minIsBottom, minIsReset, solvePTG))){
-			cout << "Change value of state " << finalState << " to ";
+			if(outputEnabled)
+				cout << "Change value of state " << finalState << " to ";
 			if(minIsBottom){
-				cout << (*bottoms)[finalState] << endl;
+				if(outputEnabled)
+					cout << (*bottoms)[finalState] << endl;
 
 				if((*bottoms)[finalState].isInfinity())
 					(*vals)[finalState].setInf(true);
 				else{
-					cout << (*vals)[finalState] << endl;
+					if(outputEnabled)
+						cout << (*vals)[finalState] << endl;
 					(*vals)[finalState] = (*bottoms)[finalState];
-					cout << (*vals)[finalState] << endl;
+					if(outputEnabled)
+						cout << (*vals)[finalState] << endl;
 
 				}
 
@@ -200,7 +209,8 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 			}
 			else if(minIsReset){
 				(*vals)[finalState] = (*resets)[finalState][finalTrans];
-				cout << (*resets)[finalState][finalTrans] << endl;
+				if(outputEnabled)
+					cout << (*resets)[finalState][finalTrans] << endl;
 
 				(*pathsLengths)[finalState] = 1;
 				(*valueFcts)[finalState].front().setY((*vals)[finalState]);
@@ -214,8 +224,9 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 				else
 					(*vals)[finalState] = (*vals)[finalTrans] + pg->getTransition(finalState, finalTrans);
 
-				(*vals)[finalState].getVal().upperSign();
-				cout << (*vals)[finalState] << endl;
+				(*vals)[finalState].getValue().upperSign();
+				if(outputEnabled)
+					cout << (*vals)[finalState] << endl;
 				(*valueFcts)[finalState].front().setY((*vals)[finalState]);
 
 				(*pathsLengths)[finalState] = (*pathsLengths)[finalTrans] + 1;
@@ -225,7 +236,8 @@ void PGSolver::extendedDijkstra(bool solvePTG){
 			ensStates[finalState] = false;
 		}
 		else if((ensTransitions[finalState][finalTrans] || minIsBottom || minIsReset) && ensStates[finalState]){
-			cout << "Delete transition to " << finalTrans << " from state " << finalState << " " << ensTransitions[finalState][finalTrans] << minIsBottom << minIsReset << endl;
+			if(outputEnabled)
+				cout << "Delete transition to " << finalTrans << " from state " << finalState << " " << ensTransitions[finalState][finalTrans] << minIsBottom << minIsReset << endl;
 			if(minIsBottom)
 				ensBottoms[finalState] = false;
 			else if(minIsReset)
@@ -269,26 +281,24 @@ bool PGSolver::remainsStates(){
 
 bool PGSolver::isLastTransition(unsigned int state, unsigned int nextState, bool isBottom, bool isReset, bool solvePTG){
 	//Check if the transition going from state to nextState is the last one
-	//cout << "is? " << endl;
+	if(outputEnabled)
+		cout << "is? " << endl;
 	bool isLast = true;
 
-	//cout << isBottom << " " << ensBottoms[state] << endl;
 	if(solvePTG && !isBottom && ensBottoms[state] != false){
 		return false;
 	}
-
-	//cout << " " << isReset << " " << ensResets[state][nextState] << endl;
+	if(outputEnabled)
 
 	for(unsigned int i = 0; solvePTG && resets != NULL && isLast && !isReset && i < ensResets[state].size(); ++i)
 		if(ensResets[state][i])
 			isLast = false;
-	//cout << ensResets[3][2] << endl;
 	for (unsigned int i = 0; isLast && i < ensTransitions[state].size(); ++i){
 		if((i != nextState || (i == 0 && (isBottom || isReset))) && ensTransitions[state][i])
 			isLast = false;
 
 	}
-	//cout << "IsLast: " << isLast <<isBottom <<isReset << endl;
+
 	return isLast;
 }
 

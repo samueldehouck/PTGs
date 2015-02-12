@@ -11,7 +11,7 @@ Value::Value(){
 }
 
 Value::Value(const Value &v){
-	val = v.getVal();
+	val = v.getValue();
 	inf = v.isInfinity();
 }
 
@@ -26,7 +26,7 @@ Value::Value(int i){
 }
 
 Value& Value::operator=(const Value &v){
-	val = v.getVal();
+	val = v.getValue();
 	inf = v.isInfinity();
 	return *this;
 }
@@ -36,7 +36,7 @@ Value Value::operator+(Value v){
 	if(inf || v.isInfinity())
 		tmp.setInf(true);
 	else
-		tmp.setVal(val + v.getVal());
+		tmp.setValue(val + v.getValue());
 	return tmp;
 }
 
@@ -45,7 +45,7 @@ Value Value::operator-(Value v){
 	if(inf || v.isInfinity())
 		tmp.setInf(true);
 	else
-		tmp.setVal(val - v.getVal());
+		tmp.setValue(val - v.getValue());
 	return tmp;
 }
 
@@ -54,7 +54,7 @@ Value Value::operator/(Value v){
 	if(inf || v.isInfinity())
 		tmp.setInf(true);
 	else
-		tmp.setVal(val / v.getVal());
+		tmp.setValue(val / v.getValue());
 	return tmp;
 }
 
@@ -63,65 +63,65 @@ Value Value::operator*(Value v){
 	if(inf || v.isInfinity())
 		tmp.setInf(true);
 	else
-		tmp.setVal(val * v.getVal());
+		tmp.setValue(val * v.getValue());
 	return tmp;
 }
 
-bool Value::operator==(Value v) const{
-	if((inf && v.isInfinity()) || (!inf && !v.isInfinity() && val == v.getVal()))
+bool Value::operator==(Value v){
+	if((inf && v.isInfinity()) || (!inf && !v.isInfinity() && val == v.getValue()))
 		return true;
 
 	return false;
 }
-bool Value::operator<(Value v) const{
-	if((!inf && !v.isInfinity() && val < v.getVal()) ||
+bool Value::operator<(Value v){
+	if((!inf && !v.isInfinity() && val < v.getValue()) ||
 			(!inf && v.isInfinity()))
 		return true;
 
 	return false;
 }
 
-bool Value::operator<=(Value v) const{
+bool Value::operator<=(Value v){
 	if((inf && v.isInfinity()) ||
-			(!inf && !v.isInfinity() && val <= v.getVal()) ||
+			(!inf && !v.isInfinity() && val <= v.getValue()) ||
 			(!inf && v.isInfinity()))
 		return true;
 
 	return false;
 }
 
-bool Value::operator>(Value v) const{
-	if((!inf && !v.isInfinity() && val > v.getVal()) ||
+bool Value::operator>(Value v){
+	if((!inf && !v.isInfinity() && val > v.getValue()) ||
 			(inf && !v.isInfinity()))
 		return true;
 
 	return false;
 }
-bool Value::operator>=(Value v) const{
+bool Value::operator>=(Value v){
 	if((inf && v.isInfinity()) ||
-			(!inf && !v.isInfinity() && val >= v.getVal()) ||
+			(!inf && !v.isInfinity() && val >= v.getValue()) ||
 			(inf && !v.isInfinity()))
 		return true;
 
 	return false;
 }
-bool Value::operator!=(Value v) const{
+bool Value::operator!=(Value v){
 	if((inf && !v.isInfinity()) ||
 			(!inf && v.isInfinity()) ||
-			(!inf && !v.isInfinity() && val != v.getVal()))
+			(!inf && !v.isInfinity() && val != v.getValue()))
 		return true;
 	return false;
 
 }
 
-Fraction Value::getVal() const{
+Fraction Value::getValue() const{
 	if (!inf)
 		return val;
 
 	return 0;
 }
 
-void Value::setVal(Fraction v){
+void Value::setValue(Fraction v){
 	val = v;
 	inf = false;
 }
@@ -138,6 +138,6 @@ ostream& operator<<(ostream& out, const Value& v){
 	if(v.isInfinity())
 		out << "inf";
 	else
-		out << v.getVal();
+		out << v.getValue();
 	return out;
 }

@@ -20,8 +20,9 @@ PTGSolver::PTGSolver(){
 }
 
 
-void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats, bool outputFcts){
-	cout << "====SolvePTG====" << endl;
+void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool outputFcts){
+	if(outputEnabled)
+		cout << "====SolvePTG====" << endl;
 
 
 	ptg = p;
@@ -33,7 +34,8 @@ void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats, b
 		int copyNb = ptg->getNbResets();
 		createResets();
 		while (copyNb >= 0){
-			cout << "====Solving copy nb: " << copyNb << " ====" << endl;
+			if(outputEnabled)
+				cout << "====Solving copy nb: " << copyNb << " ====" << endl;
 
 			createEndPoints();
 
@@ -63,7 +65,8 @@ void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats, b
 
 
 			//First extendedDijkstra on the biggest "M"
-			cout << "====First extended Dijkstra====" << endl;
+			if(outputEnabled)
+				cout << "====First extended Dijkstra====" << endl;
 			PGSolver* pgSolver = new PGSolver(ptg, &pathsLengths, &vals, &valueFcts, &resets);
 			pgSolver->extendedDijkstra(false);
 			delete pgSolver;
@@ -80,7 +83,8 @@ void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats, b
 					valueFcts[i].push_front(Point(time, 0, Strategy(0,0,false)));
 
 				time = endPoints.back();
-				cout << "===TIME: " << time << " ===" << endl;
+				if(outputEnabled)
+					cout << "===TIME: " << time << " ===" << endl;
 
 				endPoints.pop_back();
 				//First ExtendedDijkstra done at the last "M"
@@ -105,7 +109,7 @@ void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats, b
 					delete sptgSolver;
 				}
 				else if (version == 2){
-					SPTGSolverValIt* sptgSolver = new SPTGSolverValIt(ptg, &bottoms, &pathsLengths, &vals, &valueFcts, &resets, outputFcts);
+					SPTGSolverValIt* sptgSolver = new SPTGSolverValIt(ptg, &bottoms, &pathsLengths, &valueFcts, &resets, outputFcts);
 					sptgSolver->solveSPTG();
 					delete sptgSolver;
 				}
@@ -149,17 +153,15 @@ void PTGSolver::solvePTG(PTG* p, bool visu, unsigned int version, bool strats, b
 		correctStrats();
 
 		show();
-		if(strats){
-			cerr << "Drawing..." << endl;
-			visualize(false, true);
-		}
-		else if (visu){
+		if (visu){
 			cerr << "Drawing..." << endl;
 			visualize(true, true);
 		}
 		cleanValueFcts();
-		cout << endl << "====Results SolvePTG===" << endl;
-		show();
+		if(outputEnabled){
+			cout << endl << "====Results SolvePTG===" << endl;
+			show();
+		}
 	}
 	else
 		cout << "The game is empty" << endl;
@@ -197,14 +199,15 @@ void PTGSolver::createEndPoints(){
 }
 
 void PTGSolver::keepTransAvailable(Value start, Value end){
-	cout << "===Updating Transitions (" << start << "," << end << ") ====" << endl;
+	if(outputEnabled)
+		cout << "===Updating Transitions (" << start << "," << end << ") ====" << endl;
 
 	//Restore all transitions that can be taken but were stored
 	list<Transition>::iterator next = storage.begin();
 	for (list<Transition>::iterator it = storage.begin(); it != storage.end(); it = next){
 		++next;
 		if(Value(ptg->getStartCst(it->origin, it->dest)) <= start && Value(ptg->getEndCst(it->origin, it->dest)) >= end){
-			ptg->setTransition(it->origin, it->dest, it->cost);
+			ptg->setTransition(it->origin, it->dest, it->val);
 
 			storage.erase(it);
 
@@ -226,7 +229,7 @@ void PTGSolver::keepTransAvailable(Value start, Value end){
 void PTGSolver::restoreAllTrans(){
 	//Done when we have completely solver a copy of the game
 	while(!storage.empty()){
-		ptg->setTransition(storage.front().origin, storage.front().dest,storage.front().cost);
+		ptg->setTransition(storage.front().origin, storage.front().dest,storage.front().val);
 		storage.pop_front();
 	}
 }
@@ -240,17 +243,19 @@ void PTGSolver::updateBottoms(){
 
 void PTGSolver::rescale(Value start, Value end){
 	//The result given by the solveSPTG needs to be rescaled (from (0,1) to (start, end))
-	cout << "====Rescaling====" << endl;
+	if(outputEnabled)
+		cout << "====Rescaling====" << endl;
 
 	for (unsigned int i = 0; i < size; ++i){
 		for (list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end() && it->getX() <= 1; ++it)
-			it->setX((it->getX() * (end.getVal() - start.getVal())) + start);
+			it->setX((it->getX() * (end.getValue() - start.getValue())) + start);
 	}
 }
 
 void PTGSolver::cleanValueFcts(){
 	//In the case where three consecutive points are on the same line, we can delete the middle one
-	cout << "====Cleaning Value Fcts====" << endl;
+	if(outputEnabled)
+		cout << "====Cleaning Value Fcts====" << endl;
 
 	for (vector<list<Point> >::iterator itV = valueFcts.begin(); itV != valueFcts.end(); ++itV){
 		//For every state
@@ -262,14 +267,14 @@ void PTGSolver::cleanValueFcts(){
 			++itCurrent;
 			for (list<Point>::iterator itLast = itV->begin(); itNext != itV->end(); ++itNext){
 				bool deleted = false;
-				if(!itLast->getY().isInfinity() && !itCurrent->getY().isInfinity() && !itNext->getY().isInfinity() && (itLast->getX().getVal() <= itCurrent->getX().getVal()) && (itCurrent->getX().getVal() <= itNext->getX().getVal())){
+				if(!itLast->getY().isInfinity() && !itCurrent->getY().isInfinity() && !itNext->getY().isInfinity() && (itLast->getX().getValue() <= itCurrent->getX().getValue()) && (itCurrent->getX().getValue() <= itNext->getX().getValue())){
 					Value coef = (itNext->getY() - itLast->getY())/(itNext->getX() - itLast->getX());
 					if(itLast->getY() + (coef * (itCurrent->getX() - itLast->getX())) == itCurrent->getY()){
 						itV->erase(itCurrent);
 						deleted = true;
 					}
 				}
-				else if(itLast->getY().isInfinity() && itCurrent->getY().isInfinity() && itNext->getY().isInfinity()&& (itLast->getX().getVal() <= itCurrent->getX().getVal()) && (itCurrent->getX().getVal() <= itNext->getX().getVal())){
+				else if(itLast->getY().isInfinity() && itCurrent->getY().isInfinity() && itNext->getY().isInfinity()&& (itLast->getX().getValue() <= itCurrent->getX().getValue()) && (itCurrent->getX().getValue() <= itNext->getX().getValue())){
 					itV->erase(itCurrent);
 					deleted = true;
 				}
@@ -321,9 +326,10 @@ void PTGSolver::createResets(){
 }
 
 void PTGSolver::updateResets(){
-	cout << "===Update resets===" << endl;
+	if(outputEnabled)
+		cout << "===Update resets===" << endl;
 
-	//The cost of the reset transition is the sum between the cost of the transition and the value of the destination
+	//The Value of the reset transition is the sum between the Value of the transition and the value of the destination
 	for (unsigned int i = 0; i < size; ++i){
 		for (unsigned int j = 0; j < size; ++j){
 			if(ptg->getReset(i,j)){
@@ -335,35 +341,38 @@ void PTGSolver::updateResets(){
 }
 
 void PTGSolver::show(){
-	cout << "Strategies: " << endl;
+	if(outputEnabled){
 
-	for (unsigned int i = 0; i < size; ++i){
-		cout << "State " << i << ": " << endl;;
-		for (list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
-			cout << "t: " << it->getX() << " -> ";
-			it->getStrategy().show();
+		cout << "Strategies: " << endl;
+
+		for (unsigned int i = 0; i < size; ++i){
+			cout << "State " << i << ": " << endl;;
+			for (list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
+				cout << "t: " << it->getX() << " -> ";
+				it->getStrategy().show();
+			}
+			cout << endl;
+		}
+
+
+		cout << "Vals:" << endl;
+		for (unsigned int i = 0; i < vals.size(); ++i){
+			cout << vals[i] << "	";
 		}
 		cout << endl;
-	}
 
 
-	cout << "Vals:" << endl;
-	for (unsigned int i = 0; i < vals.size(); ++i){
-		cout << vals[i] << "	";
-	}
-	cout << endl;
-
-
-	cout << "Value Functions" << endl;
-	for (unsigned int i = 1; i < valueFcts.size(); ++i){
-		if(ptg->hasLabels())
-			cout << "State " << ptg->getLabel(i) << ": ";
-		else
-			cout << " State " << i <<": ";
-		for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
-			cout << "(" << it->getX() << "," << it->getY() << ") ";
+		cout << "Value Functions" << endl;
+		for (unsigned int i = 1; i < valueFcts.size(); ++i){
+			if(ptg->hasLabels())
+				cout << "State " << ptg->getLabel(i) << ": ";
+			else
+				cout << " State " << i <<": ";
+			for(list<Point>::iterator it = valueFcts[i].begin(); it != valueFcts[i].end(); ++it){
+				cout << "(" << it->getX() << "," << it->getY() << ") ";
+			}
+			cout << endl;
 		}
-		cout << endl;
 	}
 }
 

@@ -10,12 +10,11 @@ SPTGSolverValIt::SPTGSolverValIt() {
 
 }
 
-SPTGSolverValIt::SPTGSolverValIt(SPTG* s, vector<Value>* b,  vector<Value>* pl, vector<CompositeValue>* v, vector<list<Point> >* vF, vector<vector<CompositeValue> >* r, bool outFcts){
+SPTGSolverValIt::SPTGSolverValIt(SPTG* s, vector<Value>* b,  vector<Value>* pl, vector<list<Point> >* vF, vector<vector<CompositeValue> >* r, bool outFcts){
 	sptg = s;
 	solvePTG = true;
 	bottoms = b;
 	pathsLengths = pl;
-	vals = v;
 	valueFcts = vF;
 	resets = r;
 	outputFcts = outFcts;
@@ -35,54 +34,60 @@ SPTGSolverValIt::SPTGSolverValIt(SPTG* s, vector<Value>* b,  vector<Value>* pl, 
 SPTGSolverValIt::~SPTGSolverValIt() {
 	if(!solvePTG)
 		delete valueFcts;
+	for (unsigned int i = 0; i < copyValsSrc.size();++i)
+		delete copyValsSrc[i];
+	for (unsigned int i = 0; i < copyVals.size();++i)
+		delete copyVals[i];
 }
 
 void SPTGSolverValIt::show(){
+	if(outputEnabled)
+	{
+		cout << "Lambdas:" << endl;
+		for (unsigned int i = 0; i < lambdas.size(); ++i)
+			cout <<  lambdas[i] << "	";
 
-	cout << "Lambdas:" << endl;
-	for (unsigned int i = 0; i < lambdas.size(); ++i)
-		cout <<  lambdas[i] << "	";
+		cout << endl;
 
-	cout << endl;
+		cout << "Lengths: " << endl;
+		for (unsigned int i = 0; i < pathsLengths->size(); ++i)
+			cout << (*pathsLengths)[i] << "	";
+		cout << endl;
 
-	cout << "Lengths: " << endl;
-	for (unsigned int i = 0; i < pathsLengths->size(); ++i)
-		cout << (*pathsLengths)[i] << "	";
-	cout << endl;
+		cout << "Complete:" << endl;
+		for (unsigned int i = 0; i < size; ++i)
+			cout << complete[i] << "	";
+		cout << endl;
 
-	cout << "Complete:" << endl;
-	for (unsigned int i = 0; i < size; ++i)
-		cout << complete[i] << "	";
-	cout << endl;
-
-	cout << "CopySrc" << endl;
-	for (unsigned int i = 0; i < size; ++i){
-		cout << " State " << i <<": ";
-		for(list<Point>::iterator it = copyValsSrc[i]->begin(); it != copyValsSrc[i]->end(); ++it){
-			cout << "(" << it->getX() << "," << it->getY() << ")	";
+		cout << "CopySrc" << endl;
+		for (unsigned int i = 0; i < size; ++i){
+			cout << " State " << i <<": ";
+			for(list<Point>::iterator it = copyValsSrc[i]->begin(); it != copyValsSrc[i]->end(); ++it){
+				cout << "(" << it->getX() << "," << it->getY() << ")	";
+			}
+			cout << endl;
 		}
 		cout << endl;
-	}
-	cout << endl;
 
-	cout << "CopyStrategies: " << endl;
+		cout << "CopyStrategies: " << endl;
 
-	for (unsigned int i = 0; i < size; ++i){
-		cout << "State " << i << ": ";
-		for (list<Point>::iterator it = copyValsSrc[i]->begin(); it != copyValsSrc[i]->end(); ++it){
-			cout << "t: " << it->getX() << " ";
-			it->getStrategy().show();
+		for (unsigned int i = 0; i < size; ++i){
+			cout << "State " << i << ": ";
+			for (list<Point>::iterator it = copyValsSrc[i]->begin(); it != copyValsSrc[i]->end(); ++it){
+				cout << "t: " << it->getX() << " ";
+				it->getStrategy().show();
+			}
+			cout << endl;
 		}
 		cout << endl;
-	}
-	cout << endl;
-	cout << "Copy" << endl;
-	for (unsigned int i = 1; i < size; ++i){
-		cout << " State " << i <<": ";
-		for(list<Point>::iterator it = copyVals[i]->begin(); it != copyVals[i]->end(); ++it){
-			cout << "(" << it->getX() << "," << it->getY() << ")	";
+		cout << "Copy" << endl;
+		for (unsigned int i = 1; i < size; ++i){
+			cout << " State " << i <<": ";
+			for(list<Point>::iterator it = copyVals[i]->begin(); it != copyVals[i]->end(); ++it){
+				cout << "(" << it->getX() << "," << it->getY() << ")	";
+			}
+			cout << endl;
 		}
-		cout << endl;
 	}
 }
 
@@ -95,7 +100,8 @@ void SPTGSolverValIt::copyValueFcts(){
 }
 
 bool SPTGSolverValIt::compareCopy(){
-	cout << "Compare" << endl;
+	if(outputEnabled)
+		cout << "Compare" << endl;
 	show();
 	for (unsigned int i = 0; i < size; ++i){
 		if(copyVals[i]->size() != copyValsSrc[i]->size()){
@@ -106,7 +112,8 @@ bool SPTGSolverValIt::compareCopy(){
 			list<Point>::iterator itSrc = copyValsSrc[i]->begin();
 
 			while(itC != copyVals[i]->end()){
-				cout << itC->getY().isInfinity() << " " << itSrc->getY().isInfinity() << endl;
+				if(outputEnabled)
+					cout << itC->getY().isInfinity() << " " << itSrc->getY().isInfinity() << endl;
 				if((itC->getY().isInfinity() && !itSrc->getY().isInfinity())  || (itC->getY().isInfinity() && !itSrc->getY().isInfinity()))
 					return true;
 				else if(itC->getX() != itSrc->getX() || itC->getY() != itSrc->getY())
@@ -120,7 +127,8 @@ bool SPTGSolverValIt::compareCopy(){
 }
 
 void SPTGSolverValIt::solveSPTG(){
-	cout << "====SolveSPTG===" << endl;
+	if(outputEnabled)
+		cout << "====SolveSPTG===" << endl;
 
 	Value maxState = 0;
 	for (unsigned int i = 0; i < sptg->getSize(); ++i){
@@ -164,16 +172,21 @@ void SPTGSolverValIt::solveSPTG(){
 	unsigned int cnt = 0;
 
 	while(compareCopy()){
-		cout << "Turn " << cnt << endl;
+		if(outputEnabled)
+			cout << "Turn " << cnt << endl;
 
 		if(cnt != 0)//If it isn't the first turn, we need to copy the value fcts to the src
 			copyValueFcts();
-		for (unsigned int i = 0; i < size; ++i)
-			cout << complete[i] <<  " ";
-		cout << endl;
+		if(outputEnabled)
+		{
+			for (unsigned int i = 0; i < size; ++i)
+				cout << complete[i] <<  " ";
+			cout << endl;
+		}
 		for (unsigned int i = 0; i < size; ++i){
-			cout << "State: " << i << endl;
 
+			if(outputEnabled)
+				cout << "State: " << i << endl;
 
 			if(complete[i]){
 				for(list<Point>::iterator it = copyValsSrc[i]->begin(); it != copyValsSrc[i]->end(); ++it)
@@ -234,7 +247,8 @@ void SPTGSolverValIt::solveSPTG(){
 					}
 				}
 				if(!bottoms->empty()){
-					cout << "try bottom transition" << endl;
+					if(outputEnabled)
+						cout << "try bottom transition" << endl;
 
 					if(!updated){
 						copyVals[i]->push_back(Point(0, (*bottoms)[i] + sptg->getState(i), Strategy(0,2,false)));
@@ -279,7 +293,8 @@ void SPTGSolverValIt::solveSPTG(){
 		++cnt;
 	}
 
-	cout << "Result: " << endl;
+	if(outputEnabled)
+		cout << "Result: " << endl;
 	show();
 
 	for (unsigned int i = 0; i < size; ++i){

@@ -60,8 +60,10 @@ void Strategy::setInclusion(bool in){
 }
 
 void Strategy::show(){
-	cout << dest << " (" << type << ")";
-	if(included)
-		cout << "(in)";
-	cout << endl;
+	if(outputEnabled){
+		cout << dest << " (" << type << ")";
+		if(included)
+			cout << "(in)";
+		cout << endl;
+	}
 }

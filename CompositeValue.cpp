@@ -24,13 +24,13 @@ CompositeValue::CompositeValue(int i){
 }
 
 CompositeValue::CompositeValue(Value v){
-	val = v.getVal();
+	val = v.getValue();
 	inf = v.isInfinity();
 	epsilon = 0;
 }
 
 CompositeValue& CompositeValue::operator=(const CompositeValue &cv){
-	val = cv.getVal();
+	val = cv.getValue();
 	inf = cv.isInfinity();
 	epsilon = cv.getEps();
 	return *this;
@@ -42,7 +42,7 @@ CompositeValue CompositeValue::operator+(CompositeValue cv){
 	if(inf || cv.isInfinity())
 		tmp.setInf(true);
 	else{
-		tmp.setVal(val + cv.getVal());
+		tmp.setValue(val + cv.getValue());
 		tmp.setEps(epsilon + cv.getEps());
 	}
 	//cout << " = " << tmp << endl;
@@ -61,7 +61,7 @@ CompositeValue CompositeValue::operator*(int i){
 	if(inf)
 		tmp.setInf(true);
 	else
-		tmp.setVal(val * i);
+		tmp.setValue(val * i);
 	tmp.setEps(epsilon*i);
 	return tmp;
 }
@@ -71,7 +71,7 @@ CompositeValue CompositeValue::operator/(int i){
 	if(inf)
 		tmp.setInf(true);
 	else
-		tmp.setVal(val / i);
+		tmp.setValue(val / i);
 	tmp.setEps(epsilon / i);
 
 	return tmp;
@@ -79,7 +79,7 @@ CompositeValue CompositeValue::operator/(int i){
 
 bool CompositeValue::operator==(CompositeValue cv){
 	if((inf && cv.isInfinity())
-			|| (!inf && !cv.isInfinity() && val == cv.getVal() && epsilon == cv.getEps()))
+			|| (!inf && !cv.isInfinity() && val == cv.getValue() && epsilon == cv.getEps()))
 		return true;
 
 	return false;
@@ -87,8 +87,8 @@ bool CompositeValue::operator==(CompositeValue cv){
 
 bool CompositeValue::operator<(CompositeValue cv){
 
-	if((!inf && !cv.isInfinity() && val < cv.getVal()) ||
-			(!inf && !cv.isInfinity() && val == cv.getVal() && epsilon < cv.getEps()) ||
+	if((!inf && !cv.isInfinity() && val < cv.getValue()) ||
+			(!inf && !cv.isInfinity() && val == cv.getValue() && epsilon < cv.getEps()) ||
 			(!inf && cv.isInfinity()))
 		return true;
 	return false;
@@ -96,8 +96,8 @@ bool CompositeValue::operator<(CompositeValue cv){
 
 bool CompositeValue::operator<=(CompositeValue cv){
 	if((inf && cv.isInfinity()) ||
-			(!inf && !cv.isInfinity() && val < cv.getVal()) ||
-			(!inf && !cv.isInfinity() && val == cv.getVal() && epsilon <= cv.getEps()) ||
+			(!inf && !cv.isInfinity() && val < cv.getValue()) ||
+			(!inf && !cv.isInfinity() && val == cv.getValue() && epsilon <= cv.getEps()) ||
 			(!inf && cv.isInfinity()))
 		return true;
 
@@ -105,8 +105,8 @@ bool CompositeValue::operator<=(CompositeValue cv){
 }
 
 bool CompositeValue::operator>(CompositeValue cv){
-	if((!inf && !cv.isInfinity() && val > cv.getVal()) ||
-			(!inf && !cv.isInfinity() && val == cv.getVal() && epsilon > cv.getEps()) ||
+	if((!inf && !cv.isInfinity() && val > cv.getValue()) ||
+			(!inf && !cv.isInfinity() && val == cv.getValue() && epsilon > cv.getEps()) ||
 			(inf && !cv.isInfinity()))
 		return true;
 
@@ -115,8 +115,8 @@ bool CompositeValue::operator>(CompositeValue cv){
 
 bool CompositeValue::operator>=(CompositeValue cv){
 	if((inf && cv.isInfinity()) ||
-			(!inf && !cv.isInfinity() && val > cv.getVal()) ||
-			(!inf && !cv.isInfinity() && val == cv.getVal() && epsilon >= cv.getEps()) ||
+			(!inf && !cv.isInfinity() && val > cv.getValue()) ||
+			(!inf && !cv.isInfinity() && val == cv.getValue() && epsilon >= cv.getEps()) ||
 			(inf && !cv.isInfinity()))
 		return true;
 
@@ -126,8 +126,8 @@ bool CompositeValue::operator>=(CompositeValue cv){
 bool CompositeValue::operator!=(CompositeValue cv){
 	if((inf && !cv.isInfinity()) ||
 			(!inf && cv.isInfinity()) ||
-			(!inf && !cv.isInfinity() && val != cv.getVal())||
-			(!inf && !cv.isInfinity() && val == cv.getVal() && epsilon != cv.getEps()))
+			(!inf && !cv.isInfinity() && val != cv.getValue())||
+			(!inf && !cv.isInfinity() && val == cv.getValue() && epsilon != cv.getEps()))
 		return true;
 	return false;
 }
@@ -147,9 +147,9 @@ ostream& operator<<(ostream& out, const CompositeValue& cv){
 	if(cv.isInfinity())
 		out << "inf";
 	else if(cv.getEps() == 0)
-		out << cv.getVal();
+		out << cv.getValue();
 	else
-		out << cv.getVal() << "+" << cv.getEps() << "e";
+		out << cv.getValue() << "+" << cv.getEps() << "e";
 
 	return out;
 }

@@ -45,7 +45,7 @@ private:
 
 public:
 	PTGSolver();
-	void solvePTG(PTG*, bool, unsigned int, bool, bool);
+	void solvePTG(PTG*, bool, unsigned int, bool);
 	vector<list<Point> >* getValueFcts();
 	unsigned int getBreakPoints();
 	void show();

@@ -196,6 +196,15 @@ ostream& operator<<(ostream& out, const Fraction& f){
 	return out;
 }
 
+string Fraction::getLatex(){
+	string s = "\\frac{";
+	s += num;
+	s += "}{";
+	s += den;
+	s+= "}";
+	return s;
+}
+
 double Fraction::asDouble(){
 	return num/(double)den;
 }

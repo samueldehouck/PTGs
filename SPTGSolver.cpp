@@ -47,47 +47,50 @@ SPTGSolver::~SPTGSolver(){
 }
 
 void SPTGSolver::show(){
+	if(outputEnabled)
+	{
+		cout << "Lambdas:" << endl;
+		for (unsigned int i = 0; i < lambdas.size(); ++i)
+			cout <<  lambdas[i] << "	";
 
-	cout << "Lambdas:" << endl;
-	for (unsigned int i = 0; i < lambdas.size(); ++i)
-		cout <<  lambdas[i] << "	";
-
-	cout << endl;
-
-	cout << "Strategies: " << endl;
-
-	for (unsigned int i = 0; i < size; ++i){
-		cout << "State " << i << ": ";
-		for (list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it){
-			cout << "t: " << it->getX() << " ";
-			it->getStrategy().show();
-		}
 		cout << endl;
-	}
 
-	cout << "Lengths: " << endl;
-	for (unsigned int i = 0; i < pathsLengths->size(); ++i)
-		cout << (*pathsLengths)[i] << "	";
-	cout << endl;
+		cout << "Strategies: " << endl;
 
-	cout << "Vals:" << endl;
-	for (unsigned int i = 0; i < vals->size(); ++i)
-		cout << (*vals)[i] << "	";
-	cout << endl;
-
-
-	cout << "Value Functions" << endl;
-	for (unsigned int i = 1; i < valueFcts->size(); ++i){
-		cout << " State " << i <<": ";
-		for(list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it){
-			cout << "(" << it->getX() << "," << it->getY() << ")	";
+		for (unsigned int i = 0; i < size; ++i){
+			cout << "State " << i << ": ";
+			for (list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it){
+				cout << "t: " << it->getX() << " ";
+				it->getStrategy().show();
+			}
+			cout << endl;
 		}
+
+		cout << "Lengths: " << endl;
+		for (unsigned int i = 0; i < pathsLengths->size(); ++i)
+			cout << (*pathsLengths)[i] << "	";
 		cout << endl;
+
+		cout << "Vals:" << endl;
+		for (unsigned int i = 0; i < vals->size(); ++i)
+			cout << (*vals)[i] << "	";
+		cout << endl;
+
+
+		cout << "Value Functions" << endl;
+		for (unsigned int i = 1; i < valueFcts->size(); ++i){
+			cout << " State " << i <<": ";
+			for(list<Point>::iterator it = (*valueFcts)[i].begin(); it != (*valueFcts)[i].end(); ++it){
+				cout << "(" << it->getX() << "," << it->getY() << ")	";
+			}
+			cout << endl;
+		}
 	}
 }
 
 void SPTGSolver::init(){
-	cout << "SPTG init" << endl;
+	if(outputEnabled)
+		cout << "SPTG init" << endl;
 	//   Initialization of all vectors and variables used by the solver
 	size = sptg->getSize();
 	if(size != 0){
@@ -117,7 +120,8 @@ void SPTGSolver::init(){
 }
 
 void SPTGSolver::solveSPTG(){
-	cout << "====SolveSPTG====" << endl;
+	if(outputEnabled)
+		cout << "====SolveSPTG====" << endl;
 	// This function is the core of the solver, it computes the strategies and values for the SPTG passed
 	PGSolver* ps;
 
@@ -170,7 +174,8 @@ void SPTGSolver::solveSPTG(){
 		if((time - epsilon).isInfinity() || (time - epsilon) < 0)
 			epsilon = time;
 		time = time - epsilon;
-		cout << "time: " << time << endl;
+		if(outputEnabled)
+			cout << "time: " << time << endl;
 		//buildValueFcts(epsilon);
 		actualizeVals(epsilon);
 		for(unsigned int i = 0; i < size; ++i){
@@ -183,7 +188,8 @@ void SPTGSolver::solveSPTG(){
 
 void SPTGSolver::strategyIteration(){
 	// Computes the strategies in a priced game representing the sptg during an interval to be determined
-	cout << "====StrategyIteration====" << endl;
+	if(outputEnabled)
+		cout << "====StrategyIteration====" << endl;
 	bool switched = true;
 
 	while (switched){
@@ -200,7 +206,7 @@ void SPTGSolver::actualizeLambdas(){
 			lambdas[i].setInf(true);
 		else{
 			lambdas[i] = (*vals)[i];
-			lambdas[i].setEps(sptg->getState(i).getVal());
+			lambdas[i].setEps(sptg->getState(i).getValue());
 		}
 		//The P1 will always take the lambda transitions at first
 		if(sptg->getOwner(i)){
@@ -229,7 +235,8 @@ void SPTGSolver::actualizeVals(Value epsilon){
 }
 
 bool SPTGSolver::makeImpSwitchesP1(){
-	cout << "==>Imp1" << endl;
+	if(outputEnabled)
+		cout << "==>Imp1" << endl;
 	bool allDone = false;
 	bool changed = false;
 	bool oneChange = false;
@@ -240,17 +247,20 @@ bool SPTGSolver::makeImpSwitchesP1(){
 			//Owned by P1 because we are checking the improving switches for the P1
 			changed = false;
 			if(sptg->getOwner(state)){
-				cout << "State: " << state << endl;
+				if(outputEnabled)
+					cout << "State: " << state << endl;
 				//cout << "Actual value: " << (*vals)[state] << endl;
 
 				//We don't need to look at the bottom transitions for the player 1 because it goes to MAX and will never be taken
 
 				//Check the lambda transition
 				if(lambdas[state] < (*vals)[state]){
-					cout << "lambda is better" << endl;
+					if(outputEnabled)
+						cout << "lambda is better" << endl;
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
-					cout << (*vals)[state]<< endl;
+					if(outputEnabled)
+						cout << (*vals)[state]<< endl;
 					list<Point>::iterator it = (*valueFcts)[state].begin();
 					++it;
 					(*valueFcts)[state].front().setDest(it->getDest());
@@ -265,7 +275,8 @@ bool SPTGSolver::makeImpSwitchesP1(){
 					//We need to check all transitions for every states except the lambda transition because it is taken by default and the ones that go to "MAX" (fictive state)
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
 						CompositeValue tempVal = (*vals)[nextState] + sptg->getTransition(state, nextState);
-						cout << "tmp: " << tempVal << endl;
+						if(outputEnabled)
+							cout << "tmp: " << tempVal << endl;
 						Value tempLength = (*pathsLengths)[nextState] + 1;
 
 						if(solvePTG && ((*resets)[state][nextState] != -1) &&  ((*resets)[state][nextState] < (*vals)[state])){//If we have an improvement, we update the values found
@@ -273,7 +284,8 @@ bool SPTGSolver::makeImpSwitchesP1(){
 							//cout << "reset ("<< (*resets)[state][nextState] << ") to " << nextState << " is better" << endl;
 							(*vals)[state] = (*resets)[state][nextState];
 							(*vals)[state].setEps(0);
-							cout << (*vals)[state] << endl;
+							if(outputEnabled)
+								cout << (*vals)[state] << endl;
 
 							(*valueFcts)[state].front().setDest(nextState);
 							(*valueFcts)[state].front().setType(3);
@@ -285,7 +297,7 @@ bool SPTGSolver::makeImpSwitchesP1(){
 						else if(((*resets)[state][nextState] == -1) && ((tempVal < (*vals)[state])//If we have an improvement, we update the values found
 								||((tempVal == (*vals)[state]) && (tempLength < (*pathsLengths)[state])))){
 							if(!(*vals)[nextState].isInfinity()){
-								(*vals)[state].setVal(tempVal.getVal());
+								(*vals)[state].setValue(tempVal.getValue());
 								(*vals)[state].setEps((*vals)[nextState].getEps());
 							}
 							else
@@ -307,12 +319,14 @@ bool SPTGSolver::makeImpSwitchesP1(){
 		}
 
 	}
-	cout << "changed: " << changed << endl;
+	if(outputEnabled)
+		cout << "changed: " << changed << endl;
 	return oneChange;
 }
 
 bool SPTGSolver::makeImpSwitchesP2(){
-	cout << "==>Imp2" << endl;
+	if(outputEnabled)
+		cout << "==>Imp2" << endl;
 	bool allDone = false;
 	bool changed = false;
 	bool oneChange = false;
@@ -324,17 +338,22 @@ bool SPTGSolver::makeImpSwitchesP2(){
 			//Owned by P2 because we are checking the improving switches for the P2
 			changed = false;
 			if(!sptg->getOwner(state)){
-				cout << "State: " << state << endl;
-				cout << "Actual value: " << (*vals)[state]<< endl;
+				if(outputEnabled)
+					cout << "State: " << state << endl;
+				if(outputEnabled)
+					cout << "Actual value: " << (*vals)[state]<< endl;
 				//We don't need to take a look at the bottom transitions because the lambda transitions will always be better for P2
 
-				cout << lambdas[state] << endl;
+				if(outputEnabled)
+					cout << lambdas[state] << endl;
 				//Check the lambda transition
 				if(lambdas[state] > (*vals)[state] || !updated[state]){
-					cout << "lambda is better" << endl;
+					if(outputEnabled)
+						cout << "lambda is better" << endl;
 					//If we have an improvement, we update the values found
 					(*vals)[state] = lambdas[state];
-					cout << (*vals)[state]<< endl;
+					if(outputEnabled)
+						cout << (*vals)[state]<< endl;
 					list<Point>::iterator it = (*valueFcts)[state].begin();
 					++it;
 					(*valueFcts)[state].front().setDest(it->getDest());
@@ -347,20 +366,25 @@ bool SPTGSolver::makeImpSwitchesP2(){
 				}
 
 				for (unsigned int nextState = 0; nextState < size; ++nextState){
-					cout << "state " << state << " to " << nextState << endl;
+					if(outputEnabled)
+						cout << "state " << state << " to " << nextState << endl;
 					if(sptg->getTransition(state, nextState) != -1){//If the transition exists
-						cout << (*vals)[nextState] << endl;
+						if(outputEnabled)
+							cout << (*vals)[nextState] << endl;
 						CompositeValue tempVal = (*vals)[nextState] + sptg->getTransition(state, nextState);
 						Value tempLength = (*pathsLengths)[nextState] + 1;
-						cout << "temp: " << tempLength << endl;
+						if(outputEnabled)
+							cout << "temp: " << tempLength << endl;
 
 						if(!tempLength.isInfinity()){
 							//Check if the reset exists and is better
 							if(solvePTG && ((*resets)[state][nextState] != -1) &&  ((*resets)[state][nextState] > (*vals)[state])){//If we have an improvement, we update the values found
-								cout << "reset to " << nextState << " is better" << endl;
+								if(outputEnabled)
+									cout << "reset to " << nextState << " is better" << endl;
 								(*vals)[state] = (*resets)[state][nextState];
 								(*vals)[state].setEps(0);
-								cout << (*vals)[state] << endl;
+								if(outputEnabled)
+									cout << (*vals)[state] << endl;
 
 								(*valueFcts)[state].front().setDest(nextState);
 								(*valueFcts)[state].front().setType(3);
@@ -370,21 +394,26 @@ bool SPTGSolver::makeImpSwitchesP2(){
 								updated[state] = true;
 
 							}
-							cout << "tempVal: " << tempVal << endl;
-							cout << "val: " << (*vals)[state] << endl;
+							if(outputEnabled)
+								cout << "tempVal: " << tempVal << endl;
+							if(outputEnabled)
+								cout << "val: " << (*vals)[state] << endl;
 							if(!(*vals)[state].isInfinity() && ((*valueFcts)[nextState].front().getDest() != state) && ((*resets)[state][nextState] == -1) &&
 									((tempVal > (*vals)[state])
 											||((tempVal == (*vals)[state]) && (tempLength > (*pathsLengths)[state])))){
-								cout << "to " << nextState << " is better" << endl;
+								if(outputEnabled)
+									cout << "to " << nextState << " is better" << endl;
 								//If we have an improvement, we update the values found
 								if(!(*vals)[nextState].isInfinity()){
-									(*vals)[state].setVal(tempVal.getVal());
+									(*vals)[state].setValue(tempVal.getValue());
 									(*vals)[state].setEps((*vals)[nextState].getEps());
 								}
 								else
 									(*vals)[state].setInf(true);
-								cout << (*vals)[state] << endl;
-								cout << tempLength << endl;
+								if(outputEnabled)
+									cout << (*vals)[state] << endl;
+								if(outputEnabled)
+									cout << tempLength << endl;
 
 								(*pathsLengths)[state] = tempLength;
 								(*valueFcts)[state].front().setDest(nextState);
@@ -420,7 +449,8 @@ void SPTGSolver::propagate(unsigned int state){
 	checked[state] = true;
 	while (!q.empty() ){
 		unsigned int tmpState = q.front();
-		cout << "front: " << tmpState << endl;
+		if(outputEnabled)
+			cout << "front: " << tmpState << endl;
 		for(unsigned int i = 1; i < size; ++i){
 			if((*valueFcts)[i].front().getDest() == tmpState && !checked[i] && (*valueFcts)[i].front().getType() == 0){
 				//cout  << "Not checked yet" << endl;
@@ -475,7 +505,8 @@ void SPTGSolver::buildValueFcts(Value epsilon){
 }
 
 Value SPTGSolver::nextEventPoint(){
-	cout << "====NextEventPoint===" << endl;
+	if(outputEnabled)
+		cout << "====NextEventPoint===" << endl;
 	Value min;
 	min.setInf(true);
 
@@ -487,7 +518,7 @@ Value SPTGSolver::nextEventPoint(){
 
 		if(!(*vals)[state].isInfinity() && !lambdas[state].isInfinity() && (*vals)[state] != lambdas[state]){
 			//cout << (*vals)[state] << " ?!= " << lambdas[state] << endl;
-			tempMin = ((*vals)[state].getVal() - lambdas[state].getVal())/(lambdas[state].getEps() - (*vals)[state].getEps());
+			tempMin = ((*vals)[state].getValue() - lambdas[state].getValue())/(lambdas[state].getEps() - (*vals)[state].getEps());
 			//cout << "tempmin: " << tempMin << endl;
 			if(tempMin <= 0)
 				tempMin.setInf(true);
@@ -503,7 +534,7 @@ Value SPTGSolver::nextEventPoint(){
 			if(solvePTG && (*resets)[state][nextState] != -1 && sptg->getTransition(state, nextState) != -1 && (*vals)[state].getEps() != 0 && sptg->getOwner(state) == 0){
 				//If we are solving a PTG (with resets), if there is a reset and the state belongs to P2 because it goes to the target
 
-				//tempMin = ((*vals)[state].getVal() - (*resets)[state][nextState].getVal())/(*vals)[state].getEps();
+				//tempMin = ((*vals)[state].getValue() - (*resets)[state][nextState].getValue())/(*vals)[state].getEps();
 
 				//cout << "reset" << tempMin << endl;
 				if(tempMin <= 0)
@@ -512,11 +543,11 @@ Value SPTGSolver::nextEventPoint(){
 				if(tempMin < min)
 					min = tempMin;
 			}
-			else if((*resets)[state][nextState] == -1 && sptg->getTransition(state, nextState) != -1 && ((*vals)[state].getVal() != (*vals)[nextState].getVal() + sptg->getTransition(state, nextState).getVal()) &&
+			else if((*resets)[state][nextState] == -1 && sptg->getTransition(state, nextState) != -1 && ((*vals)[state].getValue() != (*vals)[nextState].getValue() + sptg->getTransition(state, nextState).getValue()) &&
 					((*vals)[nextState].getEps() != (*vals)[state].getEps()))
 			{
-				//cout << "(" << (*vals)[state].getVal() << " - (" << (*vals)[nextState].getVal() << " + " << sptg->getTransition(state, nextState).getVal() << ")) / (" << (*vals)[nextState].getEps() << " - " << (*vals)[state].getEps() << ")" << endl;
-				tempMin = ((*vals)[state].getVal() - ((*vals)[nextState].getVal() + sptg->getTransition(state, nextState).getVal()))/((*vals)[nextState].getEps() - (*vals)[state].getEps());
+				//cout << "(" << (*vals)[state].getValue() << " - (" << (*vals)[nextState].getValue() << " + " << sptg->getTransition(state, nextState).getValue() << ")) / (" << (*vals)[nextState].getEps() << " - " << (*vals)[state].getEps() << ")" << endl;
+				tempMin = ((*vals)[state].getValue() - ((*vals)[nextState].getValue() + sptg->getTransition(state, nextState).getValue()))/((*vals)[nextState].getEps() - (*vals)[state].getEps());
 				//cout << tempMin << endl;
 				if(tempMin <= 0)
 					tempMin.setInf(true);

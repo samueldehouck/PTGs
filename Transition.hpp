@@ -12,7 +12,7 @@ class Transition{
 	//This class is used to save changements of transitions accessibles
 public:  
 	unsigned int origin, dest;
-	Value cost;
+	Value val;
 
 	Transition();
 	Transition(unsigned int, unsigned int, Value);

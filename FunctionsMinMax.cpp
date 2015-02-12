@@ -7,20 +7,19 @@
 
 using namespace std;
 FunctionsMinMax::FunctionsMinMax() {
-	// TODO Auto-generated constructor stub
 
 }
 
 FunctionsMinMax::~FunctionsMinMax() {
-	// TODO Auto-generated destructor stub
 }
 
 void FunctionsMinMax::nextPoint(list<Point>* result, Point fStart, Point fEnd, Point gStart, Point gEnd, unsigned int state, Value cost, bool max){
 
-	cout << "NextPoint" << endl;
-	cout << "(" << fStart.getX() << "," << fStart.getY() << ") - (" << fEnd.getX() << "," << fEnd.getY() << ")" << endl;
-	cout << "(" << gStart.getX() << "," << gStart.getY()+cost << ") - (" << gEnd.getX() << "," << gEnd.getY()+cost << ")" << endl;
-
+	if(outputEnabled){
+		cout << "NextPoint" << endl;
+		cout << "(" << fStart.getX() << "," << fStart.getY() << ") - (" << fEnd.getX() << "," << fEnd.getY() << ")" << endl;
+		cout << "(" << gStart.getX() << "," << gStart.getY()+ cost << ") - (" << gEnd.getX() << "," << gEnd.getY() + cost << ")" << endl;
+	}
 	if(fStart.getY() > gStart.getY() + cost && fEnd.getY() > gEnd.getY() + cost){
 		if(max){
 			result->push_back(Point(fStart.getX(), fStart.getY(), fStart.getStrategy()));
@@ -44,7 +43,9 @@ void FunctionsMinMax::nextPoint(list<Point>* result, Point fStart, Point fEnd, P
 	}
 	else{
 		//There is an intersection
-		cout << "intersection" << endl;
+		if(outputEnabled){
+			cout << "intersection" << endl;
+		}
 		Value coefF = (fEnd.getY() - fStart.getY())/(fEnd.getX() - fStart.getX());
 		Value coefG = (gEnd.getY() - gStart.getY())/(gEnd.getX() - gStart.getX());
 		Value zeroF = fStart.getY() - fStart.getX() * coefF;
@@ -111,14 +112,14 @@ void FunctionsMinMax::clean(list<Point>* f){
 		++itCurrent;
 		for (list<Point>::iterator itLast = f->begin(); itNext != f->end(); ++itNext){
 			bool deleted = false;
-			if(!itLast->getY().isInfinity() && !itCurrent->getY().isInfinity() && !itNext->getY().isInfinity() && (itLast->getX().getVal() <= itCurrent->getX().getVal()) && (itCurrent->getX().getVal() <= itNext->getX().getVal())){
+			if(!itLast->getY().isInfinity() && !itCurrent->getY().isInfinity() && !itNext->getY().isInfinity() && (itLast->getX().getValue() <= itCurrent->getX().getValue()) && (itCurrent->getX().getValue() <= itNext->getX().getValue())){
 				Value coef = (itNext->getY() - itLast->getY())/(itNext->getX() - itLast->getX());
 				if(itLast->getY() + (coef * (itCurrent->getX() - itLast->getX())) == itCurrent->getY()){
 					f->erase(itCurrent);
 					deleted = true;
 				}
 			}
-			else if(itLast->getY().isInfinity() && itCurrent->getY().isInfinity() && itNext->getY().isInfinity()&& (itLast->getX().getVal() <= itCurrent->getX().getVal()) && (itCurrent->getX().getVal() <= itNext->getX().getVal())){
+			else if(itLast->getY().isInfinity() && itCurrent->getY().isInfinity() && itNext->getY().isInfinity()&& (itLast->getX().getValue() <= itCurrent->getX().getValue()) && (itCurrent->getX().getValue() <= itNext->getX().getValue())){
 				f->erase(itCurrent);
 				deleted = true;
 			}
@@ -138,7 +139,9 @@ void FunctionsMinMax::clean(list<Point>* f){
 list<Point>* FunctionsMinMax::tryWaiting(list<Point>* f, Value coefWait, bool max){
 	//Checks if waiting in the state gives a better value fct
 
-	cout << "Waiting" << endl;
+	if(outputEnabled){
+		cout << "Waiting" << endl;
+	}
 	list<Point>* result = new list<Point> ();
 
 	list<Point>::reverse_iterator fEnd = f->rbegin();
@@ -154,8 +157,8 @@ list<Point>* FunctionsMinMax::tryWaiting(list<Point>* f, Value coefWait, bool ma
 		Value zeroF = fEnd->getY() - fEnd->getX()*coefF;
 		if(!waiting){
 			zeroWait = fEnd->getY() - fEnd->getX()*coefWait;
-
-			cout << fEnd->getStrategy().getType() << endl;
+			if(outputEnabled)
+				cout << fEnd->getStrategy().getType() << endl;
 			result->push_front(Point(fEnd->getX(), fEnd->getY(), fEnd->getStrategy()));
 
 
@@ -197,7 +200,7 @@ list<Point>* FunctionsMinMax::tryWaiting(list<Point>* f, Value coefWait, bool ma
 		result->push_front(Point(0, fEnd->getY(), Strategy(fEnd->getDest(),0,false)));
 
 	}
-
+	delete f;
 	return result;
 }
 
@@ -219,13 +222,12 @@ void FunctionsMinMax::sync(list<Point>* f, list<Point>* g){
 			Value zeroG = itG->getY() - itG->getX() * coefG;
 			cout << itFNext->getX() <<  " " << itGNext->getX() << endl;
 			if(itGNext->getX() < itFNext->getX()){
-				cout << "ici" << endl;
-				f->insert(itFNext,Point(itGNext->getX(),zeroF + coefF* itGNext->getX(), itF->getStrategy()));
+				if(outputEnabled)
+					f->insert(itFNext,Point(itGNext->getX(),zeroF + coefF* itGNext->getX(), itF->getStrategy()));
 				itG = itGNext;
 				++itGNext;
 			}
 			else if(itGNext->getX() > itFNext->getX()){
-				cout << "la" << endl;
 				g->insert(itGNext,Point(itFNext->getX(),zeroG + coefG* itFNext->getX(), itG->getStrategy()));
 				itF = itFNext;
 				++itFNext;
@@ -242,41 +244,45 @@ void FunctionsMinMax::sync(list<Point>* f, list<Point>* g){
 
 list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int crtState, list<Point>* g, unsigned int state, bool max, Value cost){
 
-	cout << "MinMax state " << crtState << " and " << state << endl;
-	cout << "f: " << endl;
 	list<Point>::iterator it = f->begin();
-	while (it != f->end()){
-		cout << "(" << it->getX() << "," << it->getY() << ") ";
-		++it;
-	}
-	cout << endl;
-	cout << "g: " << endl;
-	it = g->begin();
-	while (it != g->end()){
-		cout << "(" << it->getX() << "," << it->getY() + cost << ") ";
-		++it;
-	}
-	cout << endl;
 
+	if(outputEnabled){
+		cout << "MinMax state " << crtState << " and " << state << endl;
+		cout << "f: " << endl;
+		list<Point>::iterator it = f->begin();
+		while (it != f->end()){
+			cout << "(" << it->getX() << "," << it->getY() << ") ";
+			++it;
+		}
+		cout << endl;
+		cout << "g: " << endl;
+		it = g->begin();
+		while (it != g->end()){
+			cout << "(" << it->getX() << "," << it->getY() + cost << ") ";
+			++it;
+		}
+		cout << endl;
+	}
 	list<Point>* result = new list<Point>();
 	sync(f,g);
 
-
-	cout << "after sync" << endl;
-	cout << "f: " << endl;
-	it = f->begin();
-	while (it != f->end()){
-		cout << "(" << it->getX() << "," << it->getY() << ") ";
-		++it;
+	if(outputEnabled){
+		cout << "after sync" << endl;
+		cout << "f: " << endl;
+		it = f->begin();
+		while (it != f->end()){
+			cout << "(" << it->getX() << "," << it->getY() << ") ";
+			++it;
+		}
+		cout << endl;
+		cout << "g: " << endl;
+		it = g->begin();
+		while (it != g->end()){
+			cout << "(" << it->getX() << "," << it->getY() + cost << ") ";
+			++it;
+		}
+		cout << endl;
 	}
-	cout << endl;
-	cout << "g: " << endl;
-	it = g->begin();
-	while (it != g->end()){
-		cout << "(" << it->getX() << "," << it->getY() + cost << ") ";
-		++it;
-	}
-	cout << endl;
 	//We consider that f is the function of the current state (the one that will be replaced)
 
 	list<Point>::iterator itF = f->begin();
@@ -326,16 +332,16 @@ list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int
 			++itFNext;
 			itG = itGNext;
 			++itGNext;
-
-			cout << "Result: " << endl;
-			it = result->begin();
-			while (it != result->end()){
-				cout << "(" << it->getX() << "," << it->getY() << ") ";
-				++it;
+			if(outputEnabled){
+				cout << "Result: " << endl;
+				it = result->begin();
+				while (it != result->end()){
+					cout << "(" << it->getX() << "," << it->getY() << ") ";
+					++it;
+				}
+				cout << endl;
 			}
-			cout << endl;
 		}
-
 		//Add the last point (in time 1)
 		if(itF->getY() > itG->getY() + cost){
 			if(max){
@@ -357,6 +363,19 @@ list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int
 			result->push_back(Point(itF->getX(), itF->getY(), itF->getStrategy()));
 
 		}
+		if(outputEnabled){
+			cout << "Result: " << endl;
+			it = result->begin();
+			while (it != result->end()){
+				cout << "(" << it->getX() << "," << it->getY() << ") ";
+				++it;
+			}
+			cout << endl;
+			cout << "clean" << endl;
+		}
+		clean (result);
+	}
+	if(outputEnabled){
 		cout << "Result: " << endl;
 		it = result->begin();
 		while (it != result->end()){
@@ -364,17 +383,7 @@ list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int
 			++it;
 		}
 		cout << endl;
-		cout << "clean" << endl;
-		clean (result);
 	}
-	cout << "Result: " << endl;
-	it = result->begin();
-	while (it != result->end()){
-		cout << "(" << it->getX() << "," << it->getY() << ") ";
-		++it;
-	}
-	cout << endl;
-
 
 
 	result = tryWaiting(result, sptg->getState(crtState), max);
@@ -383,14 +392,15 @@ list<Point>* FunctionsMinMax::getMinMax(SPTG* sptg, list<Point>* f, unsigned int
 	clean(g);
 	clean(result);
 
-	cout << "Result after wait: " << endl;
-	it = result->begin();
-	while (it != result->end()){
-		cout << "(" << it->getX() << "," << it->getY() << ") ";
-		++it;
+	if(outputEnabled){
+		cout << "Result after wait: " << endl;
+		it = result->begin();
+		while (it != result->end()){
+			cout << "(" << it->getX() << "," << it->getY() << ") ";
+			++it;
+		}
+		cout << endl;
 	}
-	cout << endl;
-
-
+	delete f;
 	return result;
 }
