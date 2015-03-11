@@ -19,6 +19,8 @@ private:
 	void timeConsts();
 	void timeWeights();
 	void timeRates();
+	void timeRatesWeights();
+	void recupBPs();
 public:
 	PerfEvaluator();
 	PerfEvaluator(double);

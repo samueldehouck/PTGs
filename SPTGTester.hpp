@@ -16,6 +16,7 @@ class SPTGTester {
 public:
 	SPTGTester();
 	void test();
+	void debug(unsigned int);
 	virtual ~SPTGTester();
 private:
 	bool compareVF(unsigned int, vector<list<Point> >*,vector<list<Point> >*);

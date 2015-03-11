@@ -93,3 +93,20 @@ bool SPTGTester::compareVF(unsigned int size, vector<list<Point> >* vFSI, vector
 	}
 	return true;
 }
+
+void SPTGTester::debug(unsigned int version){
+	unsigned int states = 6;
+	unsigned int trans = 20;
+	PTGFactory factory;
+	PTG* ptg;
+	PTGSolver* solver;
+	for (unsigned i = 0; i < 1000000; ++i){
+		cerr << i << endl;
+		ptg = factory.buildSPTG(states, trans, 300,300);
+		ptg->write("samples/prob.txt");
+		solver = new PTGSolver();
+		solver->solvePTG(ptg,false,version,false);
+		delete solver;
+		delete ptg;
+	}
+}

@@ -79,7 +79,7 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 			//Up to the max interval
 			while(itNext != (*valueFcts)[i].end() && itNext->getX() != (*valueFcts)[i].back().getX()){
 				if(it->getX() == 0 && it->getInclusion()){
-					f << "\\draw (" << it->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny {$ " << it->getX().getValue()<< "$ }}; " << endl;
+					f << "\\draw (" << it->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny { $ " << it->getX().getValue()<< "$ }}; " << endl;
 
 				}
 				if(it->getX() != itNext->getX()){
@@ -87,14 +87,14 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 					if(!it->getY().isInfinity()){
 
 						f << "\\draw [gray](" << it->getX().getValue().asDouble()*scaleX + x* length + x << ", " << it->getY().getValue().asDouble()*scale <<") -- (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x << "," << itNext->getY().getValue().asDouble()*scale << ");" << endl;
-						f << "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny {$ " << itNext->getX().getValue()<< "$}}; " << endl;
+						f << "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny { $ " << itNext->getX().getValue()<< "$}}; " << endl;
 
 						indexes.push_back(it->getY().getValue());
 					}
 
 					else{
 						f << "\\draw [gray](" << it->getX().getValue().asDouble()*scaleX + x* length + x << ", " << high + 1 <<") -- (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x << "," << high + 1 << ");" << endl;
-						f << "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny {$ " << itNext->getX().getValue()<< "$}}; " << endl;
+						f << "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny { $ " << itNext->getX().getValue()<< "$}}; " << endl;
 						inf = true;
 					}
 
@@ -225,9 +225,9 @@ void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 				f << "\\draw [" << color << "] (" << (it->getX().getValue()/ maxX * Fraction(length) + x).asDouble() << "," << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length))  + 1).asDouble()<< ") -- (" << (itNext->getX().getValue()/maxX  * Fraction(length) + x).asDouble()<< "," << (Fraction(it->getDest()) / Fraction(maxY) * Fraction(length) + 1).asDouble()<< ");" << endl;
 				f << "\\draw (" << (it->getX().getValue() / maxX * Fraction(length) + x).asDouble() << ",0) node[below] {\\tiny$" << it->getX().getValue() << "$};" << endl;
 				if(ptg->hasLabels())
-					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny$" << ptg->getLabel(it->getDest()) << "$};" << endl;
+					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny $" << ptg->getLabel(it->getDest()) << "$};" << endl;
 				else
-					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length))+ 1).asDouble() << ") node[left] {\\tiny$" << it->getDest() << "$};" << endl;
+					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length))+ 1).asDouble() << ") node[left] {\\tiny $" << it->getDest() << "$};" << endl;
 			}
 
 			if(it->getInclusion() && itNext->getX().getValue() != maxX && ((itNext != (*valueFcts)[i].end() && itNext->getDest() != it->getDest()) || it->getX().getValue() == 0 || it->getX().getValue() == maxX)){
@@ -236,9 +236,9 @@ void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 
 					f << "\\draw[" << colorNext << ",fill=white] (" << (itNext->getX().getValue()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length) + 1 << ") circle (0.07);" << endl;
 					if(ptg->hasLabels())
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny$" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny $" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
 					else
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length))+ 1).asDouble() << ") node[left] {\\tiny$" << itNext->getDest() << "$};" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length))+ 1).asDouble() << ") node[left] {\\tiny $" << itNext->getDest() << "$};" << endl;
 
 				}
 				else if(itNext->getInclusion() && itNext != (*valueFcts)[i].end() && itNext->getDest() != it->getDest() && it->getX().getValue() != 0 && it->getX().getValue() != maxX && itNext->getX().getValue() != maxX){
@@ -247,9 +247,9 @@ void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 					f << "\\node [circle,draw,fill="<< colorNext <<",scale=0.4] at (" << (itNext->getX().getValue()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length) + 1 << ") {};" << endl;
 
 					if(ptg->hasLabels())
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny$" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny $" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
 					else
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny$" << itNext->getDest() << "$};" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny $" << itNext->getDest() << "$};" << endl;
 
 				}
 				else{
@@ -265,18 +265,18 @@ void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 					cout << "time: " << itNext->getX().getValue() << endl;
 				if(itNext != (*valueFcts)[i].end() && itNext->getDest() != it->getDest()){
 					if(ptg->hasLabels())
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny$" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny $" << ptg->getLabel(itNext->getDest()) << "$};" << endl;
 					else
-						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny$" << itNext->getDest() << "$};" << endl;
+						f << "\\draw (0,"  << ((Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny $" << itNext->getDest() << "$};" << endl;
 					f << "\\draw[fill=" << colorNext << "] (" << (itNext->getX().getValue()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(itNext->getDest())/ Fraction(maxY) * Fraction(length)+ 1 << ") circle (0.07);" << endl;
 				}
 			}
 			else if(it->getInclusion() && it->getX().getValue() == 0){
 				f << "\\draw[fill=" << color << "] (" << (it->getX().getValue()/ maxX * Fraction(length) + x).asDouble() << "," << Fraction(it->getDest())/ Fraction(maxY) * Fraction(length) + 1 << ") circle (0.07);" << endl;
 				if(ptg->hasLabels())
-					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny$" << ptg->getLabel(it->getDest()) << "$};" << endl;
+					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny $" << ptg->getLabel(it->getDest()) << "$};" << endl;
 				else
-					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny$" << it->getDest() << "$};" << endl;
+					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny $" << it->getDest() << "$};" << endl;
 
 			}
 

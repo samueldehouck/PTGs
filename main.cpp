@@ -29,6 +29,7 @@ int main(int argc, char *argv[]){
 	bool perf = false;
 	bool test = false;
 	bool output = false;
+	bool debug = false;
 	unsigned int version = 1;
 	char* file = NULL;
 	char* fctsFile = NULL;
@@ -36,6 +37,8 @@ int main(int argc, char *argv[]){
 	for (int i = 1; i < argc; ++i){
 		if (strcmp(argv[i], "-test") == 0)
 			test = true;
+		else if (strcmp(argv[i], "-debug") == 0)
+			debug = true;
 		else if(strcmp(argv[i], "-perf") == 0)
 			perf = true;
 		else if (strcmp(argv[i], "-vi") == 0)
@@ -47,6 +50,7 @@ int main(int argc, char *argv[]){
 		else
 			file = argv[i];
 	}
+
 	if(output){
 		outputEnabled = true;
 	}
@@ -54,6 +58,10 @@ int main(int argc, char *argv[]){
 	if (test){
 		SPTGTester tester;
 		tester.test();
+	}
+	else if(debug){
+		SPTGTester tester;
+		tester.debug(version);
 	}
 	else if(fctsFile != NULL){
 		PTGFactory factory;
