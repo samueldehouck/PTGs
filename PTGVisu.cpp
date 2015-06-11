@@ -27,8 +27,8 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 	unsigned int size = ptg->getSize();
 
 	unsigned int nbResets = ptg->getNbResets();
-	double length = 3;
-	double high = 3;
+	double length = 6;
+	double high = 6;
 	f.open("valueFcts.tex");
 	f << "\\documentclass{article}" << endl;
 	f << "\\usepackage{tikz}" << endl;
@@ -87,14 +87,15 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 					if(!it->getY().isInfinity()){
 
 						f << "\\draw [gray](" << it->getX().getValue().asDouble()*scaleX + x* length + x << ", " << it->getY().getValue().asDouble()*scale <<") -- (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x << "," << itNext->getY().getValue().asDouble()*scale << ");" << endl;
-						f << "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny { $ " << itNext->getX().getValue()<< "$}}; " << endl;
+						f << "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny { $ \\frac{" << itNext->getX().getValue().num <<"}{" << itNext->getX().getValue().den << "}$}}; " << endl;
 
 						indexes.push_back(it->getY().getValue());
 					}
 
 					else{
 						f << "\\draw [gray](" << it->getX().getValue().asDouble()*scaleX + x* length + x << ", " << high + 1 <<") -- (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x << "," << high + 1 << ");" << endl;
-						f << "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny { $ " << itNext->getX().getValue()<< "$}}; " << endl;
+						f << "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny { $ \\frac{" << itNext->getX().getValue().num <<"}{" << itNext->getX().getValue().den << "}$}}; " << endl;
+
 						inf = true;
 					}
 
@@ -119,7 +120,8 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 
 			if(!it->getY().isInfinity()){
 				f << "\\draw [gray](" << it->getX().getValue().asDouble()*scaleX + x * length + x << ", " << it->getY().getValue().asDouble()*scale <<") -- (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x << "," << itNext->getY().getValue().asDouble()*scale << ");" << endl;
-				f<< "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny{ $ " << itNext->getX().getValue() << "$}}; " << endl;
+				f<< "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny{ $  \\frac{" << itNext->getX().getValue().num <<"}{" << itNext->getX().getValue().den << "}$}}; " << endl;
+
 
 				indexes.push_back(it->getY().getValue());
 				indexes.push_back(itNext->getY().getValue());
@@ -129,7 +131,8 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 
 			else{
 				f << "\\draw[gray] (" << it->getX().getValue().asDouble()*scaleX + x* length + x << ", " << high + 1 <<") -- (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x << "," << high + 1 << ");" << endl;
-				f << "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny{ $ " << itNext->getX().getValue()<< "$}}; " << endl;
+				f << "\\draw (" << itNext->getX().getValue().asDouble()*scaleX + x* length + x <<",0) node[below] {\\tiny{ $ \\frac{" << itNext->getX().getValue().num <<"}{" << itNext->getX().getValue().den << "}$}}; " << endl;
+
 				inf = true;
 			}
 
@@ -159,7 +162,7 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 		}
 
 		if (inf)
-			f << "\\draw (0," <<  high + 1 << ") node[left] {$inf$};" << endl;
+			f << "\\draw (0," <<  high + 1 << ") node[left] {$+\\infty$};" << endl;
 
 
 		f << "\\end{tikzpicture}" << endl;
@@ -173,7 +176,7 @@ void PTGVisu::visualizeVals(PTG* ptg, vector<list<Point> >* valueFcts){
 
 void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 	ofstream f;
-	const int length = 3;
+	const int length = 6;
 
 	unsigned int size = ptg->getSize();
 
@@ -223,7 +226,11 @@ void PTGVisu::visualizeStrats(PTG* ptg, vector<list<Point> >* valueFcts){
 			//Draw the line
 			if(itNext != (*valueFcts)[i].end() && itNext->getX().getValue() != 0){
 				f << "\\draw [" << color << "] (" << (it->getX().getValue()/ maxX * Fraction(length) + x).asDouble() << "," << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length))  + 1).asDouble()<< ") -- (" << (itNext->getX().getValue()/maxX  * Fraction(length) + x).asDouble()<< "," << (Fraction(it->getDest()) / Fraction(maxY) * Fraction(length) + 1).asDouble()<< ");" << endl;
-				f << "\\draw (" << (it->getX().getValue() / maxX * Fraction(length) + x).asDouble() << ",0) node[below] {\\tiny$" << it->getX().getValue() << "$};" << endl;
+				if(it->getX().getValue().den != 1)
+					f << "\\draw (" << (it->getX().getValue() / maxX * Fraction(length) + x).asDouble() << ",0) node[below] {\\tiny {$ \\frac{" << it->getX().getValue().num <<"}{" << it->getX().getValue().den << "}$}}; " << endl;
+				else
+					f << "\\draw (" << (it->getX().getValue() / maxX * Fraction(length) + x).asDouble() << ",0) node[below] {\\tiny {$ "<< it->getX().getValue() << "$}}; " << endl;
+
 				if(ptg->hasLabels())
 					f << "\\draw (0,"  << ((Fraction(it->getDest())/ Fraction(maxY) * Fraction(length)) + 1).asDouble() << ") node[left] {\\tiny $" << ptg->getLabel(it->getDest()) << "$};" << endl;
 				else

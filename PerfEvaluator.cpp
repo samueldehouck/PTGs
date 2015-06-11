@@ -186,8 +186,10 @@ void PerfEvaluator::recupBPs(){
 
 	string line;
 	ifstream file ("results/bps.txt");
+	unsigned int maxLine = 200000;
 	if(file.is_open()){
-		while (getline(file,line)){
+		unsigned int counter  = 0;
+		while (getline(file,line) && counter < maxLine){
 			cerr << ".";
 			string cnt = "";
 			string time = "";
@@ -199,10 +201,15 @@ void PerfEvaluator::recupBPs(){
 				time += line[i];
 			++counts[atoi(cnt.c_str())];
 			times [atoi(cnt.c_str())] += atoi(time.c_str());
+			++counter;
 		}
 		file.close();
 	}
 	cerr << endl;
+	int cnt = 0;
+	for (unsigned int i = 0; i < 10; ++i)
+		cnt += counts[i];
+	cerr << cnt << endl;
 	for (unsigned int i = 0; i < 10; ++i)
 		if(counts[i] != 0)
 			cerr << counts[i] << ":" << times[i]/counts[i] << " ";
