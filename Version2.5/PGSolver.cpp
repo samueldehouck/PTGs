@@ -185,7 +185,7 @@ bool PGSolver::isLastTransition(unsigned int state, unsigned int nextState, bool
 		return false;
 	}
 	else{
-		for (unsigned int i;isLast && i < ensTransitions[state].size(); ++i){
+		for (unsigned int i = 0;isLast && i < ensTransitions[state].size(); ++i){
 			if((i != nextState) && ensTransitions[state][i])
 				isLast = false;
 		}
